@@ -20,6 +20,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -32,7 +33,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 HARNESS_FILES = (
     "sblib.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
     "think_probe.py", "judge.py", "judge3.py", "edge_probes.py", "test_interp.py",
-    "logic_suite.json", "math_suite.json", "longctx_suite.json", "longctx_doc.txt",
+    "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt",
     "SCORING_AGENT.md", "SCORING_QA.md",
 )
 
@@ -45,15 +46,33 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int) -> list[Path]:
+@dataclass(frozen=True)
+class Materialization:
+    files: list[Path]
+    math_sample_ids: list[str]
+    agent_variant: str
+    context_variant: str
+
+
+def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int) -> Materialization:
     """Batch-1 seam for Tasks 5/6/9.
 
     Future generators must write staged files here, validate them, and return their
     relative paths before ``snapshot_harness`` copies and hashes the complete harness.
     """
-    del source_root, seed
     staging.mkdir(parents=True, exist_ok=True)
-    return []
+    pool_path = source_root / "math_pool.json"
+    if not pool_path.exists():
+        # Batch-1 tests use minimal fake roots. Production v2 always commits the pool.
+        return Materialization([], [], "static-pending", "static-pending")
+    from gen_math import sample_pool
+    pool = json.loads(pool_path.read_text())
+    sample = sample_pool(pool, seed)
+    target = staging / "math_suite.json"
+    target.write_text(json.dumps(sample, indent=2) + "\n")
+    # Tasks 6/9 add generated context and agent paths to this same pre-freeze result.
+    return Materialization([Path("math_suite.json")], [item["id"] for item in sample],
+                           "static-pending", "static-pending")
 
 
 def _make_read_only(root: Path) -> None:
@@ -215,13 +234,15 @@ def run(args: argparse.Namespace) -> int:
         run_dir.mkdir(parents=True)
         staging = run_dir / "staging"
         generated = materialize_dynamic_inputs(source_root, staging, args.seed)
-        snapshot = snapshot_harness(source_root, run_dir, list(HARNESS_FILES) + [str(p) for p in generated],
+        files = list(dict.fromkeys(list(HARNESS_FILES) + [str(p) for p in generated.files]))
+        snapshot = snapshot_harness(source_root, run_dir, files,
                                     seed=args.seed, staged_root=staging)
         provenance = capture_provenance(args.base_url, args.container)
         manifest = {"harness_git_commit": _run_json(["git", "-C", str(source_root), "rev-parse", "HEAD"]),
                     "git_dirty": bool(_run_json(["git", "-C", str(source_root), "status", "--porcelain"])),
-                    **snapshot, "scoring_version": 2, "suite_version": "2-pending", "math_sample_ids": [],
-                    "agent_variant": "static-pending", "context_variant": "static-pending", "cmdline": sys.argv,
+                    **snapshot, "scoring_version": 2, "suite_version": "2-pending",
+                    "math_sample_ids": generated.math_sample_ids, "agent_variant": generated.agent_variant,
+                    "context_variant": generated.context_variant, "cmdline": sys.argv,
                     "base_url": args.base_url, "model": args.model, "container": args.container,
                     "phases": phases, "trials": args.trials, "correlation_id": correlation_id,
                     "started_ts": time.time(), **provenance}

@@ -1,0 +1,4152 @@
+[
+  {
+    "id": "easy-000",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      214,
+      15,
+      10
+    ],
+    "q": "A device costs $214, is discounted 15%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 200.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-001",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      681,
+      12,
+      70
+    ],
+    "q": "The sum of 12 numbers is 681. After removing 70, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 55.55,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-002",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      12,
+      51,
+      11
+    ],
+    "q": "What is the remainder when 12^51 is divided by 11? Answer format: {\"answer\": <number>}.",
+    "answer": 1,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-003",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      62,
+      35,
+      6
+    ],
+    "q": "Solve for x: 62x + 35 = 407. Answer format: {\"answer\": <number>}.",
+    "answer": 6,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-004",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      208,
+      10,
+      10
+    ],
+    "q": "A device costs $208, is discounted 10%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 205.92,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-005",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      961,
+      12,
+      53
+    ],
+    "q": "The sum of 12 numbers is 961. After removing 53, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 82.55,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-006",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      11,
+      29,
+      13
+    ],
+    "q": "What is the remainder when 11^29 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 7,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-007",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      69,
+      36,
+      14
+    ],
+    "q": "Solve for x: 69x + 36 = 1002. Answer format: {\"answer\": <number>}.",
+    "answer": 14,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-008",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      269,
+      15,
+      8
+    ],
+    "q": "A device costs $269, is discounted 15%, then has 8% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 246.94,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-009",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      925,
+      11,
+      72
+    ],
+    "q": "The sum of 11 numbers is 925. After removing 72, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 85.3,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-010",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      10,
+      55,
+      13
+    ],
+    "q": "What is the remainder when 10^55 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 10,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-011",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      53,
+      18,
+      7
+    ],
+    "q": "Solve for x: 53x + 18 = 389. Answer format: {\"answer\": <number>}.",
+    "answer": 7,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-012",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      319,
+      20,
+      6
+    ],
+    "q": "A device costs $319, is discounted 20%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 270.51,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-013",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      834,
+      15,
+      46
+    ],
+    "q": "The sum of 15 numbers is 834. After removing 46, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 56.29,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-014",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      16,
+      45,
+      19
+    ],
+    "q": "What is the remainder when 16^45 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 1,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-015",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      87,
+      22,
+      4
+    ],
+    "q": "Solve for x: 87x + 22 = 370. Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-016",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      740,
+      5,
+      8
+    ],
+    "q": "A device costs $740, is discounted 5%, then has 8% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 759.24,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-017",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1019,
+      11,
+      20
+    ],
+    "q": "The sum of 11 numbers is 1019. After removing 20, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 99.9,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-018",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      12,
+      34,
+      17
+    ],
+    "q": "What is the remainder when 12^34 is divided by 17? Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-019",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      36,
+      37,
+      11
+    ],
+    "q": "Solve for x: 36x + 37 = 433. Answer format: {\"answer\": <number>}.",
+    "answer": 11,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-020",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      119,
+      5,
+      4
+    ],
+    "q": "A device costs $119, is discounted 5%, then has 4% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 117.57,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-021",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      895,
+      15,
+      35
+    ],
+    "q": "The sum of 15 numbers is 895. After removing 35, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 61.43,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-022",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      17,
+      78,
+      19
+    ],
+    "q": "What is the remainder when 17^78 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 7,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-023",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      47,
+      37,
+      18
+    ],
+    "q": "Solve for x: 47x + 37 = 883. Answer format: {\"answer\": <number>}.",
+    "answer": 18,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-024",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      329,
+      20,
+      6
+    ],
+    "q": "A device costs $329, is discounted 20%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 278.99,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-025",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      729,
+      8,
+      12
+    ],
+    "q": "The sum of 8 numbers is 729. After removing 12, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 102.43,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-026",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      10,
+      27,
+      17
+    ],
+    "q": "What is the remainder when 10^27 is divided by 17? Answer format: {\"answer\": <number>}.",
+    "answer": 3,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-027",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      64,
+      15,
+      7
+    ],
+    "q": "Solve for x: 64x + 15 = 463. Answer format: {\"answer\": <number>}.",
+    "answer": 7,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-028",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      256,
+      20,
+      6
+    ],
+    "q": "A device costs $256, is discounted 20%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 217.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-029",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      711,
+      15,
+      29
+    ],
+    "q": "The sum of 15 numbers is 711. After removing 29, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 48.71,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-030",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      15,
+      54,
+      17
+    ],
+    "q": "What is the remainder when 15^54 is divided by 17? Answer format: {\"answer\": <number>}.",
+    "answer": 13,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-031",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      71,
+      49,
+      6
+    ],
+    "q": "Solve for x: 71x + 49 = 475. Answer format: {\"answer\": <number>}.",
+    "answer": 6,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-032",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      671,
+      10,
+      8
+    ],
+    "q": "A device costs $671, is discounted 10%, then has 8% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 652.21,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-033",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1044,
+      12,
+      81
+    ],
+    "q": "The sum of 12 numbers is 1044. After removing 81, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 87.55,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-034",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      6,
+      38,
+      13
+    ],
+    "q": "What is the remainder when 6^38 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 10,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-035",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      71,
+      12,
+      16
+    ],
+    "q": "Solve for x: 71x + 12 = 1148. Answer format: {\"answer\": <number>}.",
+    "answer": 16,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-036",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      373,
+      10,
+      8
+    ],
+    "q": "A device costs $373, is discounted 10%, then has 8% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 362.56,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-037",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      846,
+      12,
+      42
+    ],
+    "q": "The sum of 12 numbers is 846. After removing 42, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 73.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-038",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      14,
+      43,
+      13
+    ],
+    "q": "What is the remainder when 14^43 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 1,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-039",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      64,
+      39,
+      9
+    ],
+    "q": "Solve for x: 64x + 39 = 615. Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-040",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      547,
+      5,
+      10
+    ],
+    "q": "A device costs $547, is discounted 5%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 571.62,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-041",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      928,
+      10,
+      90
+    ],
+    "q": "The sum of 10 numbers is 928. After removing 90, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 93.11,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-042",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      11,
+      30,
+      13
+    ],
+    "q": "What is the remainder when 11^30 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 12,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-043",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      37,
+      50,
+      12
+    ],
+    "q": "Solve for x: 37x + 50 = 494. Answer format: {\"answer\": <number>}.",
+    "answer": 12,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-044",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      694,
+      20,
+      8
+    ],
+    "q": "A device costs $694, is discounted 20%, then has 8% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 599.62,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-045",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      565,
+      15,
+      16
+    ],
+    "q": "The sum of 15 numbers is 565. After removing 16, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 39.21,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-046",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      8,
+      65,
+      17
+    ],
+    "q": "What is the remainder when 8^65 is divided by 17? Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-047",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      32,
+      30,
+      4
+    ],
+    "q": "Solve for x: 32x + 30 = 158. Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-048",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      502,
+      15,
+      10
+    ],
+    "q": "A device costs $502, is discounted 15%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 469.37,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-049",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1151,
+      9,
+      78
+    ],
+    "q": "The sum of 9 numbers is 1151. After removing 78, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 134.12,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-050",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      9,
+      55,
+      17
+    ],
+    "q": "What is the remainder when 9^55 is divided by 17? Answer format: {\"answer\": <number>}.",
+    "answer": 2,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-051",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      67,
+      16,
+      19
+    ],
+    "q": "Solve for x: 67x + 16 = 1289. Answer format: {\"answer\": <number>}.",
+    "answer": 19,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-052",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      241,
+      5,
+      10
+    ],
+    "q": "A device costs $241, is discounted 5%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 251.84,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-053",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      517,
+      9,
+      62
+    ],
+    "q": "The sum of 9 numbers is 517. After removing 62, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 56.88,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-054",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      6,
+      59,
+      19
+    ],
+    "q": "What is the remainder when 6^59 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 5,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-055",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      56,
+      46,
+      9
+    ],
+    "q": "Solve for x: 56x + 46 = 550. Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-056",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      519,
+      20,
+      8
+    ],
+    "q": "A device costs $519, is discounted 20%, then has 8% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 448.42,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-057",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      667,
+      16,
+      39
+    ],
+    "q": "The sum of 16 numbers is 667. After removing 39, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 41.87,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-058",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      11,
+      35,
+      13
+    ],
+    "q": "What is the remainder when 11^35 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 6,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-059",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      66,
+      38,
+      16
+    ],
+    "q": "Solve for x: 66x + 38 = 1094. Answer format: {\"answer\": <number>}.",
+    "answer": 16,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-060",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      424,
+      10,
+      6
+    ],
+    "q": "A device costs $424, is discounted 10%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 404.5,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-061",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      912,
+      8,
+      73
+    ],
+    "q": "The sum of 8 numbers is 912. After removing 73, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 119.86,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-062",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      17,
+      39,
+      19
+    ],
+    "q": "What is the remainder when 17^39 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 11,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-063",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      52,
+      35,
+      8
+    ],
+    "q": "Solve for x: 52x + 35 = 451. Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-064",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      562,
+      20,
+      10
+    ],
+    "q": "A device costs $562, is discounted 20%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 494.56,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-065",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1131,
+      15,
+      46
+    ],
+    "q": "The sum of 15 numbers is 1131. After removing 46, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 77.5,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-066",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      11,
+      37,
+      19
+    ],
+    "q": "What is the remainder when 11^37 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 11,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-067",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      82,
+      42,
+      8
+    ],
+    "q": "Solve for x: 82x + 42 = 698. Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-068",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      304,
+      15,
+      10
+    ],
+    "q": "A device costs $304, is discounted 15%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 284.24,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-069",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1104,
+      16,
+      58
+    ],
+    "q": "The sum of 16 numbers is 1104. After removing 58, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 69.73,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-070",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      7,
+      78,
+      11
+    ],
+    "q": "What is the remainder when 7^78 is divided by 11? Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-071",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      65,
+      42,
+      17
+    ],
+    "q": "Solve for x: 65x + 42 = 1147. Answer format: {\"answer\": <number>}.",
+    "answer": 17,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-072",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      418,
+      20,
+      6
+    ],
+    "q": "A device costs $418, is discounted 20%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 354.46,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-073",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1052,
+      15,
+      35
+    ],
+    "q": "The sum of 15 numbers is 1052. After removing 35, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 72.64,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-074",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      11,
+      31,
+      19
+    ],
+    "q": "What is the remainder when 11^31 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 11,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-075",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      76,
+      17,
+      12
+    ],
+    "q": "Solve for x: 76x + 17 = 929. Answer format: {\"answer\": <number>}.",
+    "answer": 12,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-076",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      158,
+      20,
+      4
+    ],
+    "q": "A device costs $158, is discounted 20%, then has 4% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 131.46,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-077",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      686,
+      16,
+      65
+    ],
+    "q": "The sum of 16 numbers is 686. After removing 65, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 41.4,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-078",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      9,
+      21,
+      11
+    ],
+    "q": "What is the remainder when 9^21 is divided by 11? Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-079",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      36,
+      48,
+      8
+    ],
+    "q": "Solve for x: 36x + 48 = 336. Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-080",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      219,
+      20,
+      10
+    ],
+    "q": "A device costs $219, is discounted 20%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 192.72,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-081",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      870,
+      9,
+      39
+    ],
+    "q": "The sum of 9 numbers is 870. After removing 39, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 103.88,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-082",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      8,
+      51,
+      19
+    ],
+    "q": "What is the remainder when 8^51 is divided by 19? Answer format: {\"answer\": <number>}.",
+    "answer": 18,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-083",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      77,
+      15,
+      12
+    ],
+    "q": "Solve for x: 77x + 15 = 939. Answer format: {\"answer\": <number>}.",
+    "answer": 12,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-084",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      326,
+      10,
+      6
+    ],
+    "q": "A device costs $326, is discounted 10%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 311.0,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-085",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      1141,
+      12,
+      73
+    ],
+    "q": "The sum of 12 numbers is 1141. After removing 73, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 97.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-086",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      15,
+      50,
+      13
+    ],
+    "q": "What is the remainder when 15^50 is divided by 13? Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-087",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      66,
+      20,
+      9
+    ],
+    "q": "Solve for x: 66x + 20 = 614. Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-088",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      220,
+      20,
+      6
+    ],
+    "q": "A device costs $220, is discounted 20%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 186.56,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-089",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      599,
+      16,
+      49
+    ],
+    "q": "The sum of 16 numbers is 599. After removing 49, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 36.67,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-090",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      9,
+      46,
+      11
+    ],
+    "q": "What is the remainder when 9^46 is divided by 11? Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-091",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      39,
+      18,
+      6
+    ],
+    "q": "Solve for x: 39x + 18 = 252. Answer format: {\"answer\": <number>}.",
+    "answer": 6,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-092",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      659,
+      5,
+      6
+    ],
+    "q": "A device costs $659, is discounted 5%, then has 6% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 663.61,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-093",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      796,
+      12,
+      23
+    ],
+    "q": "The sum of 12 numbers is 796. After removing 23, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 70.27,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-094",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      6,
+      64,
+      17
+    ],
+    "q": "What is the remainder when 6^64 is divided by 17? Answer format: {\"answer\": <number>}.",
+    "answer": 1,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-095",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      68,
+      29,
+      5
+    ],
+    "q": "Solve for x: 68x + 29 = 369. Answer format: {\"answer\": <number>}.",
+    "answer": 5,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-096",
+    "difficulty": "easy",
+    "kind": "discount_tax",
+    "params": [
+      781,
+      15,
+      10
+    ],
+    "q": "A device costs $781, is discounted 15%, then has 10% tax added. Answer format: {\"answer\": <number>}.",
+    "answer": 730.24,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-097",
+    "difficulty": "easy",
+    "kind": "average_remove",
+    "params": [
+      910,
+      13,
+      29
+    ],
+    "q": "The sum of 13 numbers is 910. After removing 29, what is the new average? Answer format: {\"answer\": <number>}.",
+    "answer": 73.42,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "easy-098",
+    "difficulty": "easy",
+    "kind": "modpow",
+    "params": [
+      7,
+      36,
+      11
+    ],
+    "q": "What is the remainder when 7^36 is divided by 11? Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "easy-099",
+    "difficulty": "easy",
+    "kind": "linear",
+    "params": [
+      70,
+      40,
+      13
+    ],
+    "q": "Solve for x: 70x + 40 = 950. Answer format: {\"answer\": <number>}.",
+    "answer": 13,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-000",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      9,
+      11
+    ],
+    "q": "A job takes worker A 9 hours and worker B 11 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.95,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-001",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      7,
+      14
+    ],
+    "q": "How many committees use 2 of 7 engineers and 3 of 14 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 7644,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-002",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      713,
+      45,
+      67
+    ],
+    "q": "Two trains are 713 km apart and travel toward each other at 45 and 67 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 6.37,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-003",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      6,
+      6
+    ],
+    "q": "3 apples and 2 bananas cost 30. One apple and 4 bananas cost 30. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 6,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-004",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      10,
+      19
+    ],
+    "q": "A job takes worker A 10 hours and worker B 19 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 6.55,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-005",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      10,
+      13
+    ],
+    "q": "How many committees use 2 of 10 engineers and 3 of 13 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 12870,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-006",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      646,
+      37,
+      89
+    ],
+    "q": "Two trains are 646 km apart and travel toward each other at 37 and 89 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 5.13,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-007",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      7,
+      14
+    ],
+    "q": "3 apples and 2 bananas cost 49. One apple and 4 bananas cost 63. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 7,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-008",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      8,
+      14
+    ],
+    "q": "A job takes worker A 8 hours and worker B 14 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-009",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      12,
+      13
+    ],
+    "q": "How many committees use 2 of 12 engineers and 3 of 13 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 18876,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-010",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      574,
+      44,
+      37
+    ],
+    "q": "Two trains are 574 km apart and travel toward each other at 44 and 37 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 7.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-011",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      4,
+      9
+    ],
+    "q": "3 apples and 2 bananas cost 30. One apple and 4 bananas cost 40. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-012",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      7,
+      10
+    ],
+    "q": "A job takes worker A 7 hours and worker B 10 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.12,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-013",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      7,
+      14
+    ],
+    "q": "How many committees use 2 of 7 engineers and 3 of 14 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 7644,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-014",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      621,
+      64,
+      37
+    ],
+    "q": "Two trains are 621 km apart and travel toward each other at 64 and 37 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 6.15,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-015",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      3,
+      5
+    ],
+    "q": "3 apples and 2 bananas cost 19. One apple and 4 bananas cost 23. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 3,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-016",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      7,
+      11
+    ],
+    "q": "A job takes worker A 7 hours and worker B 11 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.28,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-017",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      11,
+      13
+    ],
+    "q": "How many committees use 2 of 11 engineers and 3 of 13 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 15730,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-018",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      492,
+      90,
+      74
+    ],
+    "q": "Two trains are 492 km apart and travel toward each other at 90 and 74 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 3.0,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-019",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      5,
+      8
+    ],
+    "q": "3 apples and 2 bananas cost 31. One apple and 4 bananas cost 37. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 5,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-020",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      10,
+      8
+    ],
+    "q": "A job takes worker A 10 hours and worker B 8 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.44,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-021",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      13,
+      11
+    ],
+    "q": "How many committees use 2 of 13 engineers and 3 of 11 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 12870,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-022",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      376,
+      48,
+      62
+    ],
+    "q": "Two trains are 376 km apart and travel toward each other at 48 and 62 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 3.42,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-023",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      10,
+      11
+    ],
+    "q": "3 apples and 2 bananas cost 52. One apple and 4 bananas cost 54. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 10,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-024",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      11,
+      11
+    ],
+    "q": "A job takes worker A 11 hours and worker B 11 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.5,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-025",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      11,
+      10
+    ],
+    "q": "How many committees use 2 of 11 engineers and 3 of 10 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 6600,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-026",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      663,
+      67,
+      71
+    ],
+    "q": "Two trains are 663 km apart and travel toward each other at 67 and 71 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 4.8,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-027",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      6,
+      20
+    ],
+    "q": "3 apples and 2 bananas cost 58. One apple and 4 bananas cost 86. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 6,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-028",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      8,
+      13
+    ],
+    "q": "A job takes worker A 8 hours and worker B 13 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.95,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-029",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      12,
+      10
+    ],
+    "q": "How many committees use 2 of 12 engineers and 3 of 10 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 7920,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-030",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      240,
+      74,
+      77
+    ],
+    "q": "Two trains are 240 km apart and travel toward each other at 74 and 77 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 1.59,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-031",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      14,
+      14
+    ],
+    "q": "3 apples and 2 bananas cost 70. One apple and 4 bananas cost 70. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 14,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-032",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      9,
+      17
+    ],
+    "q": "A job takes worker A 9 hours and worker B 17 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.88,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-033",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      7,
+      15
+    ],
+    "q": "How many committees use 2 of 7 engineers and 3 of 15 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 9555,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-034",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      550,
+      89,
+      90
+    ],
+    "q": "Two trains are 550 km apart and travel toward each other at 89 and 90 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 3.07,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-035",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      7,
+      18
+    ],
+    "q": "3 apples and 2 bananas cost 57. One apple and 4 bananas cost 79. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 7,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-036",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      11,
+      13
+    ],
+    "q": "A job takes worker A 11 hours and worker B 13 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.96,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-037",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      10,
+      10
+    ],
+    "q": "How many committees use 2 of 10 engineers and 3 of 10 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 5400,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-038",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      680,
+      52,
+      82
+    ],
+    "q": "Two trains are 680 km apart and travel toward each other at 52 and 82 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 5.07,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-039",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      13,
+      12
+    ],
+    "q": "3 apples and 2 bananas cost 63. One apple and 4 bananas cost 61. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 13,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-040",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      6,
+      15
+    ],
+    "q": "A job takes worker A 6 hours and worker B 15 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.29,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-041",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      7,
+      8
+    ],
+    "q": "How many committees use 2 of 7 engineers and 3 of 8 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 1176,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-042",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      775,
+      49,
+      70
+    ],
+    "q": "Two trains are 775 km apart and travel toward each other at 49 and 70 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 6.51,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-043",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      4,
+      13
+    ],
+    "q": "3 apples and 2 bananas cost 38. One apple and 4 bananas cost 56. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-044",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      11,
+      11
+    ],
+    "q": "A job takes worker A 11 hours and worker B 11 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.5,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-045",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      14,
+      9
+    ],
+    "q": "How many committees use 2 of 14 engineers and 3 of 9 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 7644,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-046",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      681,
+      60,
+      78
+    ],
+    "q": "Two trains are 681 km apart and travel toward each other at 60 and 78 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 4.93,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-047",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      5,
+      18
+    ],
+    "q": "3 apples and 2 bananas cost 51. One apple and 4 bananas cost 77. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 5,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-048",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      11,
+      13
+    ],
+    "q": "A job takes worker A 11 hours and worker B 13 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.96,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-049",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      10,
+      11
+    ],
+    "q": "How many committees use 2 of 10 engineers and 3 of 11 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 7425,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-050",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      749,
+      76,
+      58
+    ],
+    "q": "Two trains are 749 km apart and travel toward each other at 76 and 58 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 5.59,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-051",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      8,
+      12
+    ],
+    "q": "3 apples and 2 bananas cost 48. One apple and 4 bananas cost 56. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-052",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      8,
+      11
+    ],
+    "q": "A job takes worker A 8 hours and worker B 11 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.63,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-053",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      14,
+      15
+    ],
+    "q": "How many committees use 2 of 14 engineers and 3 of 15 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 41405,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-054",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      228,
+      70,
+      39
+    ],
+    "q": "Two trains are 228 km apart and travel toward each other at 70 and 39 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 2.09,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-055",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      4,
+      16
+    ],
+    "q": "3 apples and 2 bananas cost 44. One apple and 4 bananas cost 68. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-056",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      5,
+      10
+    ],
+    "q": "A job takes worker A 5 hours and worker B 10 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 3.33,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-057",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      7,
+      14
+    ],
+    "q": "How many committees use 2 of 7 engineers and 3 of 14 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 7644,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-058",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      403,
+      81,
+      90
+    ],
+    "q": "Two trains are 403 km apart and travel toward each other at 81 and 90 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 2.36,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-059",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      14,
+      8
+    ],
+    "q": "3 apples and 2 bananas cost 58. One apple and 4 bananas cost 46. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 14,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-060",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      7,
+      8
+    ],
+    "q": "A job takes worker A 7 hours and worker B 8 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 3.73,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-061",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      8,
+      9
+    ],
+    "q": "How many committees use 2 of 8 engineers and 3 of 9 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 2352,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-062",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      438,
+      56,
+      87
+    ],
+    "q": "Two trains are 438 km apart and travel toward each other at 56 and 87 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 3.06,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-063",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      10,
+      9
+    ],
+    "q": "3 apples and 2 bananas cost 48. One apple and 4 bananas cost 46. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 10,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-064",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      9,
+      15
+    ],
+    "q": "A job takes worker A 9 hours and worker B 15 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.63,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-065",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      14,
+      10
+    ],
+    "q": "How many committees use 2 of 14 engineers and 3 of 10 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 10920,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-066",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      501,
+      74,
+      57
+    ],
+    "q": "Two trains are 501 km apart and travel toward each other at 74 and 57 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 3.82,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-067",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      12,
+      14
+    ],
+    "q": "3 apples and 2 bananas cost 64. One apple and 4 bananas cost 68. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 12,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-068",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      6,
+      20
+    ],
+    "q": "A job takes worker A 6 hours and worker B 20 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.62,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-069",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      10,
+      8
+    ],
+    "q": "How many committees use 2 of 10 engineers and 3 of 8 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 2520,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-070",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      226,
+      54,
+      35
+    ],
+    "q": "Two trains are 226 km apart and travel toward each other at 54 and 35 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 2.54,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-071",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      9,
+      19
+    ],
+    "q": "3 apples and 2 bananas cost 65. One apple and 4 bananas cost 85. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 9,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-072",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      5,
+      14
+    ],
+    "q": "A job takes worker A 5 hours and worker B 14 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 3.68,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-073",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      11,
+      9
+    ],
+    "q": "How many committees use 2 of 11 engineers and 3 of 9 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 4620,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-074",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      464,
+      71,
+      64
+    ],
+    "q": "Two trains are 464 km apart and travel toward each other at 71 and 64 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 3.44,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-075",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      12,
+      17
+    ],
+    "q": "3 apples and 2 bananas cost 70. One apple and 4 bananas cost 80. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 12,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-076",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      8,
+      8
+    ],
+    "q": "A job takes worker A 8 hours and worker B 8 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.0,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-077",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      9,
+      15
+    ],
+    "q": "How many committees use 2 of 9 engineers and 3 of 15 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 16380,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-078",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      721,
+      40,
+      72
+    ],
+    "q": "Two trains are 721 km apart and travel toward each other at 40 and 72 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 6.44,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-079",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      8,
+      6
+    ],
+    "q": "3 apples and 2 bananas cost 36. One apple and 4 bananas cost 32. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-080",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      8,
+      10
+    ],
+    "q": "A job takes worker A 8 hours and worker B 10 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.44,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-081",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      12,
+      12
+    ],
+    "q": "How many committees use 2 of 12 engineers and 3 of 12 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 14520,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-082",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      261,
+      74,
+      55
+    ],
+    "q": "Two trains are 261 km apart and travel toward each other at 74 and 55 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 2.02,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-083",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      5,
+      6
+    ],
+    "q": "3 apples and 2 bananas cost 27. One apple and 4 bananas cost 29. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 5,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-084",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      10,
+      11
+    ],
+    "q": "A job takes worker A 10 hours and worker B 11 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.24,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-085",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      7,
+      9
+    ],
+    "q": "How many committees use 2 of 7 engineers and 3 of 9 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 1764,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-086",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      211,
+      46,
+      90
+    ],
+    "q": "Two trains are 211 km apart and travel toward each other at 46 and 90 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 1.55,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-087",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      13,
+      18
+    ],
+    "q": "3 apples and 2 bananas cost 75. One apple and 4 bananas cost 85. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 13,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-088",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      6,
+      10
+    ],
+    "q": "A job takes worker A 6 hours and worker B 10 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 3.75,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-089",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      10,
+      12
+    ],
+    "q": "How many committees use 2 of 10 engineers and 3 of 12 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 9900,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-090",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      742,
+      54,
+      55
+    ],
+    "q": "Two trains are 742 km apart and travel toward each other at 54 and 55 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 6.81,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-091",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      4,
+      18
+    ],
+    "q": "3 apples and 2 bananas cost 48. One apple and 4 bananas cost 76. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 4,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-092",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      8,
+      10
+    ],
+    "q": "A job takes worker A 8 hours and worker B 10 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 4.44,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-093",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      9,
+      11
+    ],
+    "q": "How many committees use 2 of 9 engineers and 3 of 11 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 5940,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-094",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      355,
+      78,
+      63
+    ],
+    "q": "Two trains are 355 km apart and travel toward each other at 78 and 63 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 2.52,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-095",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      8,
+      17
+    ],
+    "q": "3 apples and 2 bananas cost 58. One apple and 4 bananas cost 76. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 8,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-096",
+    "difficulty": "med",
+    "kind": "work_rate",
+    "params": [
+      7,
+      19
+    ],
+    "q": "A job takes worker A 7 hours and worker B 19 hours alone. How many hours together? Answer format: {\"answer\": <number>}.",
+    "answer": 5.12,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-097",
+    "difficulty": "med",
+    "kind": "committee",
+    "params": [
+      8,
+      10
+    ],
+    "q": "How many committees use 2 of 8 engineers and 3 of 10 designers? Answer format: {\"answer\": <number>}.",
+    "answer": 3360,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "med-098",
+    "difficulty": "med",
+    "kind": "meeting",
+    "params": [
+      612,
+      64,
+      35
+    ],
+    "q": "Two trains are 612 km apart and travel toward each other at 64 and 35 km/h. When meet? Answer format: {\"answer\": <number>}.",
+    "answer": 6.18,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "med-099",
+    "difficulty": "med",
+    "kind": "two_equations",
+    "params": [
+      15,
+      18
+    ],
+    "q": "3 apples and 2 bananas cost 81. One apple and 4 bananas cost 87. What is one apple's cost? Answer format: {\"answer\": <number>}.",
+    "answer": 15,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-000",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      29,
+      2,
+      11,
+      28
+    ],
+    "q": "Find the least nonnegative x with remainders 2, 11, 28 modulo 13, 19, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 4552,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-001",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      34,
+      9
+    ],
+    "q": "Compute the binomial coefficient C(34, 9). Answer format: {\"answer\": <number>}.",
+    "answer": 52451256,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-002",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      20,
+      147
+    ],
+    "q": "Compute the sum of squares from 20 through 147, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1067200,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-003",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      1995,
+      7,
+      10
+    ],
+    "q": "What is $1995 compounded annually at 7% for 10 years? Answer format: {\"answer\": <number>}.",
+    "answer": 3924.47,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-004",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      19,
+      31,
+      8,
+      11,
+      0
+    ],
+    "q": "Find the least nonnegative x with remainders 8, 11, 0 modulo 11, 19, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 5673,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-005",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      18,
+      10
+    ],
+    "q": "Compute the binomial coefficient C(18, 10). Answer format: {\"answer\": <number>}.",
+    "answer": 43758,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-006",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      67,
+      107
+    ],
+    "q": "Compute the sum of squares from 67 through 107, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 316069,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-007",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      8244,
+      7,
+      5
+    ],
+    "q": "What is $8244 compounded annually at 7% for 5 years? Answer format: {\"answer\": <number>}.",
+    "answer": 11562.64,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-008",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      31,
+      4,
+      4,
+      29
+    ],
+    "q": "Find the least nonnegative x with remainders 4, 4, 29 modulo 13, 19, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 1486,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-009",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      27,
+      5
+    ],
+    "q": "Compute the binomial coefficient C(27, 5). Answer format: {\"answer\": <number>}.",
+    "answer": 80730,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-010",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      78,
+      109
+    ],
+    "q": "Compute the sum of squares from 78 through 109, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 282480,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-011",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      4788,
+      6,
+      7
+    ],
+    "q": "What is $4788 compounded annually at 6% for 7 years? Answer format: {\"answer\": <number>}.",
+    "answer": 7199.38,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-012",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      23,
+      29,
+      8,
+      10,
+      12
+    ],
+    "q": "Find the least nonnegative x with remainders 8, 10, 12 modulo 11, 23, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 5783,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-013",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      35,
+      5
+    ],
+    "q": "Compute the binomial coefficient C(35, 5). Answer format: {\"answer\": <number>}.",
+    "answer": 324632,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-014",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      30,
+      154
+    ],
+    "q": "Compute the sum of squares from 30 through 154, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1220750,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-015",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      1286,
+      5,
+      7
+    ],
+    "q": "What is $1286 compounded annually at 5% for 7 years? Answer format: {\"answer\": <number>}.",
+    "answer": 1809.53,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-016",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      23,
+      31,
+      5,
+      8,
+      17
+    ],
+    "q": "Find the least nonnegative x with remainders 5, 8, 17 modulo 13, 23, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 6310,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-017",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      19,
+      10
+    ],
+    "q": "Compute the binomial coefficient C(19, 10). Answer format: {\"answer\": <number>}.",
+    "answer": 92378,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-018",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      21,
+      187
+    ],
+    "q": "Compute the sum of squares from 21 through 187, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 2194380,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-019",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      1433,
+      3,
+      5
+    ],
+    "q": "What is $1433 compounded annually at 3% for 5 years? Answer format: {\"answer\": <number>}.",
+    "answer": 1661.24,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-020",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      23,
+      29,
+      0,
+      1,
+      18
+    ],
+    "q": "Find the least nonnegative x with remainders 0, 1, 18 modulo 13, 23, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 7384,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-021",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      30,
+      9
+    ],
+    "q": "Compute the binomial coefficient C(30, 9). Answer format: {\"answer\": <number>}.",
+    "answer": 14307150,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-022",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      70,
+      107
+    ],
+    "q": "Compute the sum of squares from 70 through 107, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 302195,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-023",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      7501,
+      6,
+      9
+    ],
+    "q": "What is $7501 compounded annually at 6% for 9 years? Answer format: {\"answer\": <number>}.",
+    "answer": 12672.78,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-024",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      7,
+      19,
+      31,
+      0,
+      5,
+      16
+    ],
+    "q": "Find the least nonnegative x with remainders 0, 5, 16 modulo 7, 19, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 3178,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-025",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      23,
+      6
+    ],
+    "q": "Compute the binomial coefficient C(23, 6). Answer format: {\"answer\": <number>}.",
+    "answer": 100947,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-026",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      32,
+      172
+    ],
+    "q": "Compute the sum of squares from 32 through 172, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1700554,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-027",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      3480,
+      7,
+      9
+    ],
+    "q": "What is $3480 compounded annually at 7% for 9 years? Answer format: {\"answer\": <number>}.",
+    "answer": 6397.84,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-028",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      7,
+      23,
+      29,
+      5,
+      16,
+      13
+    ],
+    "q": "Find the least nonnegative x with remainders 5, 16, 13 modulo 7, 23, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 3029,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-029",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      22,
+      12
+    ],
+    "q": "Compute the binomial coefficient C(22, 12). Answer format: {\"answer\": <number>}.",
+    "answer": 646646,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-030",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      51,
+      136
+    ],
+    "q": "Compute the sum of squares from 51 through 136, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 804831,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-031",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      6574,
+      5,
+      11
+    ],
+    "q": "What is $6574 compounded annually at 5% for 11 years? Answer format: {\"answer\": <number>}.",
+    "answer": 11243.77,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-032",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      17,
+      31,
+      7,
+      1,
+      26
+    ],
+    "q": "Find the least nonnegative x with remainders 7, 1, 26 modulo 11, 17, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 1514,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-033",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      22,
+      8
+    ],
+    "q": "Compute the binomial coefficient C(22, 8). Answer format: {\"answer\": <number>}.",
+    "answer": 319770,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-034",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      33,
+      137
+    ],
+    "q": "Compute the sum of squares from 33 through 137, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 855085,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-035",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      1440,
+      6,
+      7
+    ],
+    "q": "What is $1440 compounded annually at 6% for 7 years? Answer format: {\"answer\": <number>}.",
+    "answer": 2165.23,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-036",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      29,
+      2,
+      9,
+      3
+    ],
+    "q": "Find the least nonnegative x with remainders 2, 9, 3 modulo 13, 19, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 2004,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-037",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      35,
+      6
+    ],
+    "q": "Compute the binomial coefficient C(35, 6). Answer format: {\"answer\": <number>}.",
+    "answer": 1623160,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-038",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      50,
+      219
+    ],
+    "q": "Compute the sum of squares from 50 through 219, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 3484745,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-039",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      2211,
+      7,
+      6
+    ],
+    "q": "What is $2211 compounded annually at 7% for 6 years? Answer format: {\"answer\": <number>}.",
+    "answer": 3318.11,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-040",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      29,
+      0,
+      7,
+      5
+    ],
+    "q": "Find the least nonnegative x with remainders 0, 7, 5 modulo 13, 19, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 3978,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-041",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      37,
+      8
+    ],
+    "q": "Compute the binomial coefficient C(37, 8). Answer format: {\"answer\": <number>}.",
+    "answer": 38608020,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-042",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      24,
+      146
+    ],
+    "q": "Compute the sum of squares from 24 through 146, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1043737,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-043",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      2722,
+      7,
+      7
+    ],
+    "q": "What is $2722 compounded annually at 7% for 7 years? Answer format: {\"answer\": <number>}.",
+    "answer": 4370.94,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-044",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      31,
+      5,
+      8,
+      12
+    ],
+    "q": "Find the least nonnegative x with remainders 5, 8, 12 modulo 13, 19, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 4321,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-045",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      34,
+      10
+    ],
+    "q": "Compute the binomial coefficient C(34, 10). Answer format: {\"answer\": <number>}.",
+    "answer": 131128140,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-046",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      62,
+      168
+    ],
+    "q": "Compute the sum of squares from 62 through 168, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1517153,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-047",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      7659,
+      3,
+      5
+    ],
+    "q": "What is $7659 compounded annually at 3% for 5 years? Answer format: {\"answer\": <number>}.",
+    "answer": 8878.88,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-048",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      23,
+      37,
+      5,
+      20,
+      24
+    ],
+    "q": "Find the least nonnegative x with remainders 5, 20, 24 modulo 11, 23, 37. Answer format: {\"answer\": <number>}.",
+    "answer": 5241,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-049",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      30,
+      5
+    ],
+    "q": "Compute the binomial coefficient C(30, 5). Answer format: {\"answer\": <number>}.",
+    "answer": 142506,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-050",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      37,
+      160
+    ],
+    "q": "Compute the sum of squares from 37 through 160, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1361954,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-051",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      4565,
+      4,
+      10
+    ],
+    "q": "What is $4565 compounded annually at 4% for 10 years? Answer format: {\"answer\": <number>}.",
+    "answer": 6757.32,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-052",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      29,
+      0,
+      14,
+      26
+    ],
+    "q": "Find the least nonnegative x with remainders 0, 14, 26 modulo 13, 19, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 1534,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-053",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      24,
+      9
+    ],
+    "q": "Compute the binomial coefficient C(24, 9). Answer format: {\"answer\": <number>}.",
+    "answer": 1307504,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-054",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      32,
+      141
+    ],
+    "q": "Compute the sum of squares from 32 through 141, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 933955,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-055",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      8789,
+      7,
+      12
+    ],
+    "q": "What is $8789 compounded annually at 7% for 12 years? Answer format: {\"answer\": <number>}.",
+    "answer": 19794.51,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-056",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      17,
+      37,
+      0,
+      0,
+      9
+    ],
+    "q": "Find the least nonnegative x with remainders 0, 0, 9 modulo 13, 17, 37. Answer format: {\"answer\": <number>}.",
+    "answer": 6188,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-057",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      18,
+      9
+    ],
+    "q": "Compute the binomial coefficient C(18, 9). Answer format: {\"answer\": <number>}.",
+    "answer": 48620,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-058",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      64,
+      142
+    ],
+    "q": "Compute the sum of squares from 64 through 142, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 879191,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-059",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      7897,
+      6,
+      5
+    ],
+    "q": "What is $7897 compounded annually at 6% for 5 years? Answer format: {\"answer\": <number>}.",
+    "answer": 10567.97,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-060",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      19,
+      37,
+      7,
+      3,
+      36
+    ],
+    "q": "Find the least nonnegative x with remainders 7, 3, 36 modulo 11, 19, 37. Answer format: {\"answer\": <number>}.",
+    "answer": 6178,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-061",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      24,
+      5
+    ],
+    "q": "Compute the binomial coefficient C(24, 5). Answer format: {\"answer\": <number>}.",
+    "answer": 42504,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-062",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      70,
+      168
+    ],
+    "q": "Compute the sum of squares from 70 through 168, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1482789,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-063",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      7947,
+      6,
+      8
+    ],
+    "q": "What is $7947 compounded annually at 6% for 8 years? Answer format: {\"answer\": <number>}.",
+    "answer": 12666.31,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-064",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      7,
+      23,
+      31,
+      6,
+      6,
+      28
+    ],
+    "q": "Find the least nonnegative x with remainders 6, 6, 28 modulo 7, 23, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 2260,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-065",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      27,
+      11
+    ],
+    "q": "Compute the binomial coefficient C(27, 11). Answer format: {\"answer\": <number>}.",
+    "answer": 13037895,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-066",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      78,
+      173
+    ],
+    "q": "Compute the sum of squares from 78 through 173, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1585744,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-067",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      6461,
+      6,
+      10
+    ],
+    "q": "What is $6461 compounded annually at 6% for 10 years? Answer format: {\"answer\": <number>}.",
+    "answer": 11570.67,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-068",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      23,
+      29,
+      7,
+      0,
+      15
+    ],
+    "q": "Find the least nonnegative x with remainders 7, 0, 15 modulo 13, 23, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 943,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-069",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      27,
+      11
+    ],
+    "q": "Compute the binomial coefficient C(27, 11). Answer format: {\"answer\": <number>}.",
+    "answer": 13037895,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-070",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      77,
+      102
+    ],
+    "q": "Compute the sum of squares from 77 through 102, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 209729,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-071",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      3759,
+      6,
+      11
+    ],
+    "q": "What is $3759 compounded annually at 6% for 11 years? Answer format: {\"answer\": <number>}.",
+    "answer": 7135.7,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-072",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      17,
+      29,
+      1,
+      8,
+      9
+    ],
+    "q": "Find the least nonnegative x with remainders 1, 8, 9 modulo 13, 17, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 1691,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-073",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      32,
+      8
+    ],
+    "q": "Compute the binomial coefficient C(32, 8). Answer format: {\"answer\": <number>}.",
+    "answer": 10518300,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-074",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      42,
+      122
+    ],
+    "q": "Compute the sum of squares from 42 through 122, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 588924,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-075",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      3857,
+      5,
+      12
+    ],
+    "q": "What is $3857 compounded annually at 5% for 12 years? Answer format: {\"answer\": <number>}.",
+    "answer": 6926.62,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-076",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      23,
+      29,
+      0,
+      1,
+      27
+    ],
+    "q": "Find the least nonnegative x with remainders 0, 1, 27 modulo 13, 23, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 7683,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-077",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      20,
+      5
+    ],
+    "q": "Compute the binomial coefficient C(20, 5). Answer format: {\"answer\": <number>}.",
+    "answer": 15504,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-078",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      60,
+      182
+    ],
+    "q": "Compute the sum of squares from 60 through 182, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1955905,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-079",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      1315,
+      4,
+      8
+    ],
+    "q": "What is $1315 compounded annually at 4% for 8 years? Answer format: {\"answer\": <number>}.",
+    "answer": 1799.67,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-080",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      17,
+      31,
+      4,
+      8,
+      12
+    ],
+    "q": "Find the least nonnegative x with remainders 4, 8, 12 modulo 11, 17, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 2864,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-081",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      21,
+      7
+    ],
+    "q": "Compute the binomial coefficient C(21, 7). Answer format: {\"answer\": <number>}.",
+    "answer": 116280,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-082",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      28,
+      102
+    ],
+    "q": "Compute the sum of squares from 28 through 102, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 352025,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-083",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      6750,
+      4,
+      6
+    ],
+    "q": "What is $6750 compounded annually at 4% for 6 years? Answer format: {\"answer\": <number>}.",
+    "answer": 8540.9,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-084",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      19,
+      31,
+      11,
+      13,
+      24
+    ],
+    "q": "Find the least nonnegative x with remainders 11, 13, 24 modulo 13, 19, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 830,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-085",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      31,
+      9
+    ],
+    "q": "Compute the binomial coefficient C(31, 9). Answer format: {\"answer\": <number>}.",
+    "answer": 20160075,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-086",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      35,
+      186
+    ],
+    "q": "Compute the sum of squares from 35 through 186, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 2148596,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-087",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      4905,
+      7,
+      9
+    ],
+    "q": "What is $4905 compounded annually at 7% for 9 years? Answer format: {\"answer\": <number>}.",
+    "answer": 9017.64,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-088",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      11,
+      17,
+      31,
+      3,
+      7,
+      20
+    ],
+    "q": "Find the least nonnegative x with remainders 3, 7, 20 modulo 11, 17, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 4546,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-089",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      36,
+      12
+    ],
+    "q": "Compute the binomial coefficient C(36, 12). Answer format: {\"answer\": <number>}.",
+    "answer": 1251677700,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-090",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      20,
+      149
+    ],
+    "q": "Compute the sum of squares from 20 through 149, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1111305,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-091",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      2281,
+      5,
+      5
+    ],
+    "q": "What is $2281 compounded annually at 5% for 5 years? Answer format: {\"answer\": <number>}.",
+    "answer": 2911.2,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-092",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      7,
+      17,
+      31,
+      1,
+      8,
+      26
+    ],
+    "q": "Find the least nonnegative x with remainders 1, 8, 26 modulo 7, 17, 31. Answer format: {\"answer\": <number>}.",
+    "answer": 1793,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-093",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      36,
+      9
+    ],
+    "q": "Compute the binomial coefficient C(36, 9). Answer format: {\"answer\": <number>}.",
+    "answer": 94143280,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-094",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      57,
+      114
+    ],
+    "q": "Compute the sum of squares from 57 through 114, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 440249,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-095",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      2324,
+      4,
+      6
+    ],
+    "q": "What is $2324 compounded annually at 4% for 6 years? Answer format: {\"answer\": <number>}.",
+    "answer": 2940.6,
+    "tol": 0.01,
+    "numeric": true
+  },
+  {
+    "id": "hard-096",
+    "difficulty": "hard",
+    "kind": "crt",
+    "params": [
+      13,
+      17,
+      29,
+      8,
+      14,
+      19
+    ],
+    "q": "Find the least nonnegative x with remainders 8, 14, 19 modulo 13, 17, 29. Answer format: {\"answer\": <number>}.",
+    "answer": 541,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-097",
+    "difficulty": "hard",
+    "kind": "binomial",
+    "params": [
+      39,
+      6
+    ],
+    "q": "Compute the binomial coefficient C(39, 6). Answer format: {\"answer\": <number>}.",
+    "answer": 3262623,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-098",
+    "difficulty": "hard",
+    "kind": "sum_squares",
+    "params": [
+      29,
+      179
+    ],
+    "q": "Compute the sum of squares from 29 through 179, inclusive. Answer format: {\"answer\": <number>}.",
+    "answer": 1920116,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "hard-099",
+    "difficulty": "hard",
+    "kind": "compound",
+    "params": [
+      7577,
+      4,
+      7
+    ],
+    "q": "What is $7577 compounded annually at 4% for 7 years? Answer format: {\"answer\": <number>}.",
+    "answer": 9970.82,
+    "tol": 0.01,
+    "numeric": true
+  }
+]

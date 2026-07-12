@@ -1,0 +1,45 @@
+[
+  {
+    "id": "stress-crt",
+    "difficulty": "stress",
+    "kind": "crt",
+    "params": [
+      17,
+      19,
+      23,
+      8,
+      4,
+      7
+    ],
+    "q": "Find least x with remainders 8, 4, 7 modulo 17, 19, 23. Answer format: {\"answer\": <number>}.",
+    "answer": 3595,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "stress-binomial",
+    "difficulty": "stress",
+    "kind": "binomial",
+    "params": [
+      52,
+      11
+    ],
+    "q": "Compute C(52, 11). Answer format: {\"answer\": <number>}.",
+    "answer": 60403728840,
+    "tol": 0.0,
+    "numeric": true
+  },
+  {
+    "id": "stress-squares",
+    "difficulty": "stress",
+    "kind": "sum_squares",
+    "params": [
+      1,
+      10000
+    ],
+    "q": "Compute the sum of squares from 1 through 10000. Answer format: {\"answer\": <number>}.",
+    "answer": 333383335000,
+    "tol": 0.0,
+    "numeric": true
+  }
+]

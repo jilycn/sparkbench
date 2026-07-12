@@ -33,7 +33,8 @@ def test_materialization_is_explicit_static_seam(tmp_path):
     source.mkdir()
     (source / "math_suite.json").write_text("[]")
     materialized = sparkbench.materialize_dynamic_inputs(source, tmp_path / "staging", seed=11)
-    assert materialized == []
+    assert materialized.files == []
+    assert materialized.math_sample_ids == []
     assert (tmp_path / "staging").is_dir()
 
 

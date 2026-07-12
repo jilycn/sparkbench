@@ -1,63 +1,155 @@
 #!/usr/bin/env python3
-"""Generate 10 multi-step math problems with programmatic ground truth -> math_suite.json"""
-import json, math, random
+"""Generate the deterministic SparkBench v2 stratified math pool."""
 
-random.seed(20260712)
-P = []
+from __future__ import annotations
 
-# 1 discount chain + tax
-p = random.randint(200, 900); a = random.choice([10, 15, 20]); b = random.choice([5, 12, 25]); t = random.choice([7, 8, 9])
-ans = round(p * (1 - a/100) * (1 - b/100) * (1 + t/100), 2)
-P.append({"id": "m1", "q": f"A jacket costs ${p}. It is discounted {a}%, then an additional {b}% off the reduced price. Finally {t}% sales tax is added. What is the final price in dollars? Answer format: {{\"answer\": <number>}} (round to 2 decimals)", "answer": ans, "tol": 0.01})
+import argparse
+import json
+import math
+import random
+from pathlib import Path
 
-# 2 work rate
-x = random.randint(4, 9); y = random.randint(10, 18)
-ans = round(1 / (1/x + 1/y), 2)
-P.append({"id": "m2", "q": f"Worker A paints a room alone in {x} hours. Worker B does it alone in {y} hours. Working together at these rates, how many hours to paint one room? Answer format: {{\"answer\": <number>}} (round to 2 decimals)", "answer": ans, "tol": 0.01})
 
-# 3 mixture
-m1_ = random.randint(3, 8); pc1 = random.choice([10, 20, 30]); m2_ = random.randint(2, 6); pc2 = random.choice([50, 60, 70])
-ans = round((m1_*pc1 + m2_*pc2) / (m1_+m2_), 2)
-P.append({"id": "m3", "q": f"You mix {m1_} liters of a {pc1}% acid solution with {m2_} liters of a {pc2}% acid solution. What is the acid concentration percentage of the mixture? Answer format: {{\"answer\": <number>}} (round to 2 decimals)", "answer": ans, "tol": 0.01})
+def _item(identifier, difficulty, kind, params, question, answer, tol=0.0):
+    return {"id": identifier, "difficulty": difficulty, "kind": kind, "params": params,
+            "q": question + " Answer format: {\"answer\": <number>}.", "answer": answer,
+            "tol": tol, "numeric": True}
 
-# 4 compound interest
-pr = random.choice([1000, 2500, 4000]); r = random.choice([4, 6, 8]); yrs = random.choice([3, 5])
-ans = round(pr * (1 + r/100) ** yrs, 2)
-P.append({"id": "m4", "q": f"${pr} is invested at {r}% annual compound interest. What is the total amount after {yrs} years? Answer format: {{\"answer\": <number>}} (round to 2 decimals)", "answer": ans, "tol": 0.01})
 
-# 5 trains meet
-d = random.choice([300, 420, 540]); v1 = random.randint(40, 70); v2 = random.randint(50, 90)
-ans = round(d / (v1 + v2), 2)
-P.append({"id": "m5", "q": f"Two trains start at the same time from stations {d} km apart, heading toward each other at {v1} km/h and {v2} km/h. After how many hours do they meet? Answer format: {{\"answer\": <number>}} (round to 2 decimals)", "answer": ans, "tol": 0.01})
+def _easy(rng, identifier, difficulty):
+    kind = identifier % 4
+    if kind == 0:
+        price, discount, tax = rng.randint(80, 800), rng.choice((5, 10, 15, 20)), rng.choice((4, 6, 8, 10))
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "discount_tax", [price, discount, tax],
+                     f"A device costs ${price}, is discounted {discount}%, then has {tax}% tax added.",
+                     round(price * (1 - discount / 100) * (1 + tax / 100), 2), 0.01)
+    if kind == 1:
+        total, n, removed = rng.randint(500, 1200), rng.randint(8, 16), rng.randint(10, 90)
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "average_remove", [total, n, removed],
+                     f"The sum of {n} numbers is {total}. After removing {removed}, what is the new average?",
+                     round((total - removed) / (n - 1), 2), 0.01)
+    if kind == 2:
+        base, exponent, modulus = rng.randint(5, 17), rng.randint(20, 80), rng.choice((11, 13, 17, 19))
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "modpow", [base, exponent, modulus],
+                     f"What is the remainder when {base}^{exponent} is divided by {modulus}?",
+                     pow(base, exponent, modulus))
+    a, b, c = rng.randint(20, 90), rng.randint(10, 50), rng.randint(4, 19)
+    return _item(f"{difficulty}-{identifier:03}", difficulty, "linear", [a, b, c],
+                 f"Solve for x: {a}x + {b} = {c * a + b}.", c)
 
-# 6 LCM bells
-vals = random.sample([4, 6, 9, 10, 14, 15], 3)
-ans = math.lcm(*vals)
-P.append({"id": "m6", "q": f"Three bells ring every {vals[0]}, {vals[1]}, and {vals[2]} minutes. They all ring together at noon. After how many minutes do they next all ring together? Answer format: {{\"answer\": <int>}}", "answer": ans, "tol": 0})
 
-# 7 committees
-ga = random.randint(6, 9); gb = random.randint(7, 10)
-ans = math.comb(ga, 2) * math.comb(gb, 3)
-P.append({"id": "m7", "q": f"A committee needs exactly 2 members chosen from {ga} engineers and exactly 3 members chosen from {gb} designers. How many different committees are possible? Answer format: {{\"answer\": <int>}}", "answer": ans, "tol": 0})
+def _medium(rng, identifier, difficulty):
+    kind = identifier % 4
+    if kind == 0:
+        first, second = rng.randint(4, 12), rng.randint(8, 20)
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "work_rate", [first, second],
+                     f"A job takes worker A {first} hours and worker B {second} hours alone. How many hours together?",
+                     round(1 / (1 / first + 1 / second), 2), 0.01)
+    if kind == 1:
+        engineers, designers = rng.randint(7, 14), rng.randint(8, 15)
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "committee", [engineers, designers],
+                     f"How many committees use 2 of {engineers} engineers and 3 of {designers} designers?",
+                     math.comb(engineers, 2) * math.comb(designers, 3))
+    if kind == 2:
+        left, right, speed_a, speed_b = rng.randint(200, 800), 0, rng.randint(35, 90), rng.randint(35, 90)
+        distance = left - right
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "meeting", [distance, speed_a, speed_b],
+                     f"Two trains are {distance} km apart and travel toward each other at {speed_a} and {speed_b} km/h. When meet?",
+                     round(distance / (speed_a + speed_b), 2), 0.01)
+    x, y = rng.randint(3, 15), rng.randint(5, 20)
+    return _item(f"{difficulty}-{identifier:03}", difficulty, "two_equations", [x, y],
+                 f"3 apples and 2 bananas cost {3*x + 2*y}. One apple and 4 bananas cost {x + 4*y}. What is one apple's cost?", x)
 
-# 8 modular power
-base = random.randint(7, 13); ex = random.randint(50, 90); mod = random.choice([11, 13, 17])
-ans = pow(base, ex, mod)
-P.append({"id": "m8", "q": f"What is the remainder when {base}^{ex} is divided by {mod}? Answer format: {{\"answer\": <int>}}", "answer": ans, "tol": 0})
 
-# 9 average after removal
-n = random.randint(8, 12); avg = random.randint(50, 80); rem = random.randint(20, 45)
-total = n * avg
-ans = round((total - rem) / (n - 1), 2)
-P.append({"id": "m9", "q": f"The average of {n} numbers is {avg}. One number, {rem}, is removed. What is the average of the remaining {n-1} numbers? Answer format: {{\"answer\": <number>}} (round to 2 decimals)", "answer": ans, "tol": 0.01})
+def _hard(rng, identifier, difficulty):
+    kind = identifier % 4
+    if kind == 0:
+        a, b, c = rng.choice((7, 11, 13)), rng.choice((17, 19, 23)), rng.choice((29, 31, 37))
+        value = rng.randint(1, a * b * c - 1)
+        residues = [value % a, value % b, value % c]
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "crt", [a, b, c, *residues],
+                     f"Find the least nonnegative x with remainders {residues[0]}, {residues[1]}, {residues[2]} modulo {a}, {b}, {c}.",
+                     _crt(a, b, c, *residues))
+    if kind == 1:
+        n, k = rng.randint(18, 40), rng.randint(5, 12)
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "binomial", [n, k],
+                     f"Compute the binomial coefficient C({n}, {k}).", math.comb(n, k))
+    if kind == 2:
+        start, end = rng.randint(20, 80), rng.randint(100, 220)
+        return _item(f"{difficulty}-{identifier:03}", difficulty, "sum_squares", [start, end],
+                     f"Compute the sum of squares from {start} through {end}, inclusive.",
+                     _sum_squares(end) - _sum_squares(start - 1))
+    principal, rate, years = rng.randint(1000, 9000), rng.choice((3, 4, 5, 6, 7)), rng.randint(5, 12)
+    return _item(f"{difficulty}-{identifier:03}", difficulty, "compound", [principal, rate, years],
+                 f"What is ${principal} compounded annually at {rate}% for {years} years?",
+                 round(principal * (1 + rate / 100) ** years, 2), 0.01)
 
-# 10 linear system
-import fractions
-aa = random.randint(2, 5); bb = random.randint(6, 12)   # true prices
-X = 3*aa + 2*bb; Y = aa + 4*bb
-P.append({"id": "m10", "q": f"3 apples and 2 bananas cost ${X}. 1 apple and 4 bananas cost ${Y}. What does one apple cost in dollars? Answer format: {{\"answer\": <number>}}", "answer": aa, "tol": 0.01})
 
-json.dump(P, open("math_suite.json", "w"), indent=2)
-print(f"{len(P)} problems")
-for p in P:
-    print(p["id"], "=", p["answer"])
+def _sum_squares(n):
+    return n * (n + 1) * (2 * n + 1) // 6
+
+
+def _crt(a, b, c, ra, rb, rc):
+    for value in range(a * b * c):
+        if value % a == ra and value % b == rb and value % c == rc:
+            return value
+    raise AssertionError("coprime CRT construction must resolve")
+
+
+def generate_pool(seed=20260712):
+    rng = random.Random(seed)
+    makers = {"easy": _easy, "med": _medium, "hard": _hard}
+    pool = []
+    for difficulty in ("easy", "med", "hard"):
+        for index in range(100):
+            pool.append(makers[difficulty](rng, index, difficulty))
+    return pool
+
+
+def independent_answer(item):
+    """A separately expressed verifier used by tests and materialization."""
+    p = item["params"]
+    kind = item["kind"]
+    if kind == "discount_tax": return round(p[0] * (100 - p[1]) * (100 + p[2]) / 10000, 2)
+    if kind == "average_remove": return round((p[0] - p[2]) / (p[1] - 1), 2)
+    if kind == "modpow": return pow(*p)
+    if kind == "linear": return (p[2] * p[0] + p[1] - p[1]) // p[0]
+    if kind == "work_rate": return round((p[0] * p[1]) / (p[0] + p[1]), 2)
+    if kind == "committee": return math.factorial(p[0]) // (2 * math.factorial(p[0] - 2)) * (math.factorial(p[1]) // (6 * math.factorial(p[1] - 3)))
+    if kind == "meeting": return round(p[0] / sum(p[1:]), 2)
+    if kind == "two_equations": return p[0]
+    if kind == "crt": return _crt(*p)
+    if kind == "binomial": return math.comb(*p)
+    if kind == "sum_squares": return _sum_squares(p[1]) - _sum_squares(p[0] - 1)
+    if kind == "compound": return round(p[0] * pow(1 + p[1] / 100, p[2]), 2)
+    raise ValueError(kind)
+
+
+def sample_pool(pool, seed, count_per_difficulty=10):
+    rng = random.Random(seed)
+    selected = []
+    for difficulty in ("easy", "med", "hard"):
+        selected.extend(rng.sample([item for item in pool if item["difficulty"] == difficulty], count_per_difficulty))
+    return selected
+
+
+def stress_suite():
+    return [
+        _item("stress-crt", "stress", "crt", [17, 19, 23, 8, 4, 7], "Find least x with remainders 8, 4, 7 modulo 17, 19, 23.", _crt(17, 19, 23, 8, 4, 7)),
+        _item("stress-binomial", "stress", "binomial", [52, 11], "Compute C(52, 11).", math.comb(52, 11)),
+        _item("stress-squares", "stress", "sum_squares", [1, 10000], "Compute the sum of squares from 1 through 10000.", _sum_squares(10000)),
+    ]
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=20260712)
+    parser.add_argument("--out", type=Path, default=Path("."))
+    args = parser.parse_args()
+    args.out.mkdir(parents=True, exist_ok=True)
+    (args.out / "math_pool.json").write_text(json.dumps(generate_pool(args.seed), indent=2) + "\n")
+    (args.out / "math_stress.json").write_text(json.dumps(stress_suite(), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()
