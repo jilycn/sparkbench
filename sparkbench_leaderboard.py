@@ -1,45 +1,67 @@
 #!/usr/bin/env python3
-"""Auto-generate LEADERBOARD.md from every scorecard under ~/bench/sparkbench/.
-Keeps only the newest run per label. Usage: sparkbench_leaderboard.py [results_root]"""
-import glob, json, os, sys
+"""Validity-aware SparkBench v2 leaderboard; v1 artifacts are never rescored."""
+from __future__ import annotations
 
-ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.expanduser("~/bench/sparkbench")
-cards = {}
-for f in sorted(glob.glob(os.path.join(ROOT, "*", "scorecard.json"))):
-    c = json.load(open(f))
-    ts = os.path.basename(os.path.dirname(f)).rsplit("_", 1)[-1]
-    prev = cards.get(c["label"])
-    if not prev or ts > prev["_ts"]:
-        c["_ts"] = ts
-        c["_dir"] = os.path.basename(os.path.dirname(f))
-        cards[c["label"]] = c
+import argparse
+import json
+from pathlib import Path
 
-GRADE_ORDER = {"A+": 7, "A": 6, "A-": 5, "B+": 4, "B": 3, "C": 2, "D": 1}
-ranked = sorted(cards.values(),
-                key=lambda c: (GRADE_ORDER.get(c["grade"], 0), c["composite"]),
-                reverse=True)
+from sblib import write_text_atomic
 
-CATS = ["TOOLS", "AGENT", "REASON", "CONTEXT", "LOAD", "STABILITY"]
-L = ["# SparkBench Leaderboard", "",
-     "Ranked by grade, then composite. Stability caps: runaway → max B, crash/OOM → max C.", "",
-     "| # | Recipe | Overall | Grade | " + " | ".join(CATS) + " | SPEED | Run |",
-     "|---|---|---|---|" + "---|" * len(CATS) + "---|---|"]
-for i, c in enumerate(ranked, 1):
-    def cell(k):
-        p = c["parts"].get(k, {})
-        return f"**{p.get('score100','-')}** {p.get('raw','')}"
-    cats = " | ".join(cell(k) for k in CATS)
-    sp = c.get("speed") or {}
-    cap = " ⚠capped" if c.get("grade_capped_by_stability") else ""
-    speed = f"{sp.get('tg_tps','-')} t/s · ttft {sp.get('ttft_ms','-')}ms"
-    L.append(f"| {i} | {c['label']} | **{c['composite']}** | {c['grade']}{cap} | {cats} "
-             f"| {speed} | {c['_dir']} |")
-L.append("")
-L.append("## Flags")
-for c in ranked:
-    fl = c.get("flags") or []
-    L.append(f"- **{c['label']}**: " + ("; ".join(fl) if fl else "clean"))
-out = os.path.join(ROOT, "LEADERBOARD.md")
-open(out, "w").write("\n".join(L) + "\n")
-print("\n".join(L))
-print(f"\n-> {out}", file=sys.stderr)
+
+def _load(path):
+    return json.loads(path.read_text())
+
+
+def _latest_per_label(items):
+    latest = {}
+    for directory, score in items:
+        label = score["label"]
+        if label not in latest or directory.name > latest[label][0].name:
+            latest[label] = (directory, score)
+    return latest
+
+
+def build_leaderboard(root: Path):
+    complete, partial, legacy = [], [], []
+    for directory in sorted(path for path in root.iterdir() if path.is_dir()):
+        scores = directory / "scores.json"
+        status = directory / "status.json"
+        if scores.exists() and status.exists():
+            score, state = _load(scores), _load(status)
+            if score.get("scoring_version") == 2:
+                (complete if state.get("run_status") == "COMPLETE" else partial).append((directory, score))
+                continue
+        old = directory / "scorecard.json"
+        if old.exists():
+            legacy.append((directory, _load(old)))
+    latest = _latest_per_label(complete)
+    best = {label: max((score.get("overall") or -1 for directory, score in complete if score["label"] == label), default=None)
+            for label in latest}
+    ranked = sorted(latest.values(), key=lambda item: item[1].get("overall") or -1, reverse=True)
+    lines = ["# SparkBench Leaderboard", "", "## Official v2 rankings", "",
+             "Latest comparable COMPLETE v2 run per label. Historical best is informational only.", "",
+             "| # | Recipe | Overall | Grade | Historical best | Run |", "|---|---|---:|---|---:|---|"]
+    for index, (directory, score) in enumerate(ranked, 1):
+        lines.append(f"| {index} | {score['label']} | **{score.get('overall')}** | {score.get('grade')} | {best[score['label']]} | {directory.name} |")
+    lines += ["", "## Partial / per-axis", ""]
+    for directory, score in sorted(partial, key=lambda item: item[0].name):
+        present = ", ".join(score.get("present", [])) or "none"
+        lines.append(f"- {score.get('label', directory.name)} — {present} ({directory.name})")
+    lines += ["", "## Legacy (scoring v1)", "", "Preserved from v1 scorecards; never rescored or ranked with v2.", ""]
+    for directory, score in sorted(legacy, key=lambda item: item[0].name):
+        lines.append(f"- {score.get('label', directory.name)} — {score.get('composite', '—')} / {score.get('grade', '—')} ({directory.name})")
+    return "\n".join(lines) + "\n"
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("root", type=Path, nargs="?", default=Path("~/bench/sparkbench").expanduser())
+    args = parser.parse_args()
+    text = build_leaderboard(args.root)
+    write_text_atomic(args.root / "LEADERBOARD.md", text)
+    print(text, end="")
+
+
+if __name__ == "__main__":
+    main()
