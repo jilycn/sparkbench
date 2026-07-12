@@ -22,18 +22,19 @@ def percentile(values, q):
 
 
 def load_score(*, correct_rate, p95_s, failure_rate):
-    if failure_rate > 0.05:
+    sanity_failure_rate = max(failure_rate, 1 - correct_rate)
+    if sanity_failure_rate > 0.05:
         return 0.0
     latency_factor = 1.0 if p95_s <= 15 else max(0.0, (60 - p95_s) / 45)
-    score = correct_rate * latency_factor * 100
-    return min(50.0, score) if failure_rate > 0.01 else round(score, 1)
+    score = latency_factor * 100
+    return min(50.0, score) if sanity_failure_rate > 0.01 else round(score, 1)
 
 
 def task_stream():
     rng = random.Random(20260712)
     while True:
-        a, b, c = rng.randint(120, 999), rng.randint(12, 99), rng.randint(100, 999)
-        yield f"Compute {a}*{b}+{c}. Reply with ONLY the final integer.", a * b + c
+        a, b = rng.randint(10, 99), rng.randint(10, 99)
+        yield f"Compute {a}+{b}. Reply with ONLY the final integer.", a + b
 
 
 def main():

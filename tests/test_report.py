@@ -38,6 +38,20 @@ def test_partial_has_axes_but_no_overall_or_stability(tmp_path):
     assert "STABILITY" not in report["present"]
 
 
+def test_load_only_fixture_omits_missing_math_and_context_from_present_axes(tmp_path):
+    run = tmp_path
+    _write(run / "status.json", {"run_status": "PARTIAL"})
+    _write(run / "manifest.json", {"scoring_version": 2, "suite_version": "v2"})
+    trial = run / "trial_1"
+    _write(trial / "round3" / "score3.json", {"C_math": 0, "D_longctx": 0,
+                                                   "detail": {"math": {"missing": "math_answers.json"},
+                                                              "longctx": {"missing": "longctx_answers.json"}}})
+    _write(trial / "round3" / "load.json", {"score100": 100})
+    report = build_report(run)
+    assert report["present"] == ["LOAD"]
+    assert set(report["skipped"]) >= {"MATH", "CONTEXT"}
+
+
 def test_fatal_cap_is_applied(tmp_path):
     run = _complete_run(tmp_path)
     _write(run / "stability.json", {"score100": 100, "grade_cap": "C"})

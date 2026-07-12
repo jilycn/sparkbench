@@ -43,8 +43,11 @@ def _trial_axes(trial):
     round3 = trial / "round3" / "score3.json"
     if round3.exists():
         data = json.loads(round3.read_text())
-        values["MATH"] = data.get("C_math", 0) / 30 * 100
-        values["CONTEXT"] = data.get("D_longctx", 0) / 30 * 100
+        detail = data.get("detail", {})
+        if "C_math" in data and "missing" not in detail.get("math", {}):
+            values["MATH"] = data["C_math"] / 30 * 100
+        if "D_longctx" in data and "missing" not in detail.get("longctx", {}):
+            values["CONTEXT"] = data["D_longctx"] / 30 * 100
     load = trial / "round3" / "load.json"
     if load.exists(): values["LOAD"] = json.loads(load.read_text()).get("score100")
     return {key: value for key, value in values.items() if value is not None}
@@ -99,10 +102,11 @@ def build_report(run_dir: Path):
         trial_block = {"n": len(trials), "per_trial": per_trial,
                        "per_axis_median": {key: value["score100"] for key, value in axes.items() if key != "STABILITY"},
                        "per_axis_range": ranges, "repeatability": repeatability}
+    skipped = [name for name in WEIGHTS if name not in axes]
     return {"label": manifest.get("label", run_dir.name), "scoring_version": manifest["scoring_version"],
             "suite_version": manifest["suite_version"], "run_status": run_status, "axes": axes, "present": present,
             "legacy_reason": legacy_reason, "trials": trial_block, "overall": overall, "grade": grade,
-            "stability_cap": cap}
+            "stability_cap": cap, "skipped": skipped}
 
 
 def markdown(report):
