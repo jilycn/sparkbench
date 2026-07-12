@@ -42,3 +42,15 @@ def test_fatal_cap_is_applied(tmp_path):
     run = _complete_run(tmp_path)
     _write(run / "stability.json", {"score100": 100, "grade_cap": "C"})
     assert build_report(run)["grade"] == "C"
+
+
+def test_trials_require_three_clean_low_spread_runs_for_verified_repeatability(tmp_path):
+    run = _complete_run(tmp_path)
+    for number, load in ((2, 81), (3, 79)):
+        trial = run / f"trial_{number}"
+        (trial / "tools.log").parent.mkdir(parents=True)
+        (trial / "tools.log").write_text("Score: 90 / 100\n")
+        _write(trial / "round2" / "score.json", {"A1_hidden": 45, "A2_probes": 15, "A3_quality": 5, "A4_efficiency": 5, "B_logic": 30})
+        _write(trial / "round3" / "score3.json", {"C_math": 30, "D_longctx": 30})
+        _write(trial / "round3" / "load.json", {"score100": load})
+    assert build_report(run)["trials"]["repeatability"] == "verified"

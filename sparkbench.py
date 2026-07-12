@@ -278,7 +278,9 @@ def run(args: argparse.Namespace) -> int:
                     "phases": phases, "trials": args.trials, "correlation_id": correlation_id,
                     "started_ts": time.time(), "agent_sandbox": sandbox_mode, **provenance}
         write_json_atomic(run_dir / "manifest.json", manifest)
-        status: dict[str, Any] = {"run_status": "RUNNING", "phases": {phase: "pending" for phase in phases}}
+        status: dict[str, Any] = {"run_status": "RUNNING", "phases": {phase: "pending" for phase in phases},
+                                  "trials": {f"trial_{number}": {phase: "pending" for phase in phases}
+                                             for number in range(1, args.trials + 1)}}
         write_status(run_dir, status)
         stability = load_harness_module(run_dir / "harness", "stability")
         stability_before = stability.system_snapshot(args.container)
@@ -293,13 +295,16 @@ def run(args: argparse.Namespace) -> int:
             trial_dir.mkdir()
             for phase in phases:
                 status["phases"][phase] = "running"
+                status["trials"][f"trial_{trial}"][phase] = "running"
                 write_status(run_dir, status)
                 ok = run_phase(phase, run_dir / "harness", trial_dir, args.label, args.base_url, args.model)
                 if not ok:
                     any_failed = True
                     status["phases"][phase] = "failed"
+                    status["trials"][f"trial_{trial}"][phase] = "failed"
                 elif status["phases"][phase] != "failed":
                     status["phases"][phase] = "ok"
+                    status["trials"][f"trial_{trial}"][phase] = "ok"
                 write_status(run_dir, status)
         if not verify_snapshot(run_dir / "harness", snapshot["files"]):
             status["run_status"] = "INVALID"

@@ -91,10 +91,14 @@ def build_report(run_dir: Path):
         legacy_reason = {"raw": f"{logic['score100'] * .3 + math['score100'] * .3:.1f}/60", "score100": round((logic["score100"] * 10 + math["score100"] * 8) / 18, 1)}
     trial_block = None
     if trials:
+        ranges = {key: round(max(values) - min(values), 1) for key in WEIGHTS if key != "STABILITY"
+                  if (values := [trial[key] for trial in per_trial if key in trial])}
+        fatal = bool(json.loads(stability.read_text()).get("fatal")) if stability.exists() else False
+        repeatability = "unverified" if len(trials) == 1 else "preliminary" if len(trials) == 2 else \
+            ("verified" if not fatal and len(ranges) == len(WEIGHTS) - 1 and max(ranges.values(), default=0) <= 5 else "unverified")
         trial_block = {"n": len(trials), "per_trial": per_trial,
                        "per_axis_median": {key: value["score100"] for key, value in axes.items() if key != "STABILITY"},
-                       "per_axis_range": {key: round(max(values) - min(values), 1) for key in WEIGHTS if key != "STABILITY"
-                                          if (values := [trial[key] for trial in per_trial if key in trial])}}
+                       "per_axis_range": ranges, "repeatability": repeatability}
     return {"label": manifest.get("label", run_dir.name), "scoring_version": manifest["scoring_version"],
             "suite_version": manifest["suite_version"], "run_status": run_status, "axes": axes, "present": present,
             "legacy_reason": legacy_reason, "trials": trial_block, "overall": overall, "grade": grade,
@@ -111,7 +115,7 @@ def markdown(report):
         elif name == "STABILITY" and report["run_status"] == "PARTIAL":
             lines.append("| STABILITY | N/A (partial) | 10% | — |")
     if report["trials"]:
-        lines += ["", f"Repeatability: {report['trials']['n']} trial(s); medians and ranges in scores.json."]
+        lines += ["", f"Repeatability: {report['trials']['repeatability']} ({report['trials']['n']} trial(s)); medians and ranges in scores.json."]
     if report["overall"] is not None:
         lines += ["", f"**Grade (policy v2): {report['grade']} — {report['overall']}/100**"]
     else:
