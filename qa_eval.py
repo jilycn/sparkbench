@@ -1,70 +1,48 @@
 #!/usr/bin/env python3
-"""Generic QA runner: math or long-context suites. One isolated request per question.
-Usage: qa_eval.py <label> <suite.json> <out_dir> <answers_name> [context_file]"""
-import json, os, re, sys, time, urllib.request, urllib.error
+"""Math/context evaluator using common budgets and artifact retention."""
+import json
+import os
+import re
+import sys
 
-BASE="http://localhost:8000/v1/chat/completions"
-MODEL=os.environ.get("SPARKBENCH_MODEL", "local-ai")
+from sblib import BUDGETS, Config, chat, write_json_atomic
 
-SYS=("Solve the problem. Reason carefully, then output your final answer as a single JSON object "
-     "EXACTLY in the requested format on the last line. Output nothing after the JSON object.")
+SYS = ("Solve the problem. Reason carefully, then output your final answer as a single JSON object "
+       "EXACTLY in the requested format on the last line. Output nothing after the JSON object.")
 
-def post(question, ctx=None):
-    user = question if ctx is None else (
-        "Below is an operations log. Read it, then answer the question at the end.\n\n"
-        "=== LOG START ===\n" + ctx + "\n=== LOG END ===\n\nQUESTION: " + question)
-    body=json.dumps({"model":MODEL,
-                     "messages":[{"role":"system","content":SYS},{"role":"user","content":user}],
-                     "temperature":0.6,"top_p":0.95,"top_k":20,"max_tokens":120000}).encode()
-    req=urllib.request.Request(BASE,data=body,headers={"Content-Type":"application/json","Authorization":"Bearer dummy"})
-    t=time.time()
-    try:
-        with urllib.request.urlopen(req,timeout=2700) as r:
-            d=json.loads(r.read()); return d,time.time()-t,None
-    except urllib.error.HTTPError as e:
-        return None,time.time()-t,f"HTTP {e.code}: {e.read()[:200]}"
-    except Exception as e:
-        return None,time.time()-t,f"ERR {e}"
 
 def extract_json(text):
-    best=None; best_key=(-1,10**9)
-    for m in re.finditer(r"\{",text):
-        depth=0
-        for j in range(m.start(),len(text)):
-            if text[j]=="{": depth+=1
-            elif text[j]=="}":
-                depth-=1
-                if depth==0:
-                    try:
-                        cand=json.loads(text[m.start():j+1])
-                        key=(j,-m.start())
-                        if key>best_key: best_key=key; best=cand
-                    except Exception: pass
-                    break
-    return best
+    candidates = re.findall(r"\{(?:[^{}]|\{[^{}]*\})*\}", text, flags=re.DOTALL)
+    for candidate in reversed(candidates):
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+    return None
+
 
 def main():
-    label=sys.argv[1]; suite_p=sys.argv[2]; out=sys.argv[3]; name=sys.argv[4]
-    ctx=open(sys.argv[5]).read() if len(sys.argv)>5 else None
-    os.makedirs(out,exist_ok=True)
-    suite=json.load(open(suite_p))
-    answers={}
-    for p in suite:
-        d,dt,err=post(p["q"],ctx)
-        rec={"seconds":round(dt,1),"error":err,"parsed":None,"finish_reason":None,
-             "completion_tokens":None,"reasoning_chars":None}
-        if not err:
-            ch=d["choices"][0]; msg=ch["message"]
-            content=(msg.get("content") or "")
-            rec["finish_reason"]=ch.get("finish_reason")
-            rec["completion_tokens"]=(d.get("usage") or {}).get("completion_tokens")
-            rec["reasoning_chars"]=len(msg.get("reasoning_content") or "")
-            rec["parsed"]=extract_json(content)
-            rec["content_tail"]=content[-300:]
-        answers[p["id"]]=rec
-        print(p["id"],"->",json.dumps(rec["parsed"])[:80],f"({rec['seconds']}s fr={rec['finish_reason']})",flush=True)
-    json.dump(answers,open(os.path.join(out,name),"w"),indent=2)
-    print("qa done:",label,name)
+    _label, suite_path, out, name, *context_path = sys.argv[1:]
+    context = open(context_path[0]).read() if context_path else None
+    phase = "context" if context is not None else "math"
+    os.makedirs(out, exist_ok=True)
+    cfg = Config.from_env()
+    answers = {}
+    for item in json.load(open(suite_path)):
+        user = item["q"] if context is None else (
+            "Below is an operations log. Read it, then answer the question at the end.\n\n"
+            f"=== LOG START ===\n{context}\n=== LOG END ===\n\nQUESTION: {item['q']}")
+        result = chat(cfg, [{"role": "system", "content": SYS}, {"role": "user", "content": user}],
+                      max_tokens=BUDGETS[phase][0], wall_budget_s=BUDGETS[phase][1],
+                      tag=f"{phase}-{item['id']}")
+        answers[item["id"]] = {
+            "request_id": result.request_id, "seconds": round(result.latency_s, 1),
+            "error": result.error, "status": result.status, "parsed": extract_json(result.text),
+            "finish_reason": result.finish_reason, "completion_tokens": result.completion_tokens,
+            "reasoning_chars": len(result.reasoning_text),
+        }
+    write_json_atomic(os.path.join(out, name), answers)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

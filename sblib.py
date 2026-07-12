@@ -15,6 +15,17 @@ from pathlib import Path
 from typing import Any
 
 
+BUDGETS = {
+    "logic": (8192, 240),
+    "math": (2048, 120),
+    "context": (2048, 180),
+    "agent": (12288, 240),
+    "load": (64, 45),
+    "probe": (2048, 120),
+    "stress": (16384, 300),
+}
+
+
 @dataclasses.dataclass
 class Config:
     base_url: str
@@ -51,6 +62,8 @@ class ChatResult:
     completion_tokens: int | None
     request_id: str
     error: str | None = None
+    tool_calls: list[dict[str, Any]] = dataclasses.field(default_factory=list)
+    reasoning_text: str = ""
 
 
 def write_json_atomic(path: str | Path, obj: Any) -> None:
@@ -101,6 +114,22 @@ def _event_finish_reason(event: dict[str, Any]) -> str | None:
 def _event_usage(event: dict[str, Any]) -> tuple[int | None, int | None]:
     usage = event.get("usage") or {}
     return usage.get("prompt_tokens"), usage.get("completion_tokens")
+
+
+def _merge_tool_calls(accumulator: dict[int, dict[str, Any]], event: dict[str, Any]) -> None:
+    choices = event.get("choices") or []
+    if not choices:
+        return
+    delta = choices[0].get("delta") or {}
+    for call in delta.get("tool_calls") or []:
+        index = call.get("index", 0)
+        merged = accumulator.setdefault(index, {"id": call.get("id"), "type": "function",
+                                                 "function": {"name": "", "arguments": ""}})
+        if call.get("id"):
+            merged["id"] = call["id"]
+        function = call.get("function") or {}
+        merged["function"]["name"] += function.get("name") or ""
+        merged["function"]["arguments"] += function.get("arguments") or ""
 
 
 def _write_raw(cfg: Config, request_id: str, text: str) -> None:
@@ -157,6 +186,8 @@ def chat(
     )
 
     text_parts: list[str] = []
+    reasoning_parts: list[str] = []
+    tool_calls: dict[int, dict[str, Any]] = {}
     finish_reason: str | None = None
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
@@ -191,6 +222,11 @@ def chat(
             if piece and ttft_s is None:
                 ttft_s = time.monotonic() - started
             text_parts.append(piece)
+            choices = event.get("choices") or []
+            if choices:
+                delta = choices[0].get("delta") or {}
+                reasoning_parts.append(delta.get("reasoning_content") or "")
+            _merge_tool_calls(tool_calls, event)
             finish_reason = _event_finish_reason(event) or finish_reason
             pt, ct = _event_usage(event)
             prompt_tokens = pt if pt is not None else prompt_tokens
@@ -228,4 +264,5 @@ def chat(
         "error": error,
     })
     return ChatResult(text, finish_reason, status, latency_s, ttft_s, prompt_tokens,
-                      completion_tokens, request_id, error)
+                      completion_tokens, request_id, error, list(tool_calls.values()),
+                      "".join(reasoning_parts))

@@ -1,130 +1,123 @@
 #!/usr/bin/env python3
-"""Round-2 Part A driver: model builds interp.py agentically against hidden suite."""
-import json, os, re, shutil, subprocess, sys, time, urllib.request, urllib.error
+"""Interpreter-build agent evaluator using sblib's common request budget."""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
 
-BASE="http://localhost:8000/v1/chat/completions"
-MODEL=os.environ.get("SPARKBENCH_MODEL", "local-ai")
-LABEL=sys.argv[1]; WORK=sys.argv[2]; GOLDEN=sys.argv[3]; OUT=sys.argv[4]
-MAX_TURNS=int(os.environ.get("MAX_TURNS","20"))
-os.makedirs(WORK,exist_ok=True); os.makedirs(OUT,exist_ok=True)
+from sblib import BUDGETS, Config, chat, write_json_atomic
 
-CONTRACT="""Build a single Python file `interp.py`: a tree-walking interpreter for a small language, passing a hidden pytest suite.
+LABEL, WORK, GOLDEN, OUT = sys.argv[1:5]
+MAX_TURNS = int(os.environ.get("MAX_TURNS", "20"))
+os.makedirs(WORK, exist_ok=True)
+os.makedirs(OUT, exist_ok=True)
 
-REQUIRED API (exact, module-level):
-- def run(source: str) -> list      # execute program, return list of values passed to print()
-- class InterpreterError(Exception)
-- class UndefinedVariableError(InterpreterError)
-- class ArityError(InterpreterError)
+CONTRACT = """Build a single Python file `interp.py`: a tree-walking interpreter for a small language, passing a hidden pytest suite.
 
-LANGUAGE SPEC:
-- Statements end with ';'. Blocks use '{ }'.
-- let NAME = expr;        declare variable in current scope
-- NAME = expr;            assign existing variable (search enclosing scopes; UndefinedVariableError if nowhere defined)
-- if (expr) { ... } else { ... }     (else optional)
-- while (expr) { ... }
-- func NAME(a, b) { ... }            functions; 'return expr;' or 'return;' (returns nil). Function with no return returns nil.
-- print(expr);            append value to the output list returned by run()
-- Literals: integers, floats, "strings", true, false, nil (Python True/False/None). Integer arithmetic stays int; / is float division (10/4 == 2.5).
-- Operators by precedence (low->high): || , && , == != , < > <= >= , + - , * / % , unary - and ! , function call.
-- && and || MUST short-circuit. '+' concatenates strings.
-- Lexical scoping. Blocks create child scopes: 'let' inside a block shadows; assignment without let modifies the nearest enclosing binding.
-- Functions are FIRST-CLASS values and form CLOSURES over their defining environment; a closure may reassign captured outer variables (counter pattern). Recursion and mutual recursion must work.
-- Calling with wrong number of args raises ArityError. Reading/assigning an undefined variable raises UndefinedVariableError.
-- Deep recursion: count(n) recursing 500+ deep must NOT crash with Python RecursionError (raising sys.setrecursionlimit is acceptable).
+REQUIRED API: def run(source: str) -> list; InterpreterError; UndefinedVariableError; ArityError.
+Statements end in semicolons; support variables, blocks, if/else, while, functions, returns, print,
+numbers/strings/bools/nil, precedence, short-circuit &&/||, lexical scoping, closures, recursion,
+arity errors, and undefined-variable errors. Do not use Python eval(), exec(), or compile().
 
-STRICT BAN: you may NOT use Python's eval(), exec(), or compile() anywhere. Write a real tokenizer, parser, and evaluator. Using them scores zero.
-
-TOOLS: write_file to create/update files, run_tests to run the hidden suite. Iterate until ALL tests pass. Do not create or edit any test file. When all pass, reply DONE.
-
-CRITICAL — how to work: ONE action per turn. Think briefly, then IMMEDIATELY make ONE tool call. On turn 1 write a first complete interp.py attempt. Then run_tests, read failures, fix iteratively. Never reason for long without emitting a tool call.
+Use write_file only for implementation files and run_tests only to test. One action per turn. On the
+first turn write a complete interp.py, then iterate with tests. Reply DONE only when all pass.
 """
-
-TOOLS=[
- {"type":"function","function":{"name":"write_file","description":"Write a file under the work dir (relative path).","parameters":{"type":"object","properties":{"path":{"type":"string"},"content":{"type":"string"}},"required":["path","content"]}}},
- {"type":"function","function":{"name":"run_tests","description":"Run the hidden pytest suite against interp.py. Returns pass/fail summary and failures.","parameters":{"type":"object","properties":{},"required":[]}}},
+TOOLS = [
+    {"type": "function", "function": {"name": "write_file", "description": "Write a work-dir file.",
+     "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}},
+                    "required": ["path", "content"]}}},
+    {"type": "function", "function": {"name": "run_tests", "description": "Run hidden pytest.",
+     "parameters": {"type": "object", "properties": {}, "required": []}}},
 ]
 
-metrics={"label":LABEL,"part":"A_interp","turns":0,"tool_calls":0,"invalid_tool_calls":0,"http_errors":0,
-         "turn_seconds":[],"finish_reasons":[],"completion_tokens":[],"reasoning_chars":[],
-         "passed":0,"total":31,"converged":False,"notes":[],
-         "sampling":{"temperature":0.6,"top_p":0.95,"top_k":20,"max_tokens":120000}}
 
-def post(messages):
-    body=json.dumps({"model":MODEL,"messages":messages,"tools":TOOLS,"tool_choice":"auto",
-                     "temperature":0.6,"top_p":0.95,"top_k":20,"max_tokens":120000}).encode()
-    req=urllib.request.Request(BASE,data=body,headers={"Content-Type":"application/json","Authorization":"Bearer dummy"})
-    t=time.time()
-    try:
-        with urllib.request.urlopen(req,timeout=2700) as r:
-            d=json.loads(r.read()); return d,time.time()-t,None
-    except urllib.error.HTTPError as e:
-        return None,time.time()-t,f"HTTP {e.code}: {e.read()[:200]}"
-    except Exception as e:
-        return None,time.time()-t,f"ERR {e}"
-
-def do_write(args):
-    p=args.get("path",""); c=args.get("content","")
-    if ".." in p or p.startswith("/") or os.path.basename(p)=="test_interp.py":
+def write_file(args):
+    relative = args.get("path", "")
+    if ".." in relative or relative.startswith("/") or os.path.basename(relative) == "test_interp.py":
         return "REJECTED: illegal path"
-    fp=os.path.join(WORK,p); os.makedirs(os.path.dirname(fp) or WORK,exist_ok=True)
-    open(fp,"w").write(c); return f"wrote {p} ({len(c)} bytes)"
+    target = os.path.join(WORK, relative)
+    os.makedirs(os.path.dirname(target) or WORK, exist_ok=True)
+    open(target, "w").write(args.get("content", ""))
+    return f"wrote {relative}"
 
-def do_tests():
-    shutil.copy(GOLDEN,os.path.join(WORK,"test_interp.py"))
+
+def run_tests():
+    shutil.copy(GOLDEN, os.path.join(WORK, "test_interp.py"))
     try:
-        r=subprocess.run([sys.executable,"-m","pytest","-q","--no-header","test_interp.py"],cwd=WORK,capture_output=True,text=True,timeout=180)
-        out=(r.stdout+r.stderr)
+        result = subprocess.run([sys.executable, "-m", "pytest", "-q", "--no-header", "test_interp.py"],
+                                cwd=WORK, capture_output=True, text=True, timeout=180)
     except subprocess.TimeoutExpired:
-        return "TIMEOUT (possible infinite loop)",0
-    m=re.search(r"(\d+) passed",out); p=int(m.group(1)) if m else 0
-    return out[-1800:],p
+        return "TIMEOUT", 0
+    output = result.stdout + result.stderr
+    match = re.search(r"(\d+) passed", output)
+    return output[-1800:], int(match.group(1)) if match else 0
 
-audits=[]
-msgs=[{"role":"system","content":CONTRACT},{"role":"user","content":"Start now. Write a first complete interp.py using write_file, then call run_tests. One action per turn."}]
-for turn in range(1,MAX_TURNS+1):
-    metrics["turns"]=turn
-    d,dt,err=post(msgs); metrics["turn_seconds"].append(round(dt,1))
-    if err:
-        metrics["http_errors"]+=1; metrics["notes"].append(f"t{turn}:{err}")
-        metrics["finish_reasons"].append("http_error"); metrics["completion_tokens"].append(0); metrics["reasoning_chars"].append(0)
-        time.sleep(3); continue
-    ch=d["choices"][0]; msg=ch["message"]
-    fr=ch.get("finish_reason"); usage=d.get("usage") or {}
-    rc=len(msg.get("reasoning_content") or "")
-    metrics["finish_reasons"].append(fr)
-    metrics["completion_tokens"].append(usage.get("completion_tokens",0))
-    metrics["reasoning_chars"].append(rc)
-    tcs=msg.get("tool_calls") or []
-    if fr=="length":
-        metrics["notes"].append(f"t{turn}: TRUNCATED at max_tokens ({usage.get('completion_tokens')} tok, {rc} reasoning chars, {len(tcs)} tool_calls)")
-    asst={"role":"assistant","content":msg.get("content") or ""}
-    r=msg.get("reasoning_content") or ""
-    if r: audits.append({"turn":turn,"chars":rc,"head":r[:2000],"tail":r[-1000:]})
-    if tcs: asst["tool_calls"]=tcs
-    msgs.append(asst)
-    if not tcs:
-        why="TRUNCATED-no-tool-call" if fr=="length" else "no tool_calls (final/DONE)"
-        metrics["notes"].append(f"t{turn}: {why}")
-        break
-    for tc in tcs:
-        metrics["tool_calls"]+=1
-        fn=tc.get("function",{}); name=fn.get("name")
-        try: args=json.loads(fn.get("arguments") or "{}")
-        except Exception: args={}; metrics["invalid_tool_calls"]+=1; metrics["notes"].append(f"t{turn}: bad json args")
-        if name=="write_file": res=do_write(args)
-        elif name=="run_tests":
-            res,p=do_tests(); metrics["passed"]=p
-            if p>=metrics["total"]: metrics["converged"]=True
-        else: res="unknown tool"; metrics["invalid_tool_calls"]+=1
-        msgs.append({"role":"tool","tool_call_id":tc.get("id"),"content":str(res)})
-    if metrics["converged"]:
-        metrics["notes"].append(f"t{turn}: ALL PASS"); break
 
-res,p=do_tests(); metrics["passed"]=p; metrics["converged"]=p>=metrics["total"]
-if os.path.exists(os.path.join(WORK,"interp.py")):
-    shutil.copy(os.path.join(WORK,"interp.py"),os.path.join(OUT,"interp.py"))
-json.dump(metrics,open(os.path.join(OUT,"metrics.json"),"w"),indent=2)
-json.dump(msgs,open(os.path.join(OUT,"transcript.json"),"w"),indent=2,default=str)
-json.dump(audits,open(os.path.join(OUT,"reasoning_audit.json"),"w"),indent=2,default=str)
-print("LABEL",LABEL,"passed",metrics["passed"],"/",metrics["total"],"turns",metrics["turns"],"converged",metrics["converged"])
-print("finish_reasons",metrics["finish_reasons"])
+def main():
+    cfg = Config.from_env()
+    metrics = {"label": LABEL, "part": "A_interp", "turns": 0, "tool_calls": 0,
+               "invalid_tool_calls": 0, "http_errors": 0, "turn_seconds": [], "finish_reasons": [],
+               "completion_tokens": [], "reasoning_chars": [], "passed": 0, "total": 31,
+               "converged": False, "notes": [],
+               "sampling": {"temperature": 0.6, "top_p": 0.95, "max_tokens": BUDGETS["agent"][0],
+                            "wall_budget_s": BUDGETS["agent"][1]}}
+    messages = [{"role": "system", "content": CONTRACT},
+                {"role": "user", "content": "Start now: write a complete implementation, then test it."}]
+    transcript = list(messages)
+    for turn in range(1, MAX_TURNS + 1):
+        metrics["turns"] = turn
+        result = chat(cfg, messages, max_tokens=BUDGETS["agent"][0], wall_budget_s=BUDGETS["agent"][1],
+                      tag=f"agent-turn-{turn}", extra={"tools": TOOLS, "tool_choice": "auto"})
+        metrics["turn_seconds"].append(round(result.latency_s, 1))
+        metrics["finish_reasons"].append(result.finish_reason)
+        metrics["completion_tokens"].append(result.completion_tokens or 0)
+        metrics["reasoning_chars"].append(len(result.reasoning_text))
+        if result.status in ("timeout", "http_error"):
+            metrics["http_errors"] += 1
+            metrics["notes"].append(f"t{turn}: {result.status}: {result.error}")
+            continue
+        assistant = {"role": "assistant", "content": result.text}
+        if result.tool_calls:
+            assistant["tool_calls"] = result.tool_calls
+        messages.append(assistant)
+        transcript.append({"request_id": result.request_id, **assistant})
+        if not result.tool_calls:
+            metrics["notes"].append(f"t{turn}: no tool calls")
+            break
+        for call in result.tool_calls:
+            metrics["tool_calls"] += 1
+            function = call.get("function") or {}
+            try:
+                arguments = json.loads(function.get("arguments") or "{}")
+            except json.JSONDecodeError:
+                arguments = {}
+                metrics["invalid_tool_calls"] += 1
+            if function.get("name") == "write_file":
+                reply = write_file(arguments)
+            elif function.get("name") == "run_tests":
+                reply, passed = run_tests()
+                metrics["passed"] = passed
+                metrics["converged"] = passed >= metrics["total"]
+            else:
+                reply = "unknown tool"
+                metrics["invalid_tool_calls"] += 1
+            tool_message = {"role": "tool", "tool_call_id": call.get("id"), "content": str(reply)}
+            messages.append(tool_message)
+            transcript.append(tool_message)
+        if metrics["converged"]:
+            break
+    _output, passed = run_tests()
+    metrics["passed"] = passed
+    metrics["converged"] = passed >= metrics["total"]
+    if os.path.exists(os.path.join(WORK, "interp.py")):
+        shutil.copy(os.path.join(WORK, "interp.py"), os.path.join(OUT, "interp.py"))
+    write_json_atomic(os.path.join(OUT, "metrics.json"), metrics)
+    write_json_atomic(os.path.join(OUT, "transcript.json"), transcript)
+    write_json_atomic(os.path.join(OUT, "reasoning_audit.json"), [])
+
+
+if __name__ == "__main__":
+    main()
