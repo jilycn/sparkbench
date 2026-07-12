@@ -32,7 +32,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
     "sblib.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
-    "think_probe.py", "judge.py", "judge3.py", "edge_probes.py", "test_interp.py",
+    "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "edge_probes.py", "test_interp.py",
     "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
     "SCORING_AGENT.md", "SCORING_QA.md",
 )
