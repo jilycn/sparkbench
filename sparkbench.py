@@ -11,6 +11,7 @@ import argparse
 import contextlib
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -31,7 +32,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "sblib.py", "sandbox.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
+    "sblib.py", "sandbox.py", "stability.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
     "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "edge_probes.py", "test_interp.py",
     "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
     "SCORING_AGENT.md", "SCORING_QA.md", "gen_agent_task.py", "reference_interp.py",
@@ -118,6 +119,15 @@ def snapshot_harness(source_root: Path, run_dir: Path, files: list[str] | tuple[
 def verify_snapshot(harness: Path, expected_hashes: dict[str, str]) -> bool:
     return all((harness / relative).is_file() and sha256(harness / relative) == expected
                for relative, expected in expected_hashes.items())
+
+
+def load_harness_module(harness: Path, name: str):
+    spec = importlib.util.spec_from_file_location(f"sparkbench_snapshot_{name}", harness / f"{name}.py")
+    if not spec or not spec.loader:
+        raise RuntimeError(f"cannot load snapshot module {name}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def parse_phases(value: str) -> list[str]:
@@ -270,6 +280,8 @@ def run(args: argparse.Namespace) -> int:
         write_json_atomic(run_dir / "manifest.json", manifest)
         status: dict[str, Any] = {"run_status": "RUNNING", "phases": {phase: "pending" for phase in phases}}
         write_status(run_dir, status)
+        stability = load_harness_module(run_dir / "harness", "stability")
+        stability_before = stability.system_snapshot(args.container)
         if not readiness(args.base_url):
             status["run_status"] = "INVALID"
             status["reason"] = "readiness failed"
@@ -294,6 +306,7 @@ def run(args: argparse.Namespace) -> int:
             status["reason"] = "harness integrity mismatch"
             write_status(run_dir, status)
             return 2
+        stability.write_stability(run_dir, stability_before, args.container)
         status["run_status"] = "PARTIAL" if any_failed else "COMPLETE"
         status["ended_ts"] = time.time()
         write_status(run_dir, status)
