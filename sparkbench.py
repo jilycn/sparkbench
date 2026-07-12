@@ -32,7 +32,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "sblib.py", "sandbox.py", "stability.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
+    "sblib.py", "sandbox.py", "stability.py", "power_sample.py", "inject_eval.py", "gen_inject.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
     "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "sparkbench_report.py", "edge_probes.py", "test_interp.py",
     "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
     "SCORING_AGENT.md", "SCORING_QA.md", "gen_agent_task.py", "reference_interp.py",
@@ -289,15 +289,25 @@ def run(args: argparse.Namespace) -> int:
             status["reason"] = "readiness failed"
             write_status(run_dir, status)
             return 2
+        sampler = None
+        power_state = {"enabled": bool(args.power), "available": False, "note": "not requested"}
+        if args.power:
+            from power_sample import PowerSampler
+            sampler = PowerSampler(run_dir / "power.jsonl")
+            power_state = {"enabled": True, "available": sampler.start(),
+                           "note": None if sampler.available else "nvidia-smi power sampling unavailable"}
         any_failed = False
         for trial in range(1, args.trials + 1):
             trial_dir = run_dir / f"trial_{trial}"
             trial_dir.mkdir()
+            phase_times = {}
             for phase in phases:
                 status["phases"][phase] = "running"
                 status["trials"][f"trial_{trial}"][phase] = "running"
                 write_status(run_dir, status)
+                started_phase = time.time()
                 ok = run_phase(phase, run_dir / "harness", trial_dir, args.label, args.base_url, args.model)
+                phase_times[phase] = {"started_ts": started_phase, "ended_ts": time.time()}
                 if not ok:
                     any_failed = True
                     status["phases"][phase] = "failed"
@@ -306,6 +316,20 @@ def run(args: argparse.Namespace) -> int:
                     status["phases"][phase] = "ok"
                     status["trials"][f"trial_{trial}"][phase] = "ok"
                 write_status(run_dir, status)
+            if args.inject:
+                started_phase = time.time()
+                inject_result = subprocess.run([sys.executable, str(run_dir / "harness" / "inject_eval.py"), args.label, str(trial_dir)],
+                                               cwd=run_dir / "harness", env={**os.environ, "SPARKBENCH_BASE_URL": args.base_url,
+                                                                              "SPARKBENCH_MODEL": args.model, "SPARKBENCH_RUN_DIR": str(trial_dir)},
+                                               capture_output=True, text=True)
+                phase_times["inject"] = {"started_ts": started_phase, "ended_ts": time.time()}
+                if inject_result.returncode:
+                    any_failed = True
+                    status["trials"][f"trial_{trial}"]["inject"] = "failed"
+            write_json_atomic(trial_dir / "phase_times.json", phase_times)
+        if sampler:
+            sampler.stop()
+        write_json_atomic(run_dir / "power.json", power_state)
         if not verify_snapshot(run_dir / "harness", snapshot["files"]):
             status["run_status"] = "INVALID"
             status["reason"] = "harness integrity mismatch"
