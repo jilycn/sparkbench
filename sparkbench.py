@@ -33,7 +33,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 HARNESS_FILES = (
     "sblib.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
     "think_probe.py", "judge.py", "judge3.py", "edge_probes.py", "test_interp.py",
-    "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt",
+    "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
     "SCORING_AGENT.md", "SCORING_QA.md",
 )
 
@@ -54,7 +54,7 @@ class Materialization:
     context_variant: str
 
 
-def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int) -> Materialization:
+def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base_url: str | None = None) -> Materialization:
     """Batch-1 seam for Tasks 5/6/9.
 
     Future generators must write staged files here, validate them, and return their
@@ -66,13 +66,23 @@ def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int) -> M
         # Batch-1 tests use minimal fake roots. Production v2 always commits the pool.
         return Materialization([], [], "static-pending", "static-pending")
     from gen_math import sample_pool
+    from gen_longctx import generate_variant, tokenize_or_approx, validate_variant
     pool = json.loads(pool_path.read_text())
     sample = sample_pool(pool, seed)
     target = staging / "math_suite.json"
     target.write_text(json.dumps(sample, indent=2) + "\n")
-    # Tasks 6/9 add generated context and agent paths to this same pre-freeze result.
-    return Materialization([Path("math_suite.json")], [item["id"] for item in sample],
-                           "static-pending", "static-pending")
+    variant = generate_variant(seed)
+    if not validate_variant(variant):
+        raise ValueError("generated context variant failed validation")
+    (staging / "longctx_doc.txt").write_text(variant["doc"])
+    (staging / "longctx_suite.json").write_text(json.dumps(variant["suite"], indent=2) + "\n")
+    token_count, token_source = tokenize_or_approx(base_url, variant["doc"]) if base_url else (len(variant["doc"].split()) * 1.4, "approx")
+    (staging / "longctx_meta.json").write_text(json.dumps({"seed": seed, "token_count": token_count,
+                                                              "token_source": token_source}, indent=2) + "\n")
+    # Task 9 adds generated agent paths to this same pre-freeze result.
+    return Materialization([Path("math_suite.json"), Path("longctx_doc.txt"), Path("longctx_suite.json"),
+                            Path("longctx_meta.json")], [item["id"] for item in sample],
+                           "static-pending", f"seed-{seed}")
 
 
 def _make_read_only(root: Path) -> None:
@@ -233,7 +243,7 @@ def run(args: argparse.Namespace) -> int:
         run_dir = bench_root / f"{args.label}_{time.strftime('%Y%m%d-%H%M%S')}"
         run_dir.mkdir(parents=True)
         staging = run_dir / "staging"
-        generated = materialize_dynamic_inputs(source_root, staging, args.seed)
+        generated = materialize_dynamic_inputs(source_root, staging, args.seed, args.base_url)
         files = list(dict.fromkeys(list(HARNESS_FILES) + [str(p) for p in generated.files]))
         snapshot = snapshot_harness(source_root, run_dir, files,
                                     seed=args.seed, staged_root=staging)

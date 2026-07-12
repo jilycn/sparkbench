@@ -1,41 +1,101 @@
 [
   {
-    "id": "lc1",
-    "q": "What is the SUM in dollars of the Q1 Atlas infrastructure budget and the supplemental GPU hardware budget? Answer format: {\"answer\": <int>}",
-    "answer": 65640,
-    "tol": 0
+    "id": "lc5",
+    "kind": "retrieval",
+    "q": "What is the migration initiative codename? Answer format: {\"answer\": <value>}.",
+    "answer": "IndigoFalcon",
+    "tol": 0,
+    "numeric": false,
+    "cold": true
   },
   {
-    "id": "lc2",
-    "q": "Which TEAM does the person who completed the master signing key rotation belong to? Answer format: {\"answer\": \"<team name>\"}",
-    "answer": "Cinder",
-    "tol": null
+    "id": "lc8",
+    "kind": "conflict",
+    "q": "Under the document's authority rule, who completed the signing-key rotation? Answer format: {\"answer\": <value>}.",
+    "answer": "Ada Lindqvist",
+    "tol": 0,
+    "numeric": false,
+    "cold": false
   },
   {
     "id": "lc3",
-    "q": "How many INCIDENT entries does srv-quartz have in this log? Answer format: {\"answer\": <int>}",
+    "kind": "retrieval",
+    "q": "How many srv-quartz INCIDENT records are present? Answer format: {\"answer\": <value>}.",
     "answer": 2,
-    "tol": 0
+    "tol": 0,
+    "numeric": true,
+    "cold": false
   },
   {
-    "id": "lc4",
-    "q": "What platform version was deployed to production on the same day Tomas Reyes transferred teams? Answer format: {\"answer\": \"<version>\"}",
-    "answer": "v4.7.2",
-    "tol": null
-  },
-  {
-    "id": "lc5",
-    "q": "What is the project codename for the migration initiative? Answer format: {\"answer\": \"<codename>\"}",
-    "answer": "IndigoFalcon",
-    "tol": null
+    "id": "lc2",
+    "kind": "retrieval",
+    "q": "Which team does the person who completed the master signing key rotation belong to? Answer format: {\"answer\": <value>}.",
+    "answer": "Dune",
+    "tol": 0,
+    "numeric": false,
+    "cold": false
   },
   {
     "id": "lc6",
-    "q": "On which two March dates (day numbers) did srv-quartz have incidents? Answer format: {\"answer\": [<day>, <day>]} sorted ascending",
+    "kind": "retrieval",
+    "q": "Which March day numbers have srv-quartz incidents, sorted ascending? Answer format: {\"answer\": <value>}.",
     "answer": [
-      7,
-      23
+      9,
+      12
     ],
-    "tol": null
+    "tol": 0,
+    "numeric": false,
+    "cold": false
+  },
+  {
+    "id": "lc10",
+    "kind": "compositional",
+    "q": "Give the key-rotation person's team and the srv-quartz incident days. Answer format: {\"answer\": <value>}.",
+    "answer": {
+      "team": "Dune",
+      "days": [
+        9,
+        12
+      ]
+    },
+    "tol": 0,
+    "numeric": false,
+    "cold": false
+  },
+  {
+    "id": "lc1",
+    "kind": "retrieval",
+    "q": "What is the sum of the two signed budgets? Answer format: {\"answer\": <value>}.",
+    "answer": 62703,
+    "tol": 0,
+    "numeric": true,
+    "cold": false
+  },
+  {
+    "id": "lc7",
+    "kind": "conflict",
+    "q": "Under the document's authority rule, what migration region applies? Answer format: {\"answer\": <value>}.",
+    "answer": "eu-west",
+    "tol": 0,
+    "numeric": false,
+    "cold": false
+  },
+  {
+    "id": "lc4",
+    "kind": "retrieval",
+    "q": "Which platform version was deployed on Tomas Reyes's transfer day? Answer format: {\"answer\": <value>}.",
+    "answer": "v7.8.7",
+    "tol": 0,
+    "numeric": false,
+    "cold": false
+  },
+  {
+    "id": "lc9",
+    "kind": "compositional",
+    "q": "What is the signed Q1 budget minus the signed supplemental GPU budget? Answer format: {\"answer\": <value>}.",
+    "answer": 29891,
+    "tol": 0,
+    "numeric": true,
+    "cold": false
   }
 ]

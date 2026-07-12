@@ -1,81 +1,129 @@
 #!/usr/bin/env python3
-"""Generate ~45k-token synthetic ops log with planted facts + 6 cross-reference questions."""
-import json, random
+"""Seeded adversarial long-context variants for SparkBench v2."""
 
-random.seed(77)
+from __future__ import annotations
+
+import argparse
+import json
+import random
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+
+PEOPLE = ["Mira Voss", "Kenji Park", "Lena Ortiz", "Tomas Reyes", "Ada Lindqvist", "Omar Haddad", "Priya Nair", "Jonas Weber"]
 TEAMS = ["Atlas", "Borealis", "Cinder", "Dune", "Ember"]
-PEOPLE = ["Mira Voss", "Kenji Park", "Lena Ortiz", "Tomas Reyes", "Ada Lindqvist", "Omar Haddad",
-          "Priya Nair", "Jonas Weber", "Sofia Marino", "Derek Chu"]
 SERVERS = ["srv-apollo", "srv-hydra", "srv-nimbus", "srv-quartz", "srv-vulcan"]
-VERBS = ["patched", "rebooted", "monitored", "scanned", "audited", "resized", "migrated workloads on",
-         "rotated certificates for", "updated firmware on", "ran diagnostics on"]
+VERBS = ["patched", "rebooted", "monitored", "audited", "resized", "rotated certificates for"]
 
-lines = []
-# fillers use ONLY these people with FIXED teams, so planted facts are never contradicted
-FILLER_PEOPLE = [p for p in PEOPLE if p not in ("Ada Lindqvist", "Tomas Reyes")]
-TEAM_OF = {p: TEAMS[i % len(TEAMS)] for i, p in enumerate(FILLER_PEOPLE)}
 
-def filler(day, i):
-    p = random.choice(FILLER_PEOPLE); s = random.choice(SERVERS); v = random.choice(VERBS)
-    dur = random.randint(4, 190); tick = random.randint(1000, 9999)
-    return f"[2026-03-{day:02d} {random.randint(6,22):02d}:{random.randint(0,59):02d}] ticket#{tick} {p} ({TEAM_OF[p]} team) {v} {s}; duration {dur}m; status OK."
+def _approx_tokens(text):
+    return max(1, round(len(text.split()) * 1.4))
 
-# ---- planted facts (unique tokens so grep can't be fooled, but answers need linking) ----
-# F1 (early): budget figure A. F2 (very late): budget figure B. Q: sum.
-BUDGET_A = 48250
-BUDGET_B = 17390
-# F3: person who rotated the master signing key + F4 (far away): that person's team -> Q: which TEAM rotated
-KEY_PERSON = "Ada Lindqvist"
-KEY_TEAM = "Cinder"
-# F5/F6: srv-quartz incidents on exactly two days -> Q: how many + which days
-INC_DAYS = [7, 23]
-# F7: version deployed the same day Tomas Reyes transferred -> Q: version string
-TRANSFER_DAY = 15
-VERSION = "v4.7.2"
-# F8: unique passphrase-like codename mentioned once mid-doc -> Q: recall
-CODENAME = "IndigoFalcon"
 
-random.shuffle(PEOPLE)
-day = 1
-entry = 0
-TOTAL = 2600   # ~45k tokens
-for i in range(TOTAL):
-    if i == 60:
-        lines.append(f"[2026-03-02 09:14] FINANCE: Q1 infrastructure budget for the Atlas team approved at ${BUDGET_A}.")
-    elif i == 300:
-        lines.append(f"[2026-03-05 11:02] SECURITY: master signing key rotation completed by {KEY_PERSON}.")
-    elif i == 700:
-        lines.append(f"[2026-03-{INC_DAYS[0]:02d} 03:41] INCIDENT: {SERVERS[3]} kernel panic, failover engaged, root cause memory bitflip.")
-    elif i == 1200:
-        lines.append(f"[2026-03-12 14:55] NOTE: project codename for the migration initiative is {CODENAME}. Do not reuse.")
-    elif i == 1500:
-        lines.append(f"[2026-03-{TRANSFER_DAY:02d} 10:12] HR: Tomas Reyes transferred from Dune team to Borealis team effective today.")
-    elif i == 1502:
-        lines.append(f"[2026-03-{TRANSFER_DAY:02d} 16:40] RELEASE: platform {VERSION} deployed to production cluster.")
-    elif i == 1900:
-        lines.append(f"[2026-03-19 08:30] STAFF: {KEY_PERSON} moved desk; she remains on the {KEY_TEAM} team roster this quarter.")
-    elif i == 2100:
-        lines.append(f"[2026-03-{INC_DAYS[1]:02d} 22:19] INCIDENT: {SERVERS[3]} disk array degraded, hot spare rebuilt overnight.")
-    elif i == 2520:
-        lines.append(f"[2026-03-28 17:45] FINANCE: supplemental hardware budget approved: ${BUDGET_B} for GPU expansion.")
-    else:
-        day = min(28, 1 + i * 28 // TOTAL)
-        lines.append(filler(day, i))
-    entry += 1
+def tokenize_or_approx(base_url, text):
+    body = json.dumps({"text": text}).encode()
+    request = urllib.request.Request(base_url.rstrip("/") + "/tokenize", data=body,
+                                     headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            payload = json.loads(response.read())
+        count = payload.get("count", payload.get("token_count", len(payload.get("tokens", []))))
+        if isinstance(count, int) and count >= 0:
+            return count, "tokenize"
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError):
+        pass
+    return _approx_tokens(text), "approx"
 
-doc = "\n".join(lines)
-open("longctx_doc.txt", "w").write(doc)
 
-QUESTIONS = [
-    {"id": "lc1", "q": "What is the SUM in dollars of the Q1 Atlas infrastructure budget and the supplemental GPU hardware budget? Answer format: {\"answer\": <int>}", "answer": BUDGET_A + BUDGET_B, "tol": 0},
-    {"id": "lc2", "q": "Which TEAM does the person who completed the master signing key rotation belong to? Answer format: {\"answer\": \"<team name>\"}", "answer": KEY_TEAM, "tol": None},
-    {"id": "lc3", "q": "How many INCIDENT entries does srv-quartz have in this log? Answer format: {\"answer\": <int>}", "answer": len(INC_DAYS), "tol": 0},
-    {"id": "lc4", "q": "What platform version was deployed to production on the same day Tomas Reyes transferred teams? Answer format: {\"answer\": \"<version>\"}", "answer": VERSION, "tol": None},
-    {"id": "lc5", "q": "What is the project codename for the migration initiative? Answer format: {\"answer\": \"<codename>\"}", "answer": CODENAME, "tol": None},
-    {"id": "lc6", "q": "On which two March dates (day numbers) did srv-quartz have incidents? Answer format: {\"answer\": [<day>, <day>]} sorted ascending", "answer": INC_DAYS, "tol": None},
-]
-json.dump(QUESTIONS, open("longctx_suite.json", "w"), indent=2)
-approx_tokens = len(doc.split()) * 1.4
-print(f"doc: {len(doc)} chars, ~{int(approx_tokens)} tokens, {len(lines)} lines")
-for q in QUESTIONS:
-    print(q["id"], "=", q["answer"])
+def generate_variant(seed=20260712):
+    rng = random.Random(seed)
+    budget_a, budget_b = rng.randint(42000, 68000), rng.randint(12000, 28000)
+    key_person, key_team = "Ada Lindqvist", rng.choice(TEAMS)
+    incident_days = sorted(rng.sample(range(4, 27), 2))
+    transfer_day, version = rng.randint(8, 20), f"v{rng.randint(4, 8)}.{rng.randint(1, 9)}.{rng.randint(0, 9)}"
+    codename = rng.choice(["IndigoFalcon", "CopperOrchid", "VelvetComet", "SilverTern"])
+    authoritative_region, decoy_region = rng.choice(["us-east", "eu-west", "ap-south"]), rng.choice(["us-east", "eu-west", "ap-south"])
+    if decoy_region == authoritative_region:
+        decoy_region = "eu-west" if authoritative_region != "eu-west" else "us-east"
+    positions = sorted(rng.sample(range(80, 2520), 12))
+    plants = {
+        positions[0]: f"[AUTHORITY] FINANCE signed Q1 Atlas infrastructure budget: ${budget_a}.",
+        positions[1]: f"[SECURITY] Master signing key rotation completed by {key_person}.",
+        positions[2]: f"[INCIDENT] srv-quartz kernel panic on March {incident_days[0]}; root cause memory bitflip.",
+        positions[3]: f"[NOTE] Migration initiative codename: {codename}.",
+        positions[4]: f"[HR] Tomas Reyes transferred teams on March {transfer_day}.",
+        positions[5]: f"[RELEASE] Platform {version} deployed on March {transfer_day}.",
+        positions[6]: f"[ROSTER] {key_person} remains on the {key_team} team.",
+        positions[7]: f"[INCIDENT] srv-quartz disk degradation on March {incident_days[1]}; hot spare rebuilt.",
+        positions[8]: f"[AUTHORITY] FINANCE signed supplemental GPU budget: ${budget_b}.",
+        positions[9]: f"[DRAFT] Region for migration is {decoy_region}; this draft is superseded.",
+        positions[10]: f"[AUTHORITY] Final signed migration region is {authoritative_region}; supersedes drafts.",
+        positions[11]: "[DRAFT] Signing-key rotation attributed to Mira Voss; this unsigned note is false.",
+    }
+    filler_people = [person for person in PEOPLE if person not in (key_person, "Tomas Reyes")]
+    team_of = {person: TEAMS[index % len(TEAMS)] for index, person in enumerate(filler_people)}
+    lines = ["[RULE] When records conflict, the latest [AUTHORITY] signed record overrides [DRAFT] and unsigned notes."]
+    for index in range(2600):
+        if index in plants:
+            lines.append(plants[index])
+            continue
+        person = rng.choice(filler_people)
+        server = rng.choice(SERVERS)
+        day = 1 + index * 27 // 2600
+        lines.append(f"[2026-03-{day:02d}] ticket#{rng.randint(1000,9999)} {person} ({team_of[person]} team) "
+                     f"{rng.choice(VERBS)} {server}; duration {rng.randint(4,190)}m; status OK.")
+    questions = [
+        ("budget_sum", "What is the sum of the two signed budgets?", budget_a + budget_b),
+        ("key_team", "Which team does the person who completed the master signing key rotation belong to?", key_team),
+        ("incident_count", "How many srv-quartz INCIDENT records are present?", 2),
+        ("release_join", "Which platform version was deployed on Tomas Reyes's transfer day?", version),
+        ("codename", "What is the migration initiative codename?", codename),
+        ("incident_days", "Which March day numbers have srv-quartz incidents, sorted ascending?", incident_days),
+        ("conflict_region", "Under the document's authority rule, what migration region applies?", authoritative_region),
+        ("conflict_person", "Under the document's authority rule, who completed the signing-key rotation?", key_person),
+        ("compositional_difference", "What is the signed Q1 budget minus the signed supplemental GPU budget?", budget_a - budget_b),
+        ("compositional_team_days", "Give the key-rotation person's team and the srv-quartz incident days.", {"team": key_team, "days": incident_days}),
+    ]
+    suite = []
+    for index, (kind, question, answer) in enumerate(questions, 1):
+        suite.append({"id": f"lc{index}", "kind": "conflict" if kind.startswith("conflict") else
+                      ("compositional" if kind.startswith("compositional") else "retrieval"),
+                      "q": question + " Answer format: {\"answer\": <value>}.", "answer": answer,
+                      "tol": 0, "numeric": isinstance(answer, (int, float))})
+    rng.shuffle(suite)
+    for index, item in enumerate(suite):
+        item["cold"] = index == 0
+    doc = "\n".join(lines) + "\n"
+    return {"seed": seed, "doc": doc, "suite": suite, "facts": {"budget_a": budget_a, "budget_b": budget_b,
+            "key_person": key_person, "key_team": key_team, "incident_days": incident_days,
+            "version": version, "codename": codename, "authoritative_region": authoritative_region}}
+
+
+def validate_variant(variant):
+    doc, facts = variant["doc"], variant["facts"]
+    required = [str(facts["budget_a"]), str(facts["budget_b"]), facts["key_person"], facts["key_team"],
+                facts["version"], facts["codename"], facts["authoritative_region"]]
+    return len(variant["suite"]) == 10 and all(value in doc for value in required) and \
+        sum(item["kind"] == "conflict" for item in variant["suite"]) == 2 and \
+        sum(item["kind"] == "compositional" for item in variant["suite"]) == 2
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=20260712)
+    parser.add_argument("--out", type=Path, default=Path("."))
+    parser.add_argument("--base-url", default=None)
+    args = parser.parse_args()
+    variant = generate_variant(args.seed)
+    if not validate_variant(variant):
+        raise SystemExit("generated context variant failed validation")
+    args.out.mkdir(parents=True, exist_ok=True)
+    (args.out / "longctx_doc.txt").write_text(variant["doc"])
+    (args.out / "longctx_suite.json").write_text(json.dumps(variant["suite"], indent=2) + "\n")
+    count, source = tokenize_or_approx(args.base_url, variant["doc"]) if args.base_url else (_approx_tokens(variant["doc"]), "approx")
+    (args.out / "longctx_meta.json").write_text(json.dumps({"seed": args.seed, "token_count": count, "token_source": source}, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()
