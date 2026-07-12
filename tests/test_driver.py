@@ -47,3 +47,13 @@ def test_phase_selector_rejects_unknown_phase():
 def test_status_is_written_atomically(tmp_path):
     sparkbench.write_status(tmp_path, {"run_status": "PARTIAL", "phases": {"math": "failed"}})
     assert json.loads((tmp_path / "status.json").read_text())["run_status"] == "PARTIAL"
+
+
+def test_real_materialization_stages_sampled_math_context_and_hidden_agent_inputs(tmp_path):
+    root = Path(__file__).parents[1]
+    materialized = sparkbench.materialize_dynamic_inputs(root, tmp_path, seed=14)
+    assert len(materialized.math_sample_ids) == 30
+    assert materialized.agent_variant in {"precedence", "shortcircuit", "closures"}
+    for name in ("math_suite.json", "longctx_doc.txt", "longctx_suite.json", "agent_hidden_tests.py",
+                 "agent_edge_probes.py", "agent_task.json"):
+        assert (tmp_path / name).is_file()

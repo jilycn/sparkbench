@@ -4,11 +4,11 @@ import json
 import os
 import re
 import shutil
-import subprocess
 import sys
-import time
+from pathlib import Path
 
 from sblib import BUDGETS, Config, chat, write_json_atomic
+from sandbox import run_pytest
 
 LABEL, WORK, GOLDEN, OUT = sys.argv[1:5]
 MAX_TURNS = int(os.environ.get("MAX_TURNS", "20"))
@@ -45,12 +45,12 @@ def write_file(args):
 
 
 def run_tests():
-    shutil.copy(GOLDEN, os.path.join(WORK, "test_interp.py"))
-    try:
-        result = subprocess.run([sys.executable, "-m", "pytest", "-q", "--no-header", "test_interp.py"],
-                                cwd=WORK, capture_output=True, text=True, timeout=180)
-    except subprocess.TimeoutExpired:
-        return "TIMEOUT", 0
+    candidate = Path(WORK) / "interp.py"
+    if not candidate.exists():
+        return "NO interp.py", 0
+    result, sandbox_error = run_pytest(candidate, Path(GOLDEN), timeout=180)
+    if sandbox_error:
+        return sandbox_error, 0
     output = result.stdout + result.stderr
     match = re.search(r"(\d+) passed", output)
     return output[-1800:], int(match.group(1)) if match else 0
@@ -58,13 +58,15 @@ def run_tests():
 
 def main():
     cfg = Config.from_env()
+    task_spec = os.environ.get("SPARKBENCH_AGENT_SPEC")
     metrics = {"label": LABEL, "part": "A_interp", "turns": 0, "tool_calls": 0,
                "invalid_tool_calls": 0, "http_errors": 0, "turn_seconds": [], "finish_reasons": [],
                "completion_tokens": [], "reasoning_chars": [], "passed": 0, "total": 31,
                "converged": False, "notes": [],
                "sampling": {"temperature": 0.6, "top_p": 0.95, "max_tokens": BUDGETS["agent"][0],
                             "wall_budget_s": BUDGETS["agent"][1]}}
-    messages = [{"role": "system", "content": CONTRACT},
+    contract = CONTRACT + ("\n" + Path(task_spec).read_text() if task_spec else "")
+    messages = [{"role": "system", "content": contract},
                 {"role": "user", "content": "Start now: write a complete implementation, then test it."}]
     transcript = list(messages)
     for turn in range(1, MAX_TURNS + 1):

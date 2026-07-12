@@ -31,10 +31,10 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "sblib.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
+    "sblib.py", "sandbox.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
     "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "edge_probes.py", "test_interp.py",
     "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
-    "SCORING_AGENT.md", "SCORING_QA.md",
+    "SCORING_AGENT.md", "SCORING_QA.md", "gen_agent_task.py", "reference_interp.py",
 )
 
 
@@ -54,7 +54,8 @@ class Materialization:
     context_variant: str
 
 
-def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base_url: str | None = None) -> Materialization:
+def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base_url: str | None = None,
+                               agent_variant: str | None = None) -> Materialization:
     """Batch-1 seam for Tasks 5/6/9.
 
     Future generators must write staged files here, validate them, and return their
@@ -65,6 +66,7 @@ def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base
     if not pool_path.exists():
         # Batch-1 tests use minimal fake roots. Production v2 always commits the pool.
         return Materialization([], [], "static-pending", "static-pending")
+    from gen_agent_task import generate_agent_task
     from gen_math import sample_pool
     from gen_longctx import generate_variant, tokenize_or_approx, validate_variant
     pool = json.loads(pool_path.read_text())
@@ -79,10 +81,10 @@ def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base
     token_count, token_source = tokenize_or_approx(base_url, variant["doc"]) if base_url else (len(variant["doc"].split()) * 1.4, "approx")
     (staging / "longctx_meta.json").write_text(json.dumps({"seed": seed, "token_count": token_count,
                                                               "token_source": token_source}, indent=2) + "\n")
-    # Task 9 adds generated agent paths to this same pre-freeze result.
+    agent = generate_agent_task(seed, source_root, staging, variant=agent_variant)
     return Materialization([Path("math_suite.json"), Path("longctx_doc.txt"), Path("longctx_suite.json"),
-                            Path("longctx_meta.json")], [item["id"] for item in sample],
-                           "static-pending", f"seed-{seed}")
+                            Path("longctx_meta.json"), *agent["files"]], [item["id"] for item in sample],
+                           agent["variant"], f"seed-{seed}")
 
 
 def _make_read_only(root: Path) -> None:
@@ -202,7 +204,7 @@ def phase_command(phase: str, harness: Path, trial_dir: Path, label: str, base_u
         return [[tool, "--base-url", base_url, "--model", model, "--perf"]]
     if phase == "agent":
         return [[py, str(harness / "agent_build_r2.py"), label, str(trial_dir / "work_agent"),
-                 str(harness / "test_interp.py"), str(trial_dir / "round2")]]
+                 str(harness / "agent_hidden_tests.py"), str(trial_dir / "round2")]]
     if phase == "logic":
         return [[py, str(harness / "logic_eval.py"), label, str(harness / "logic_suite.json"), str(trial_dir / "round2")],
                 [py, str(harness / "judge.py"), str(trial_dir / "round2")]]
@@ -223,7 +225,8 @@ def phase_command(phase: str, harness: Path, trial_dir: Path, label: str, base_u
 def run_phase(phase: str, harness: Path, trial_dir: Path, label: str, base_url: str, model: str) -> bool:
     environment = os.environ.copy()
     environment.update({"SPARKBENCH_BASE_URL": base_url, "SPARKBENCH_MODEL": model,
-                        "SPARKBENCH_RUN_DIR": str(trial_dir), "PYTHONDONTWRITEBYTECODE": "1"})
+                        "SPARKBENCH_RUN_DIR": str(trial_dir), "PYTHONDONTWRITEBYTECODE": "1",
+                        "SPARKBENCH_AGENT_SPEC": str(harness / "agent_task.json")})
     for command in phase_command(phase, harness, trial_dir, label, base_url, model):
         output = trial_dir / f"{phase}.log"
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -243,7 +246,7 @@ def run(args: argparse.Namespace) -> int:
         run_dir = bench_root / f"{args.label}_{time.strftime('%Y%m%d-%H%M%S')}"
         run_dir.mkdir(parents=True)
         staging = run_dir / "staging"
-        generated = materialize_dynamic_inputs(source_root, staging, args.seed, args.base_url)
+        generated = materialize_dynamic_inputs(source_root, staging, args.seed, args.base_url, args.agent_variant)
         files = list(dict.fromkeys(list(HARNESS_FILES) + [str(p) for p in generated.files]))
         snapshot = snapshot_harness(source_root, run_dir, files,
                                     seed=args.seed, staged_root=staging)
@@ -307,6 +310,7 @@ def main() -> int:
     command.add_argument("--seed", type=int, default=20260712)
     command.add_argument("--bench-root", default="~/bench/sparkbench")
     command.add_argument("--correlation-id")
+    command.add_argument("--agent-variant", choices=("smoke",))
     args = parser.parse_args()
     if args.trials < 1:
         parser.error("--trials must be at least 1")
