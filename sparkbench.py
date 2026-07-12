@@ -245,6 +245,14 @@ def run(args: argparse.Namespace) -> int:
     with bench_lock(bench_root):
         run_dir = bench_root / f"{args.label}_{time.strftime('%Y%m%d-%H%M%S')}"
         run_dir.mkdir(parents=True)
+        sandbox_mode = None
+        if "agent" in phases:
+            from sandbox import sandbox_available
+            sandbox_mode = sandbox_available()
+            if not sandbox_mode:
+                write_status(run_dir, {"run_status": "INVALID", "phases": {phase: "pending" for phase in phases},
+                                       "reason": "agent sandbox unavailable: unshare and docker failed"})
+                return 2
         staging = run_dir / "staging"
         generated = materialize_dynamic_inputs(source_root, staging, args.seed, args.base_url, args.agent_variant)
         files = list(dict.fromkeys(list(HARNESS_FILES) + [str(p) for p in generated.files]))
@@ -258,7 +266,7 @@ def run(args: argparse.Namespace) -> int:
                     "context_variant": generated.context_variant, "cmdline": sys.argv,
                     "base_url": args.base_url, "model": args.model, "container": args.container,
                     "phases": phases, "trials": args.trials, "correlation_id": correlation_id,
-                    "started_ts": time.time(), **provenance}
+                    "started_ts": time.time(), "agent_sandbox": sandbox_mode, **provenance}
         write_json_atomic(run_dir / "manifest.json", manifest)
         status: dict[str, Any] = {"run_status": "RUNNING", "phases": {phase: "pending" for phase in phases}}
         write_status(run_dir, status)

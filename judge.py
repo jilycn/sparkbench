@@ -18,14 +18,15 @@ def main():
     interp = run_dir / "interp.py"
     if interp.exists():
         tests = Path.cwd() / ("agent_hidden_tests.py" if (Path.cwd() / "agent_hidden_tests.py").exists() else "test_interp.py")
-        result, error = run_pytest(interp, tests)
+        result, error, sandbox_mode = run_pytest(interp, tests)
         match = re.search(r"(\d+) passed", result.stdout + result.stderr) if result else None
         score["A1_hidden"] = round((int(match.group(1)) if match else 0) / 32 * 45, 1)
         probes = Path.cwd() / ("agent_edge_probes.py" if (Path.cwd() / "agent_edge_probes.py").exists() else "edge_probes.py")
-        probe_result, _probe_error = run_script(interp, probes)
+        probe_result, _probe_error, _probe_mode = run_script(interp, probes)
         probe_match = re.search(r"(\d+)/10", probe_result.stdout) if probe_result else None
         score["A2_probes"] = round((int(probe_match.group(1)) if probe_match else 0) / 10 * 15, 1)
         score["A3_quality"] = 5 if deny_reason(interp.read_text()) is None else 0
+        score["detail"]["sandbox"] = sandbox_mode or error
     answers_path = run_dir / "logic_answers.json"
     if answers_path.exists():
         answers = json.loads(answers_path.read_text())

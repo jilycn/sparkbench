@@ -47,13 +47,13 @@ def write_file(args):
 def run_tests():
     candidate = Path(WORK) / "interp.py"
     if not candidate.exists():
-        return "NO interp.py", 0
-    result, sandbox_error = run_pytest(candidate, Path(GOLDEN), timeout=180)
+        return "NO interp.py", 0, None
+    result, sandbox_error, sandbox_mode = run_pytest(candidate, Path(GOLDEN), timeout=180)
     if sandbox_error:
-        return sandbox_error, 0
+        return sandbox_error, 0, sandbox_mode
     output = result.stdout + result.stderr
     match = re.search(r"(\d+) passed", output)
-    return output[-1800:], int(match.group(1)) if match else 0
+    return output[-1800:], int(match.group(1)) if match else 0, sandbox_mode
 
 
 def main():
@@ -100,7 +100,8 @@ def main():
             if function.get("name") == "write_file":
                 reply = write_file(arguments)
             elif function.get("name") == "run_tests":
-                reply, passed = run_tests()
+                reply, passed, sandbox_mode = run_tests()
+                metrics["sandbox"] = sandbox_mode
                 metrics["passed"] = passed
                 metrics["converged"] = passed >= metrics["total"]
             else:
@@ -111,7 +112,8 @@ def main():
             transcript.append(tool_message)
         if metrics["converged"]:
             break
-    _output, passed = run_tests()
+    _output, passed, sandbox_mode = run_tests()
+    metrics["sandbox"] = sandbox_mode
     metrics["passed"] = passed
     metrics["converged"] = passed >= metrics["total"]
     if os.path.exists(os.path.join(WORK, "interp.py")):
