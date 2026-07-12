@@ -33,7 +33,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
     "sblib.py", "sandbox.py", "stability.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
-    "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "edge_probes.py", "test_interp.py",
+    "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "sparkbench_report.py", "edge_probes.py", "test_interp.py",
     "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
     "SCORING_AGENT.md", "SCORING_QA.md", "gen_agent_task.py", "reference_interp.py",
 )
@@ -269,7 +269,7 @@ def run(args: argparse.Namespace) -> int:
         snapshot = snapshot_harness(source_root, run_dir, files,
                                     seed=args.seed, staged_root=staging)
         provenance = capture_provenance(args.base_url, args.container)
-        manifest = {"harness_git_commit": _run_json(["git", "-C", str(source_root), "rev-parse", "HEAD"]),
+        manifest = {"label": args.label, "harness_git_commit": _run_json(["git", "-C", str(source_root), "rev-parse", "HEAD"]),
                     "git_dirty": bool(_run_json(["git", "-C", str(source_root), "status", "--porcelain"])),
                     **snapshot, "scoring_version": 2, "suite_version": "2-pending",
                     "math_sample_ids": generated.math_sample_ids, "agent_variant": generated.agent_variant,
@@ -307,10 +307,18 @@ def run(args: argparse.Namespace) -> int:
             write_status(run_dir, status)
             return 2
         stability.write_stability(run_dir, stability_before, args.container)
-        status["run_status"] = "PARTIAL" if any_failed else "COMPLETE"
+        status["run_status"] = "PARTIAL" if any_failed or set(phases) != set(PHASES) else "COMPLETE"
         status["ended_ts"] = time.time()
         write_status(run_dir, status)
-        # Task 10/11 add stability and scorecard generation here.
+        report_log = run_dir / "report.log"
+        with report_log.open("w", encoding="utf-8") as log:
+            report_result = subprocess.run([sys.executable, str(run_dir / "harness" / "sparkbench_report.py"), str(run_dir)],
+                                           cwd=run_dir / "harness", stdout=log, stderr=subprocess.STDOUT)
+        if report_result.returncode:
+            status["run_status"] = "PARTIAL"
+            status["reason"] = "report generation failed"
+            write_status(run_dir, status)
+            return 1
         return 1 if any_failed else 0
 
 
