@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lc1",
+    "q": "What is the SUM in dollars of the Q1 Atlas infrastructure budget and the supplemental GPU hardware budget? Answer format: {\"answer\": <int>}",
+    "answer": 65640,
+    "tol": 0
+  },
+  {
+    "id": "lc2",
+    "q": "Which TEAM does the person who completed the master signing key rotation belong to? Answer format: {\"answer\": \"<team name>\"}",
+    "answer": "Cinder",
+    "tol": null
+  },
+  {
+    "id": "lc3",
+    "q": "How many INCIDENT entries does srv-quartz have in this log? Answer format: {\"answer\": <int>}",
+    "answer": 2,
+    "tol": 0
+  },
+  {
+    "id": "lc4",
+    "q": "What platform version was deployed to production on the same day Tomas Reyes transferred teams? Answer format: {\"answer\": \"<version>\"}",
+    "answer": "v4.7.2",
+    "tol": null
+  },
+  {
+    "id": "lc5",
+    "q": "What is the project codename for the migration initiative? Answer format: {\"answer\": \"<codename>\"}",
+    "answer": "IndigoFalcon",
+    "tol": null
+  },
+  {
+    "id": "lc6",
+    "q": "On which two March dates (day numbers) did srv-quartz have incidents? Answer format: {\"answer\": [<day>, <day>]} sorted ascending",
+    "answer": [
+      7,
+      23
+    ],
+    "tol": null
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "m1",
+    "q": "A jacket costs $334. It is discounted 15%, then an additional 12% off the reduced price. Finally 7% sales tax is added. What is the final price in dollars? Answer format: {\"answer\": <number>} (round to 2 decimals)",
+    "answer": 267.32,
+    "tol": 0.01
+  },
+  {
+    "id": "m2",
+    "q": "Worker A paints a room alone in 6 hours. Worker B does it alone in 17 hours. Working together at these rates, how many hours to paint one room? Answer format: {\"answer\": <number>} (round to 2 decimals)",
+    "answer": 4.43,
+    "tol": 0.01
+  },
+  {
+    "id": "m3",
+    "q": "You mix 6 liters of a 20% acid solution with 2 liters of a 60% acid solution. What is the acid concentration percentage of the mixture? Answer format: {\"answer\": <number>} (round to 2 decimals)",
+    "answer": 30.0,
+    "tol": 0.01
+  },
+  {
+    "id": "m4",
+    "q": "$4000 is invested at 6% annual compound interest. What is the total amount after 3 years? Answer format: {\"answer\": <number>} (round to 2 decimals)",
+    "answer": 4764.06,
+    "tol": 0.01
+  },
+  {
+    "id": "m5",
+    "q": "Two trains start at the same time from stations 300 km apart, heading toward each other at 46 km/h and 81 km/h. After how many hours do they meet? Answer format: {\"answer\": <number>} (round to 2 decimals)",
+    "answer": 2.36,
+    "tol": 0.01
+  },
+  {
+    "id": "m6",
+    "q": "Three bells ring every 10, 9, and 14 minutes. They all ring together at noon. After how many minutes do they next all ring together? Answer format: {\"answer\": <int>}",
+    "answer": 630,
+    "tol": 0
+  },
+  {
+    "id": "m7",
+    "q": "A committee needs exactly 2 members chosen from 9 engineers and exactly 3 members chosen from 8 designers. How many different committees are possible? Answer format: {\"answer\": <int>}",
+    "answer": 2016,
+    "tol": 0
+  },
+  {
+    "id": "m8",
+    "q": "What is the remainder when 13^88 is divided by 11? Answer format: {\"answer\": <int>}",
+    "answer": 3,
+    "tol": 0
+  },
+  {
+    "id": "m9",
+    "q": "The average of 11 numbers is 63. One number, 30, is removed. What is the average of the remaining 10 numbers? Answer format: {\"answer\": <number>} (round to 2 decimals)",
+    "answer": 66.3,
+    "tol": 0.01
+  },
+  {
+    "id": "m10",
+    "q": "3 apples and 2 bananas cost $25. 1 apple and 4 bananas cost $35. What does one apple cost in dollars? Answer format: {\"answer\": <number>}",
+    "answer": 3,
+    "tol": 0.01
+  }
+]

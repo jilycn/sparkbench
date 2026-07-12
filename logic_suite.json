@@ -1,0 +1,103 @@
+[
+  {
+    "id": "kk1",
+    "q": "On an island, knights always tell the truth and knaves always lie. Three islanders: Aris says 'Bo is a knave.' Bo says 'Aris and Cyra are the same kind.' Cyra says 'I am a knight.' Cyra is known to be of the opposite kind to Bo. For each of Aris, Bo, Cyra answer knight or knave. Answer format: {\"Aris\":\"knight|knave\",\"Bo\":...,\"Cyra\":...}",
+    "check": "kk1",
+    "answer": {
+      "Aris": "knave",
+      "Bo": "knight",
+      "Cyra": "knave"
+    }
+  },
+  {
+    "id": "kk2",
+    "q": "Knights always tell truth, knaves always lie. Dax says 'Eli and Fern are both knights.' Eli says 'Gus is a knave.' Fern says 'Dax and Gus are different kinds.' Gus says 'Exactly two of the four of us are knights.' It is also known that Eli is a knave. For each of Dax, Eli, Fern, Gus answer knight or knave. Answer format: {\"Dax\":...,\"Eli\":...,\"Fern\":...,\"Gus\":...}",
+    "answer": {
+      "Dax": "knave",
+      "Eli": "knave",
+      "Fern": "knight",
+      "Gus": "knight"
+    },
+    "check": "exact"
+  },
+  {
+    "id": "grid1",
+    "q": "Four houses in a row, positions 1-4 left to right. Each house has a unique color (red, blue, green, white), pet (cat, dog, fish, bird), drink (tea, coffee, milk, juice). Clues: 1) The red house is leftmost. 2) The cat owner lives next to the blue house. 3) The green house's owner drinks milk. 4) The dog lives in the rightmost house. 5) The cat owner drinks tea. 6) The coffee drinker lives next to the milk drinker. 7) The white house is not in position 2. 8) The fish is somewhere left of the bird. 9) The juice drinker lives in the rightmost house. 10) The blue house is in position 2. Which position (1-4) has the fish, and what color is that house? Answer format: {\"position\": <int>, \"color\": \"<color>\"}",
+    "answer": {
+      "position": 2,
+      "color": "blue"
+    },
+    "check": "exact"
+  },
+  {
+    "id": "seat1",
+    "q": "Five people P,Q,R,S,T sit at a round table with seats numbered 1-5 clockwise. P sits in seat 1. Q sits in seat 2 (immediately clockwise of P). R is not adjacent to P. S is not in seat 3. T is adjacent to R but NOT adjacent to Q. Who sits in each seat? Answer format: {\"1\":\"P\",\"2\":...,\"3\":...,\"4\":...,\"5\":...}",
+    "answer": {
+      "1": "P",
+      "2": "Q",
+      "3": "R",
+      "4": "T",
+      "5": "S"
+    },
+    "check": "exact"
+  },
+  {
+    "id": "num1",
+    "q": "Find the two-digit number where: digits sum to 11, the number is divisible by 4, and the tens digit is greater than the units digit. Answer format: {\"number\": <int>}",
+    "answer": {
+      "number": 92
+    },
+    "check": "exact"
+  },
+  {
+    "id": "sched1",
+    "q": "Five tasks A,B,C,D,E scheduled one per day Mon-Fri. Constraints: A is before C. B is the day immediately after A. D is not on Mon or Fri. E is on Mon or Fri, but not Mon. C is after D. Which day is each task? Answer format: {\"A\":\"Mon|Tue|Wed|Thu|Fri\",\"B\":...,\"C\":...,\"D\":...,\"E\":...}",
+    "answer": {
+      "A": "Mon",
+      "B": "Tue",
+      "C": "Thu",
+      "D": "Wed",
+      "E": "Fri"
+    },
+    "check": "exact"
+  },
+  {
+    "id": "logic1",
+    "q": "Four weather facts (each true or false): rain, wind, cold, snow. Rules: If it rains, it is cold. If it is cold, there is wind or snow (or both). It snows if and only if it does not rain. If there is wind, it does not rain. There IS wind. It IS cold. Determine rain and snow. Answer format: {\"rain\": true|false, \"snow\": true|false}",
+    "answer": {
+      "rain": false,
+      "snow": true
+    },
+    "check": "exact"
+  },
+  {
+    "id": "race1",
+    "q": "Five runners U,V,W,X,Y finish a race, no ties. U beat V. W finished immediately before or after U. X was not first. Either Y or X was last. V finished exactly third. W beat V. W was first. Y was last. Give finishing order first to last. Answer format: {\"order\": [\"first\",...,\"last\"]}",
+    "answer": {
+      "order": [
+        "W",
+        "U",
+        "V",
+        "X",
+        "Y"
+      ]
+    },
+    "check": "exact"
+  },
+  {
+    "id": "count1",
+    "q": "In a class of 30 students, 18 study math, 15 study physics, and 6 study neither. How many study both math and physics? Answer format: {\"both\": <int>}",
+    "answer": {
+      "both": 9
+    },
+    "check": "exact"
+  },
+  {
+    "id": "jug1",
+    "q": "You have a 5-liter jug and a 3-liter jug, both empty, and unlimited water. Each action is one step: completely fill a jug, completely empty a jug, or pour from one jug to the other until the source is empty or the target is full. What is the minimum number of steps to have exactly 4 liters in one jug? Answer format: {\"steps\": <int>}",
+    "answer": {
+      "steps": 6
+    },
+    "check": "exact"
+  }
+]
