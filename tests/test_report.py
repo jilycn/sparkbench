@@ -52,6 +52,16 @@ def test_load_only_fixture_omits_missing_math_and_context_from_present_axes(tmp_
     assert set(report["skipped"]) >= {"MATH", "CONTEXT"}
 
 
+def test_agent_only_run_does_not_report_logic_from_shared_round2_judge(tmp_path):
+    run = _complete_run(tmp_path)
+    _write(run / "status.json", {"run_status": "PARTIAL"})
+    manifest = json.loads((run / "manifest.json").read_text())
+    manifest["phases"] = ["agent"]
+    _write(run / "manifest.json", manifest)
+    report = build_report(run)
+    assert report["present"] == ["AGENT"]
+
+
 def test_fatal_cap_is_applied(tmp_path):
     run = _complete_run(tmp_path)
     _write(run / "stability.json", {"score100": 100, "grade_cap": "C"})

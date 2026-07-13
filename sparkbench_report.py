@@ -82,6 +82,10 @@ def build_report(run_dir: Path):
     if run_status == "COMPLETE" and stability.exists():
         value = json.loads(stability.read_text())
         axes["STABILITY"] = _axis(value["score100"], f"{value['score100']}/100", WEIGHTS["STABILITY"])
+    phase_axes = {"tools": "TOOLS", "agent": "AGENT", "logic": "LOGIC", "math": "MATH",
+                  "context": "CONTEXT", "load": "LOAD"}
+    selected_axes = {phase_axes[phase] for phase in manifest.get("phases", phase_axes) if phase in phase_axes}
+    axes = {name: axis for name, axis in axes.items() if name == "STABILITY" or name in selected_axes}
     present = list(axes)
     complete = run_status == "COMPLETE" and set(axes) == set(WEIGHTS)
     overall = round(sum(axis["weighted"] for axis in axes.values()), 1) if complete else None
