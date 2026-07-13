@@ -57,3 +57,9 @@ def test_real_materialization_stages_sampled_math_context_and_hidden_agent_input
     for name in ("math_suite.json", "longctx_doc.txt", "longctx_suite.json", "agent_hidden_tests.py",
                  "agent_edge_probes.py", "agent_task.json"):
         assert (tmp_path / name).is_file()
+
+
+def test_agent_phase_includes_the_judge_that_produces_score_artifact(tmp_path):
+    commands = sparkbench.phase_command("agent", tmp_path, tmp_path, "label", "http://example/v1", "model")
+    assert len(commands) == 2
+    assert commands[-1][1].endswith("judge.py")

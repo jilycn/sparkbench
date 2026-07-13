@@ -64,6 +64,8 @@ class ChatResult:
     error: str | None = None
     tool_calls: list[dict[str, Any]] = dataclasses.field(default_factory=list)
     reasoning_text: str = ""
+    http_status: int | None = None
+    http_body_snippet: str | None = None
 
 
 def write_json_atomic(path: str | Path, obj: Any) -> None:
@@ -212,6 +214,8 @@ def chat(
     ttft_s: float | None = None
     status = "ok"
     error: str | None = None
+    http_status: int | None = None
+    http_body_snippet: str | None = None
     response = None
     try:
         response = urllib.request.urlopen(request, timeout=max(0.01, wall_budget_s))
@@ -251,7 +255,12 @@ def chat(
             completion_tokens = ct if ct is not None else completion_tokens
     except urllib.error.HTTPError as exc:
         status = "http_error"
-        error = f"HTTP {exc.code}"
+        http_status = exc.code
+        try:
+            http_body_snippet = exc.read(512).decode("utf-8", "replace").replace("\n", " ")[:512]
+        except Exception:
+            http_body_snippet = None
+        error = f"HTTP {exc.code}" + (f": {http_body_snippet}" if http_body_snippet else "")
     except (TimeoutError, socket.timeout, urllib.error.URLError) as exc:
         status = "timeout"
         error = str(exc)[:200]
@@ -280,7 +289,9 @@ def chat(
         "wall_budget_s": wall_budget_s,
         "max_tokens": max_tokens,
         "error": error,
+        "http_status": http_status,
+        "http_body_snippet": http_body_snippet,
     })
     return ChatResult(text, finish_reason, status, latency_s, ttft_s, prompt_tokens,
                       completion_tokens, request_id, error, list(tool_calls.values()),
-                      "".join(reasoning_parts))
+                      "".join(reasoning_parts), http_status, http_body_snippet)

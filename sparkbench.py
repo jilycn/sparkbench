@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterator
 
-from sblib import write_json_atomic
+from sblib import append_jsonl, write_json_atomic
 
 
 PHASES = ("tools", "agent", "logic", "math", "context", "load")
@@ -214,7 +214,8 @@ def phase_command(phase: str, harness: Path, trial_dir: Path, label: str, base_u
         return [[tool, "--base-url", base_url, "--model", model, "--perf"]]
     if phase == "agent":
         return [[py, str(harness / "agent_build_r2.py"), label, str(trial_dir / "work_agent"),
-                 str(harness / "agent_hidden_tests.py"), str(trial_dir / "round2")]]
+                 str(harness / "agent_hidden_tests.py"), str(trial_dir / "round2")],
+                [py, str(harness / "judge.py"), str(trial_dir / "round2")]]
     if phase == "logic":
         return [[py, str(harness / "logic_eval.py"), label, str(harness / "logic_suite.json"), str(trial_dir / "round2")],
                 [py, str(harness / "judge.py"), str(trial_dir / "round2")]]
@@ -244,6 +245,16 @@ def run_phase(phase: str, harness: Path, trial_dir: Path, label: str, base_url: 
             result = subprocess.run(command, cwd=harness, env=environment, stdout=log, stderr=subprocess.STDOUT)
         if result.returncode:
             return False
+    required = {"agent": trial_dir / "round2" / "score.json",
+                "logic": trial_dir / "round2" / "score.json",
+                "math": trial_dir / "round3" / "score3.json",
+                "context": trial_dir / "round3" / "score3.json",
+                "load": trial_dir / "round3" / "load.json"}.get(phase)
+    if required is not None and not required.is_file():
+        append_jsonl(trial_dir / "events.jsonl", {"request_id": f"phase-{phase}-artifact", "ts": time.time(),
+                                                    "phase": phase, "status": "phase_error",
+                                                    "error": f"required score artifact missing: {required.name}"})
+        return False
     return True
 
 

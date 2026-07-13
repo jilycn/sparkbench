@@ -80,7 +80,10 @@ def test_length_finish_is_truncated(tmp_path, server):
 def test_http_error_is_recorded(tmp_path, server):
     result = _result(tmp_path, server, mode="http_error")
     assert result.status == "http_error"
-    assert _events(tmp_path)[0]["status"] == "http_error"
+    event = _events(tmp_path)[0]
+    assert event["status"] == "http_error"
+    assert event["http_status"] == 500
+    assert event["http_body_snippet"] == "broken"
 
 
 def test_wall_budget_aborts_slow_response(tmp_path, server):
