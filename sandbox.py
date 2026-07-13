@@ -7,7 +7,10 @@ import resource
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
+
+from sblib import append_jsonl
 
 
 DENIED_IMPORTS = {"os", "sys", "subprocess", "socket", "shutil", "pathlib", "builtins", "importlib"}
@@ -51,9 +54,7 @@ def _probe_unshare():
 def _probe_docker():
     if not shutil.which("docker"):
         return False
-    command = ["docker", "run", "--rm", "--network=none", "--memory=2g", "--cpus=2", "--pids-limit=256",
-               "--read-only", "--tmpfs", "/tmp:rw,size=64m", "--entrypoint", "/usr/local/bin/python3", DOCKER_IMAGE,
-               "-c", "print('sandbox-ready')"]
+    command = _docker_command(None, ["python", "-c", "print('sandbox-ready')"])
     try:
         return subprocess.run(command, capture_output=True, text=True, timeout=20).returncode == 0
     except (OSError, subprocess.TimeoutExpired):
@@ -91,7 +92,7 @@ raise SystemExit(1 if failed else 0)
 
 
 def _prepare_workspace(candidate: Path, script: Path, name: str):
-    temporary = tempfile.TemporaryDirectory(prefix="sparkbench-agent-")
+    temporary = tempfile.TemporaryDirectory(prefix="sparkbench-agent-", ignore_cleanup_errors=True)
     work = Path(temporary.name)
     shutil.copy2(candidate, work / "interp.py")
     shutil.copy2(script, work / name)
@@ -100,15 +101,53 @@ def _prepare_workspace(candidate: Path, script: Path, name: str):
     return temporary, work
 
 
+def _docker_command(work: Path | None, command: list[str]) -> list[str]:
+    """Build the Docker invocation used for both probing and agent execution.
+
+    The mounted workspace is deliberately written by the sandbox test runner,
+    so the container must run as the benchmark's host user rather than the
+    image default (usually root).
+    """
+    full_command = [
+        "docker", "run", "--rm", "--network=none", "--memory=2g", "--cpus=2", "--pids-limit=256",
+        "--user", f"{os.getuid()}:{os.getgid()}", "--read-only", "--tmpfs", "/tmp:rw,size=64m",
+    ]
+    if work is not None:
+        full_command.extend(["-v", f"{work}:/work:rw", "-w", "/work"])
+    return [*full_command, "--entrypoint", "/usr/local/bin/python3", DOCKER_IMAGE, *command[1:]]
+
+
+def _record_cleanup_warning(error: str) -> None:
+    """Best-effort event emission; a cleanup issue must not mask a score."""
+    run_dir = os.environ.get("SPARKBENCH_RUN_DIR")
+    if not run_dir:
+        return
+    try:
+        append_jsonl(Path(run_dir) / "events.jsonl", {
+            "ts": time.time(),
+            "phase": "agent",
+            "event": "sandbox_cleanup_warning",
+            "error": error,
+        })
+    except Exception:
+        # A reporting-path failure must not turn cleanup into a phase failure.
+        pass
+
+
+def _cleanup_workspace(temporary) -> None:
+    try:
+        temporary.cleanup()
+    except Exception as exc:
+        _record_cleanup_warning(f"{type(exc).__name__}: {exc}")
+
+
 def _run_in_sandbox(work: Path, command: list[str], mode: str, timeout: int):
     environment = {"PATH": os.environ.get("PATH", ""), "PYTHONPATH": "", "HOME": str(work), "PYTHONDONTWRITEBYTECODE": "1"}
     if mode == SANDBOX_UNSHARE:
         full_command = ["unshare", "-n", "--", *command]
         kwargs = {"cwd": work, "env": environment, "preexec_fn": _limits}
     else:
-        full_command = ["docker", "run", "--rm", "--network=none", "--memory=2g", "--cpus=2", "--pids-limit=256",
-                        "--read-only", "--tmpfs", "/tmp:rw,size=64m", "-v", f"{work}:/work:rw", "-w", "/work",
-                        "--entrypoint", "/usr/local/bin/python3", DOCKER_IMAGE, *command[1:]]
+        full_command = _docker_command(work, command)
         kwargs = {"cwd": work}
     try:
         return subprocess.run(full_command, capture_output=True, text=True, timeout=timeout, **kwargs), None
@@ -128,7 +167,7 @@ def _run(candidate: Path, script: Path, script_name: str, command: list[str], ti
         result, error = _run_in_sandbox(work, command, mode, timeout)
         return result, error, mode
     finally:
-        temporary.cleanup()
+        _cleanup_workspace(temporary)
 
 
 def run_pytest(candidate: Path, tests: Path, timeout=180):
