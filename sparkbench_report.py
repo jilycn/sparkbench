@@ -86,6 +86,9 @@ def build_report(run_dir: Path):
                   "context": "CONTEXT", "load": "LOAD"}
     selected_axes = {phase_axes[phase] for phase in manifest.get("phases", phase_axes) if phase in phase_axes}
     axes = {name: axis for name, axis in axes.items() if name == "STABILITY" or name in selected_axes}
+    # A shared judge may emit more than one score (agent/logic share round2),
+    # but a partial run must never surface an unselected axis as a silent zero.
+    per_trial = [{name: value for name, value in trial.items() if name in selected_axes} for trial in per_trial]
     present = list(axes)
     complete = run_status == "COMPLETE" and set(axes) == set(WEIGHTS)
     overall = round(sum(axis["weighted"] for axis in axes.values()), 1) if complete else None

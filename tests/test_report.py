@@ -60,6 +60,7 @@ def test_agent_only_run_does_not_report_logic_from_shared_round2_judge(tmp_path)
     _write(run / "manifest.json", manifest)
     report = build_report(run)
     assert report["present"] == ["AGENT"]
+    assert report["trials"]["per_trial"] == [{"AGENT": 100.0}]
 
 
 def test_fatal_cap_is_applied(tmp_path):
