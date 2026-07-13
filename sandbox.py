@@ -12,6 +12,8 @@ from pathlib import Path
 
 DENIED_IMPORTS = {"os", "sys", "subprocess", "socket", "shutil", "pathlib", "builtins", "importlib"}
 DENIED_NAMES = {"eval", "exec", "compile", "open", "__import__", "getattr", "setattr", "delattr"}
+DENIED_DUNDERS = {"__class__", "__bases__", "__base__", "__mro__", "__subclasses__", "__globals__",
+                  "__builtins__", "__getattribute__", "__getattr__", "__reduce__", "__reduce_ex__"}
 SANDBOX_UNSHARE = "unshare"
 SANDBOX_DOCKER = "docker"
 # Pinned, locally present image. It provides Python 3 but not pytest, so the
@@ -31,8 +33,8 @@ def deny_reason(source: str) -> str | None:
                 return "denied import"
         if isinstance(node, ast.Name) and node.id in DENIED_NAMES:
             return f"denied name: {node.id}"
-        if isinstance(node, ast.Attribute) and node.attr.startswith("__"):
-            return "denied dunder attribute"
+        if isinstance(node, ast.Attribute) and node.attr in DENIED_DUNDERS:
+            return "denied reflective dunder attribute"
     return None
 
 

@@ -25,6 +25,7 @@ def test_preflight_denies_dynamic_or_system_access_before_execution():
     assert deny_reason("eval('1')\n")
     assert deny_reason("x.__globals__\n")
     assert deny_reason("class Token:\n    __slots__ = ('value',)\n    def __init__(self): pass\n") is None
+    assert deny_reason("dict.__getitem__({}, 'x')\n") is None
     assert deny_reason("def run(x): return []\n") is None
 
 
