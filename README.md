@@ -64,15 +64,32 @@ Run the test suite: `venv/bin/python -m pytest -q`.
 | Axis | Weight | What it measures |
 |---|---:|---|
 | **TOOLS** | 27% | Single-turn function calling over a fixed eval suite: valid calls, correct arguments, correct format — and *not* calling tools when it shouldn't. |
-| **AGENT** | 22% | Multi-turn agentic coding: the model must build a working language interpreter through tool use (write file / run tests) inside the sandbox. Scored on a hidden test suite (40), unseen generalization probes (10), static code quality — no `eval` cheating, structured code (10), turn efficiency with penalties per truncation/invalid call (10), plus exact-JSON logic puzzles (30). See [SCORING_AGENT.md](SCORING_AGENT.md). |
+| **AGENT** | 22% | Multi-turn agentic coding: the model must build a working language interpreter through tool use (write file / run tests) inside the sandbox. Scored on a hidden test suite (40), unseen generalization probes (10), static code quality — no `eval` cheating, structured code (10), turn efficiency with penalties per truncation/invalid call (10), plus exact-JSON logic puzzles (30). See [docs/SCORING_AGENT.md](docs/SCORING_AGENT.md). |
 | **LOGIC** | 10% | Brute-force-verified logic puzzles; answers must be exact final-line JSON. Reasoning *with format discipline*. |
 | **MATH** | 8% | 30 seeded, stratified problems under a tight budget (2048 tokens / 120 s). Punishes models that need long chain-of-thought to compute. |
 | **CONTEXT** | 10% | Adversarial long-context retrieval + reasoning over a generated document. Verifies the advertised window actually works. |
 | **LOAD** | 13% | Concurrent trivial requests scored on a latency SLO: full marks at p95 ≤ 15 s, sliding to zero at 60 s. Correctness is a sanity floor (>1% wrong caps at 50; >5% zeroes). "Can the pipe survive real usage." |
 | **STABILITY** | 10% | Event-sourced: timeouts, truncations, HTTP errors, container restarts, OOM/dmesg. *Known limitation: current zero-out policy is too strict and non-discriminating; a rate-scaled version is planned (see CHANGELOG).* |
 
-Grade policy (`SCORING.md`): any fatal server event caps the grade at C; any scored-phase
-truncation/runaway caps at A-. The grade is a summary — read the profile.
+Grade policy ([docs/SCORING.md](docs/SCORING.md)): any fatal server event caps the grade at C; any
+scored-phase truncation/runaway caps at A-. The grade is a summary — read the profile.
+
+## Repository layout
+
+```
+sparkbench.py             # the driver — `run` entry point
+sparkbench_report.py      # render a scorecard from a run dir
+sparkbench_compare.py     # diff two comparable runs
+sparkbench_leaderboard.py # regenerate the leaderboard from a bench root
+core/                     # harness modules: evaluators, judges, generators, sandbox
+suites/                   # committed task data: logic/math pools, long-context seed
+docs/                     # scoring policy + agent scoring spec
+examples/                 # a real scorecard from the GB10 champion run
+tests/                    # pytest suite (pure stdlib, no GPU needed)
+```
+
+Every run still freezes a *flat* snapshot of these files (`manifest.json` records the hashes), so a
+source edit can never affect a live run regardless of layout.
 
 ## Output layout
 
