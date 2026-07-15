@@ -31,14 +31,16 @@ predictor of real-world agentic usefulness in our data is the AGENT axis, not LO
   network-disabled, non-root Docker container (AST-level deny list as a second layer).
 - **Event-sourced stability.** Timeouts, truncations, HTTP errors, container restarts, and kernel
   log events are recorded as first-class results, not noise.
-- **Zero runtime dependencies.** Pure Python 3.12+ standard library. `pytest` for the test suite,
-  Docker for the agent sandbox.
+- **Minimal dependencies.** The harness itself is pure Python 3.12+ standard library. External
+  requirements: [tool-eval-bench](https://github.com/SeraphimSerapis/tool-eval-bench) for the TOOLS
+  axis, Docker for the agent sandbox, `pytest` for the test suite.
 
 ## Quickstart
 
 ```bash
 git clone https://github.com/jilycn/sparkbench && cd sparkbench
 python3 -m venv venv && venv/bin/pip install pytest   # pytest only needed for the test suite
+uv tool install tool-eval-bench                       # powers the TOOLS axis (or pipx install)
 
 # serve your model on any OpenAI-compatible endpoint, then:
 venv/bin/python sparkbench.py run my-recipe-label \
@@ -115,6 +117,20 @@ refuses cross-version or cross-sample comparisons), `sparkbench_leaderboard.py <
 Scores compare only when the scoring version, suite version, and sampled task identities match.
 The leaderboard enforces this: legacy runs are shown but never ranked against current ones.
 
+## Credits
+
+SparkBench stands on other people's work:
+
+- **[tool-eval-bench](https://github.com/SeraphimSerapis/tool-eval-bench)** by SeraphimSerapis (MIT) —
+  the entire TOOLS axis is a normalized run of this suite.
+- **[vLLM](https://github.com/vllm-project/vllm)** and
+  **[llama.cpp](https://github.com/ggml-org/llama.cpp)** — the serving engines under test.
+- **Docker** — the agent-phase sandbox (network-disabled, non-root containers).
+- The recipes in [RESULTS.md](RESULTS.md) build on community work: **aeon-7**'s GB10 vLLM images and
+  DFlash patches, **spark-arena**'s nightly vLLM builds, **Entrpi**'s 122B installer, and quantized
+  weights from **Unsloth**, **NVIDIA**, **saricles**, and the **Qwen**, **DeepSeek**, and **Gemma**
+  model teams.
+
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Third-party tools and models retain their own licenses.
