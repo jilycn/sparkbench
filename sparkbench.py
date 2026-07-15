@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterator
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "core"))
 from sblib import append_jsonl, write_json_atomic
 
 
@@ -32,10 +33,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "sblib.py", "sandbox.py", "stability.py", "power_sample.py", "inject_eval.py", "gen_inject.py", "agent_build_r2.py", "logic_eval.py", "qa_eval.py", "conc_eval.py",
-    "think_probe.py", "judge.py", "judge3.py", "judgelib.py", "sparkbench_report.py", "edge_probes.py", "test_interp.py",
-    "logic_suite.json", "math_suite.json", "math_pool.json", "math_stress.json", "longctx_suite.json", "longctx_doc.txt", "longctx_meta.json",
-    "SCORING_AGENT.md", "SCORING_QA.md", "gen_agent_task.py", "reference_interp.py",
+    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/think_probe.py", "core/judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "core/edge_probes.py", "core/test_interp.py", "suites/logic_suite.json", "suites/math_suite.json", "suites/math_pool.json", "suites/math_stress.json", "suites/longctx_suite.json", "suites/longctx_doc.txt", "suites/longctx_meta.json", "docs/SCORING_AGENT.md", "docs/SCORING_QA.md", "core/gen_agent_task.py", "core/reference_interp.py",
 )
 
 
@@ -63,7 +61,7 @@ def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base
     relative paths before ``snapshot_harness`` copies and hashes the complete harness.
     """
     staging.mkdir(parents=True, exist_ok=True)
-    pool_path = source_root / "math_pool.json"
+    pool_path = source_root / "suites" / "math_pool.json"
     if not pool_path.exists():
         # Batch-1 tests use minimal fake roots. Production v2 always commits the pool.
         return Materialization([], [], "static-pending", "static-pending")
@@ -108,10 +106,10 @@ def snapshot_harness(source_root: Path, run_dir: Path, files: list[str] | tuple[
                   else source_root / relative_path)
         if not source.is_file():
             raise FileNotFoundError(f"required harness file missing: {relative}")
-        destination = harness / relative_path
+        destination = harness / relative_path.name
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
-        hashes[relative_path.as_posix()] = sha256(destination)
+        hashes[relative_path.name] = sha256(destination)
     _make_read_only(harness)
     return {"seed": seed, "files": hashes}
 

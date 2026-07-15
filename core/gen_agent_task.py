@@ -29,12 +29,12 @@ def _extra_test(name):
 def generate_agent_task(seed: int, source_root: Path, staging: Path, variant: str | None = None):
     name, requirement = ("smoke", "Development smoke variant only.") if variant == "smoke" else VARIANTS[seed % len(VARIANTS)]
     staging.mkdir(parents=True, exist_ok=True)
-    hidden = (source_root / "test_interp.py").read_text() + "\n" + _extra_test(name)
+    hidden = (source_root / "core" / "test_interp.py").read_text() + "\n" + _extra_test(name)
     (staging / "agent_hidden_tests.py").write_text(hidden)
-    shutil.copy2(source_root / "edge_probes.py", staging / "agent_edge_probes.py")
+    shutil.copy2(source_root / "core" / "edge_probes.py", staging / "agent_edge_probes.py")
     spec = {"variant": name, "seed": seed, "requirement": requirement}
     (staging / "agent_task.json").write_text(json.dumps(spec, indent=2) + "\n")
-    reference = source_root / "reference_interp.py"
+    reference = source_root / "core" / "reference_interp.py"
     # Test source imports ``interp``; validate inside a disposable directory where the
     # committed reference implementation is deliberately exposed under that name.
     temporary = staging / "reference_check"

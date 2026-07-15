@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validity-aware SparkBench v2 leaderboard; v1 artifacts are never rescored."""
 from __future__ import annotations
+import sys as _sys; from pathlib import Path as _P; _sys.path.insert(0, str(_P(__file__).resolve().parent / "core"))
 
 import argparse
 import json

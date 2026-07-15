@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Profile-first, versioned SparkBench v2 report generator."""
 from __future__ import annotations
+import sys as _sys; from pathlib import Path as _P; _sys.path.insert(0, str(_P(__file__).resolve().parent / "core"))
 
 import argparse
 import json
