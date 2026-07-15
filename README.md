@@ -1,5 +1,7 @@
 # SparkBench
 
+[![CI](https://github.com/jilycn/sparkbench/actions/workflows/ci.yml/badge.svg)](https://github.com/jilycn/sparkbench/actions/workflows/ci.yml)
+
 A frozen-snapshot benchmark for **local LLM serving recipes**. Point it at any OpenAI-compatible
 endpoint and it measures the whole serving experience — tool calling, multi-turn agentic coding,
 logic, math under budget, adversarial long context, latency under concurrent load, and run
@@ -84,6 +86,8 @@ stability.json     # event counts + system observations
 manifest.json      # snapshot hashes — the integrity record
 trial_1/           # per-phase logs, timings, and raw/ full request transcripts
 ```
+
+A real scorecard from the GB10 champion run: [examples/scorecard-qwen36-35b-fp8-nomtp.md](examples/scorecard-qwen36-35b-fp8-nomtp.md).
 
 Tooling: `sparkbench_report.py` (render a scorecard), `sparkbench_compare.py` (diff two runs —
 refuses cross-version or cross-sample comparisons), `sparkbench_leaderboard.py <bench-root>`
