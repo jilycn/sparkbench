@@ -31,6 +31,13 @@ docker run -d --name "$CONTAINER" \
 directory (hybrid Mamba/GDN Mamba-cache-align block-size assertion at engine-core init) — this
 model shares the same base architecture.
 
+The `--speculative-config` value above is backslash-escaped for its position inside the outer
+`docker ... -c "..."` double-quoted string. Unwrapped, the flag is:
+
+```
+--speculative-config '{"method":"mtp","num_speculative_tokens":2}'
+```
+
 ## Result
 
 SparkBench v2.1, single trial, 2026-07-16: **72.5/100 (B)**. AGENT 45.7/100, median speed **94.5
