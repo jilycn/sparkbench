@@ -280,7 +280,7 @@ def run(args: argparse.Namespace) -> int:
         provenance = capture_provenance(args.base_url, args.container)
         manifest = {"label": args.label, "harness_git_commit": _run_json(["git", "-C", str(source_root), "rev-parse", "HEAD"]),
                     "git_dirty": bool(_run_json(["git", "-C", str(source_root), "status", "--porcelain"])),
-                    **snapshot, "scoring_version": 2, "suite_version": "2-pending",
+                    **snapshot, "scoring_version": 2, "suite_version": "2.1",
                     "math_sample_ids": generated.math_sample_ids, "agent_variant": generated.agent_variant,
                     "context_variant": generated.context_variant, "cmdline": sys.argv,
                     "base_url": args.base_url, "model": args.model, "container": args.container,
