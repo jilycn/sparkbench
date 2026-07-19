@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+import uuid
 from pathlib import Path
 
 from sblib import append_jsonl
@@ -54,10 +55,14 @@ def _probe_unshare():
 def _probe_docker():
     if not shutil.which("docker"):
         return False
-    command = _docker_command(None, ["python", "-c", "print('sandbox-ready')"])
+    name = f"sparkbench-probe-{uuid.uuid4().hex[:12]}"
+    command = _docker_command(None, ["python", "-c", "print('sandbox-ready')"], name=name)
     try:
         return subprocess.run(command, capture_output=True, text=True, timeout=20).returncode == 0
-    except (OSError, subprocess.TimeoutExpired):
+    except subprocess.TimeoutExpired:
+        subprocess.run(["docker", "kill", name], capture_output=True, timeout=10)
+        return False
+    except OSError:
         return False
 
 
@@ -101,7 +106,7 @@ def _prepare_workspace(candidate: Path, script: Path, name: str):
     return temporary, work
 
 
-def _docker_command(work: Path | None, command: list[str]) -> list[str]:
+def _docker_command(work: Path | None, command: list[str], name: str | None = None) -> list[str]:
     """Build the Docker invocation used for both probing and agent execution.
 
     The mounted workspace is deliberately written by the sandbox test runner,
@@ -112,6 +117,8 @@ def _docker_command(work: Path | None, command: list[str]) -> list[str]:
         "docker", "run", "--rm", "--network=none", "--memory=2g", "--cpus=2", "--pids-limit=256",
         "--user", f"{os.getuid()}:{os.getgid()}", "--read-only", "--tmpfs", "/tmp:rw,size=64m",
     ]
+    if name:
+        full_command.extend(["--name", name])
     if work is not None:
         full_command.extend(["-v", f"{work}:/work:rw", "-w", "/work"])
     return [*full_command, "--entrypoint", "/usr/local/bin/python3", DOCKER_IMAGE, *command[1:]]
@@ -143,15 +150,22 @@ def _cleanup_workspace(temporary) -> None:
 
 def _run_in_sandbox(work: Path, command: list[str], mode: str, timeout: int):
     environment = {"PATH": os.environ.get("PATH", ""), "PYTHONPATH": "", "HOME": str(work), "PYTHONDONTWRITEBYTECODE": "1"}
+    container_name = None
     if mode == SANDBOX_UNSHARE:
         full_command = ["unshare", "-n", "--", *command]
         kwargs = {"cwd": work, "env": environment, "preexec_fn": _limits}
     else:
-        full_command = _docker_command(work, command)
+        container_name = f"sparkbench-sandbox-{uuid.uuid4().hex[:12]}"
+        full_command = _docker_command(work, command, name=container_name)
         kwargs = {"cwd": work}
     try:
         return subprocess.run(full_command, capture_output=True, text=True, timeout=timeout, **kwargs), None
     except subprocess.TimeoutExpired:
+        if container_name:
+            # subprocess.run() only kills the `docker run` CLI client on timeout;
+            # the container itself keeps running orphaned since --rm only fires
+            # on a normal container exit. Kill it explicitly by its known name.
+            subprocess.run(["docker", "kill", container_name], capture_output=True, timeout=10)
         return None, "sandbox wall timeout"
 
 
