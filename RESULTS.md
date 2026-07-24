@@ -40,6 +40,16 @@ reasoning tokens (this, plus SSE buffering, produced the absurd "692–3823 t/s"
 model-reported completion tokens / full concurrent worker window.
 ³ Champion LOGIC: in-run 50; an approved 3-trial LOGIC-only rerun scored 80/60/80 (median 80,
 range 20). Official total stays 78.7 as scored; merging the rerun median would give 81.7.
+**Repeatability disclosure (2026-07-24):** a full 3-trial in-place self-bench of the champion
+(run , COMPLETE, no stability events, 39.3 t/s) scored
+**median 69.5/C** — per-trial AGENT 35.6 / 11.1 / 39.6 (median 35.6, range 28.4), LOGIC 80/60/60,
+TOOLS 90/88/89, MATH 20/20/26.7, CONTEXT 80×3, LOAD 100×3, STABILITY 91.1. Repeatability:
+ (AGENT and LOGIC ranges far exceed the ≤5 gate). Two candidate explanations, not yet
+separated: (a) AGENT is highly stochastic at temp 0.6 — which would put ±10+ error bars on EVERY
+single-trial total on this board; (b) the in-place warm engine (hours of serving + prior phases;
+prefix-cache/fragmentation state) depresses agentic scoring versus the fresh-container run that
+produced 82.6. The official 78.7 row stands as scored pending a fresh-container AGENT-only trial
+series; read all n=1 totals with according skepticism.
 ⁴ Zeros from benching a dead endpoint after a mid-run kill (harness fail-fast gap — known
 limitation): the serve died (legitimate OOM-tripwire kill or crash) and later phases scored
 against nothing. **Totals on rows carrying ⁴ are lower bounds and not comparable** — they depend
