@@ -38,8 +38,11 @@ the model.
 
 LOGIC generates a 24-item pool (six per assignment, schedule, Boolean-constraint, and code-breaking
 family), verifies unique solutions and irreducible clue sets, then deterministically samples two per
-family. Each item is independently requested and strict normalization-only judging accepts only the
-contracted final-line JSON.
+family. Numeric distance uses one suite-wide positional convention: the absolute difference between
+the two numbered positions equals N. At materialization, every such clue is also solved under the
+plausible “N intervening positions” reading; a changed answer or uniqueness rejects that clue set
+and deterministically replaces it. Each item is independently requested and strict
+normalization-only judging accepts only the contracted final-line JSON.
 
 MATH generates a 300-item pool: 20 parameterizations of each of 15 templates, split evenly among
 easy, medium, and hard. It independently recomputes every answer, then samples two per template for

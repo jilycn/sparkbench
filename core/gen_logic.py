@@ -23,6 +23,10 @@ _NAME_SETS = (
 )
 
 
+class DistanceAmbiguityError(ValueError):
+    """A numeric-distance clue changes meaning under a plausible reading."""
+
+
 def _permutation_candidates(names: list[str]) -> Iterable[dict[str, int]]:
     for positions in itertools.permutations(range(1, len(names) + 1)):
         yield dict(zip(names, positions))
@@ -34,7 +38,7 @@ def _assignment_match(solution: dict[str, int], clue: dict) -> bool:
         return solution[clue["a"]] < solution[clue["b"]]
     if kind == "adjacent":
         return abs(solution[clue["a"]] - solution[clue["b"]]) == 1
-    if kind == "gap":
+    if kind == "distance":
         return abs(solution[clue["a"]] - solution[clue["b"]]) == clue["n"]
     if kind == "not_slot":
         return solution[clue["a"]] != clue["slot"]
@@ -49,8 +53,8 @@ def _schedule_match(solution: dict[str, int], clue: dict) -> bool:
         return solution[clue["a"]] < solution[clue["b"]]
     if kind == "immediately_before":
         return solution[clue["b"]] == solution[clue["a"]] + 1
-    if kind == "days_between":
-        return abs(solution[clue["a"]] - solution[clue["b"]]) - 1 == clue["n"]
+    if kind == "distance":
+        return abs(solution[clue["a"]] - solution[clue["b"]]) == clue["n"]
     if kind == "not_day":
         return solution[clue["a"]] != clue["day"]
     if kind == "day":
@@ -123,6 +127,30 @@ def solve_item(item: dict, limit: int | None = None) -> list[dict | list[int]]:
     return answers
 
 
+def validate_distance_ambiguity(item: dict) -> None:
+    """Reject distance clues whose plausible alternate reading changes the solution.
+
+    The canonical convention is positional distance ``abs(a - b) == n``. The
+    alternate interpretation treats ``n`` as the number of intervening
+    positions, hence ``abs(a - b) == n + 1``. Each numeric-distance clue is
+    reinterpreted independently so multiple clues cannot mask one another.
+    """
+    expected = solve_item(item, limit=2)
+    if len(expected) != 1:
+        raise ValueError(f"logic item is not uniquely solved: {item['id']}")
+    for index, clue in enumerate(item["clues"]):
+        if clue.get("type") != "distance":
+            continue
+        alternate_clues = [dict(value) for value in item["clues"]]
+        alternate_clues[index]["n"] = clue["n"] + 1
+        alternate = solve_item({**item, "clues": alternate_clues}, limit=2)
+        if alternate != expected:
+            raise DistanceAmbiguityError(
+                f"ambiguous distance in {item['id']} clue {index + 1}: "
+                "alternate reading changes uniqueness or answer"
+            )
+
+
 def _minimize(item: dict, clues: list[dict], rng: random.Random) -> list[dict]:
     """Greedily produce an irreducible clue set while retaining uniqueness."""
     retained = clues[:]
@@ -140,14 +168,35 @@ def _minimize(item: dict, clues: list[dict], rng: random.Random) -> list[dict]:
     return retained
 
 
+def _guarded_minimize(item: dict, clues: list[dict], rng: random.Random) -> list[dict]:
+    """Minimize normally, then deterministically replace an ambiguous clue set."""
+    retained = _minimize(item, clues, rng)
+    candidate = {**item, "clues": retained}
+    try:
+        validate_distance_ambiguity(candidate)
+        return retained
+    except DistanceAmbiguityError:
+        pass
+    without_distance = [clue for clue in clues if clue["type"] != "distance"]
+    fallback_rng = random.Random(
+        json.dumps([item["id"], item["answer"]], sort_keys=True)
+    )
+    retained = _minimize(item, without_distance, fallback_rng)
+    validate_distance_ambiguity({**item, "clues": retained})
+    return retained
+
+
 def _assignment_clue_text(clue: dict) -> str:
     kind = clue["type"]
     if kind == "before":
         return f"{clue['a']} is somewhere before {clue['b']}."
     if kind == "adjacent":
         return f"{clue['a']} and {clue['b']} use adjacent stations."
-    if kind == "gap":
-        return f"{clue['a']} and {clue['b']} are {clue['n']} stations apart."
+    if kind == "distance":
+        return (
+            f"The absolute difference between {clue['a']}'s and {clue['b']}'s "
+            f"station numbers is exactly {clue['n']}."
+        )
     if kind == "not_slot":
         return f"{clue['a']} is not at station {clue['slot']}."
     return f"{clue['a']} is at station {clue['slot']}."
@@ -159,9 +208,12 @@ def _schedule_clue_text(clue: dict) -> str:
         return f"{clue['a']} is scheduled before {clue['b']}."
     if kind == "immediately_before":
         return f"{clue['a']} is scheduled on the day immediately before {clue['b']}."
-    if kind == "days_between":
-        unit = "day" if clue["n"] == 1 else "days"
-        return f"There are exactly {clue['n']} {unit} between {clue['a']} and {clue['b']}."
+    if kind == "distance":
+        return (
+            "Using Monday=1, Tuesday=2, Wednesday=3, Thursday=4, and Friday=5, "
+            f"the absolute difference between {clue['a']}'s and {clue['b']}'s "
+            f"weekday numbers is exactly {clue['n']}."
+        )
     if kind == "not_day":
         return f"{clue['a']} is not on {_DAY_NAMES[clue['day'] - 1]}."
     return f"{clue['a']} is on {_DAY_NAMES[clue['day'] - 1]}."
@@ -232,7 +284,7 @@ def _assignment_item(rng: random.Random, index: int) -> dict:
         if abs(secret[a] - secret[b]) == 1:
             clues.append({"type": "adjacent", "a": a, "b": b})
         if abs(secret[a] - secret[b]) == 2:
-            clues.append({"type": "gap", "a": a, "b": b, "n": 2})
+            clues.append({"type": "distance", "a": a, "b": b, "n": 2})
     for name in names:
         for slot in range(1, 5):
             if secret[name] != slot:
@@ -243,7 +295,7 @@ def _assignment_item(rng: random.Random, index: int) -> dict:
         "domain": {"names": names},
         "answer": secret,
     }
-    base["clues"] = _minimize(base, clues, rng)
+    base["clues"] = _guarded_minimize(base, clues, rng)
     base["q"] = _render_question(base)
     return base
 
@@ -262,7 +314,7 @@ def _schedule_item(rng: random.Random, index: int) -> dict:
             earlier, later = (a, b) if secret[a] < secret[b] else (b, a)
             clues.append({"type": "immediately_before", "a": earlier, "b": later})
         elif difference in (2, 3):
-            clues.append({"type": "days_between", "a": a, "b": b, "n": difference - 1})
+            clues.append({"type": "distance", "a": a, "b": b, "n": difference})
     for name in names:
         for day in range(1, 6):
             if secret[name] != day:
@@ -274,7 +326,7 @@ def _schedule_item(rng: random.Random, index: int) -> dict:
         "domain": {"names": names},
         "answer": answer,
     }
-    base["clues"] = _minimize(base, clues, rng)
+    base["clues"] = _guarded_minimize(base, clues, rng)
     base["q"] = _render_question(base)
     return base
 
@@ -347,6 +399,7 @@ def generate_pool(seed: int = 20260712) -> list[dict]:
     for item in pool:
         if solve_item(item, limit=2) != [item["answer"]]:
             raise ValueError(f"logic item is not uniquely solved: {item['id']}")
+        validate_distance_ambiguity(item)
     return pool
 
 

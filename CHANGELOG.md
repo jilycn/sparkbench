@@ -3,7 +3,8 @@
 ## Suite 2.2 — 2026-07-24
 
 - Replaced ten public LOGIC puzzles with an eight-item deterministic sample from a 24-item,
-  solver-verified generated pool.
+  solver-verified generated pool. Distance clues use an explicit positional convention and a
+  materialization-time alternate-reading guard.
 - Expanded MATH to 15 independently verified templates while retaining a balanced 30-item sample;
   reports now include easy/medium/hard splits.
 - Replaced the single brittle AGENT interpreter task with three independent semantic task families,
