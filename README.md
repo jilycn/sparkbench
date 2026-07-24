@@ -2,7 +2,8 @@
 
 [![CI](https://github.com/jilycn/sparkbench/actions/workflows/ci.yml/badge.svg)](https://github.com/jilycn/sparkbench/actions/workflows/ci.yml)
 
-A frozen-snapshot benchmark for **local LLM serving recipes**. Point it at any OpenAI-compatible
+A frozen-snapshot benchmark for **local LLM serving recipes**. Current question set: **suite 2.2**.
+Point it at any OpenAI-compatible
 endpoint and it measures the whole serving experience — tool calling, multi-turn agentic coding,
 logic, math under budget, adversarial long context, latency under concurrent load, and run
 stability — then reports a per-axis profile with a versioned policy grade.
@@ -59,7 +60,7 @@ Useful variants:
                            # non-STABILITY axes present, and every axis range <= 5.
                            # STABILITY is assessed once across the whole run, not per trial.
 --seed 42                  # reproducible generated samples
---probe --inject --power   # report-only sidebars (edge probes, prompt injection, GPU power)
+--inject --power           # report-only sidebars (prompt injection, GPU power)
 ```
 
 Run the test suite: `venv/bin/python -m pytest -q`.
@@ -69,12 +70,12 @@ Run the test suite: `venv/bin/python -m pytest -q`.
 | Axis | Weight | What it measures |
 |---|---:|---|
 | **TOOLS** | 27% | Single-turn function calling over a fixed eval suite: valid calls, correct arguments, correct format — and *not* calling tools when it shouldn't. |
-| **AGENT** | 22% | Multi-turn agentic coding: the model must build a working language interpreter through tool use (write file / run tests) inside the sandbox. Scored on a hidden test suite (40), unseen generalization probes (10), static code quality — no `eval` cheating, structured code (10), turn efficiency with penalties per truncation/invalid call (10), plus exact-JSON logic puzzles (30). See [docs/SCORING_AGENT.md](docs/SCORING_AGENT.md). |
-| **LOGIC** | 10% | Brute-force-verified logic puzzles; answers must be exact final-line JSON. Reasoning *with format discipline*. |
-| **MATH** | 8% | 30 seeded, stratified problems under a tight budget (2048 tokens / 120 s). Punishes models that need long chain-of-thought to compute. |
-| **CONTEXT** | 10% | Adversarial long-context retrieval + reasoning over a generated document. Verifies the advertised window actually works. |
+| **AGENT** | 22% | Three independent multi-turn coding families (records, dependency scheduling, ledger), one semantic variant each. Every task has 12 hidden correctness tests + 4 adversarial probes; family scores are macro-averaged to reduce task-flake variance. |
+| **LOGIC** | 10% | Eight seeded puzzles sampled across four generated families. Every answer is uniquely solver-verified and every clue set is irreducible; final-line JSON is strict. |
+| **MATH** | 8% | 30 seeded problems balanced 10/10/10 easy/medium/hard across 15 independently verified templates under 2048-token / 120-second per-item budgets. |
+| **CONTEXT** | 10% | Ten questions over a seeded generated document: deep retrieval, compositional joins, near misses, and genuine source-authority arbitration under conflicting evidence. |
 | **LOAD** | 13% | Concurrent trivial requests scored on a latency SLO: full marks at p95 ≤ 15 s, sliding to zero at 60 s. Correctness is a sanity floor (>1% wrong caps at 50; >5% zeroes). "Can the pipe survive real usage." |
-| **STABILITY** | 10% | Event-sourced: timeouts, truncations, HTTP errors, container restarts, OOM/dmesg. Rate-scaled (v2.1): `100 − Σ(event-weight × per-request rate)` minus flat penalties per restart/OOM. Fatal server events cap the run grade at C; a runaway rate (>5% of requests timing out, truncating, or erroring) caps at A-. Applied retroactively to older runs via `rescore_v21.py` (originals preserved alongside; rescored rows are marked in RESULTS.md). |
+| **STABILITY** | 10% | Event-sourced: timeout/truncation/HTTP-error rates plus positive restart, recreation, OOM, and filtered kernel evidence. Fatal evidence caps the grade at C; a >5% event rate caps at A-. Lost container observability makes the run INVALID rather than blaming the server. |
 
 Grade policy ([docs/SCORING.md](docs/SCORING.md)): any fatal server event caps the grade at C; any
 scored-phase truncation/runaway caps at A-. The grade is a summary — read the profile.
@@ -87,8 +88,8 @@ sparkbench_report.py      # render a scorecard from a run dir
 sparkbench_compare.py     # diff two comparable runs
 sparkbench_leaderboard.py # regenerate the leaderboard from a bench root
 core/                     # harness modules: evaluators, judges, generators, sandbox
-suites/                   # committed task data: logic/math pools, long-context seed
-docs/                     # scoring policy + agent scoring spec
+suites/                   # reserved for intentionally committed static task data
+docs/                     # canonical scoring policy + recipe notes
 examples/                 # a real scorecard from the GB10 champion run
 tests/                    # pytest suite (pure stdlib, no GPU needed)
 ```
@@ -118,7 +119,9 @@ refuses cross-version or cross-sample comparisons), `sparkbench_leaderboard.py <
 ## Comparability rules
 
 Scores compare only when the scoring version, suite version, and sampled task identities match.
-The leaderboard enforces this: legacy runs are shown but never ranked against current ones.
+Suite 2.2 is a hard boundary: v2.1 scores remain archived exactly as recorded and are not comparable.
+The leaderboard ranks only the latest COMPLETE runs in one identical-sample 2.2 cohort; other
+samples are shown as non-comparable rather than mixed into the ranking.
 
 ## Credits
 

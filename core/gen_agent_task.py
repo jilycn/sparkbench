@@ -162,6 +162,21 @@ def test_missing_field_rejected():
 def test_bad_scalar_type_rejected():
     with pytest.raises(RecordError):
         normalize([{{"id":"x","name":"x","score":True,"tags":[]}}])
+
+def test_non_list_input_rejected():
+    with pytest.raises(RecordError): normalize({{"id":"x"}})
+
+def test_bad_tag_type_rejected():
+    with pytest.raises(RecordError):
+        normalize([{{"id":"x","name":"x","score":1,"tags":["ok",7]}}])
+
+def test_extra_input_fields_are_not_leaked():
+    result = normalize([{{"id":"x","name":" x ","score":1,"tags":[],"secret":"drop"}}])
+    assert set(result[0]) == {{"id","name","score","tags"}}
+
+def test_internal_name_whitespace_is_canonicalized():
+    result = normalize([{{"id":"x","name":"  alpha\\t beta\\nteam ","score":1,"tags":[]}}])
+    assert result[0]["name"].casefold() == "alpha beta team"
 '''
 
 
@@ -290,7 +305,8 @@ def _dependency_cases(variant):
 
 def _dependency_tests(module, variant):
     single, chain, diamond, tie, unlock = _dependency_cases(variant)
-    return f'''import pytest
+    return f'''import copy
+import pytest
 from {module} import schedule, DependencyError, MissingDependencyError, CycleError
 
 def test_single():
@@ -319,6 +335,21 @@ def test_missing_dependency_rejected():
 def test_cycle_rejected():
     with pytest.raises(CycleError):
         schedule([{{"id":"a","deps":["b"],"priority":1}},{{"id":"b","deps":["a"],"priority":1}}])
+
+def test_empty_schedule():
+    assert schedule([]) == []
+
+def test_non_list_input_rejected():
+    with pytest.raises(DependencyError): schedule({{"id":"a"}})
+
+def test_bad_dependency_and_priority_types_rejected():
+    with pytest.raises(DependencyError):
+        schedule([{{"id":"a","deps":[1],"priority":1}}])
+    with pytest.raises(DependencyError):
+        schedule([{{"id":"a","deps":[],"priority":True}}])
+
+def test_inputs_are_not_mutated():
+    value = {diamond!r}; before = copy.deepcopy(value); schedule(value); assert value == before
 '''
 
 
@@ -454,6 +485,13 @@ def _ledger_tests(module, variant):
         else f'assert apply_ledger({{"a": 10}}, {insufficient!r}) == '
         f'{_ledger_oracle({"a": 10}, insufficient, variant)!r}'
     )
+    boundary = [{"id": "limit", "type": "debit", "account": "a", "amount": 20}]
+    boundary_test = (
+        f'with pytest.raises(LedgerError): apply_ledger({{"a": 10}}, {boundary!r})'
+        if variant == "strict_insufficient"
+        else f'assert apply_ledger({{"a": 10}}, {boundary!r}) == '
+        f'{_ledger_oracle({"a": 10}, boundary, variant)!r}'
+    )
     return f'''import copy
 import pytest
 from {module} import apply_ledger, LedgerError
@@ -484,6 +522,26 @@ def test_unknown_account_rejected():
 def test_invalid_amount_rejected():
     with pytest.raises(LedgerError):
         apply_ledger({{"a":1}}, [{{"id":"x","type":"debit","account":"a","amount":True}}])
+
+def test_input_container_and_opening_types_rejected():
+    with pytest.raises(LedgerError): apply_ledger({{"a":True}}, [])
+    with pytest.raises(LedgerError): apply_ledger({{"a":1}}, {{"id":"x"}})
+
+def test_unknown_transfer_endpoint_rejected():
+    with pytest.raises(LedgerError):
+        apply_ledger({{"a":2}}, [{{"id":"x","type":"transfer","from":"a","to":"ghost","amount":1}}])
+    with pytest.raises(LedgerError):
+        apply_ledger({{"a":2}}, [{{"id":"x","type":"transfer","from":"ghost","to":"a","amount":1}}])
+
+def test_insufficient_boundary_is_exact():
+    {boundary_test}
+
+def test_duplicate_id_is_consumed_by_first_valid_event():
+    events = [
+        {{"id":"same","type":"credit","account":"a","amount":1}},
+        {{"id":"same","type":"credit","account":"ghost","amount":True}},
+    ]
+    assert apply_ledger({{"a":1}}, events) == {{"a":2}}
 '''
 
 
@@ -629,7 +687,7 @@ def generate_agent_task(
             "filename": f"{module}.py",
             "tests_file": f"agent_{family}_tests.py",
             "probes_file": f"agent_{family}_probes.py",
-            "hidden_count": 8,
+            "hidden_count": 12,
             "probe_count": 4,
             "max_turns": 6,
             "development_only": variant == "smoke",

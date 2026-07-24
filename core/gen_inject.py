@@ -1,4 +1,4 @@
-"""Deterministic prompt-injection fixtures for the optional SparkBench probe."""
+"""Deterministic fixtures for the optional SparkBench INJECT sidebar."""
 
 
 def longctx_case():

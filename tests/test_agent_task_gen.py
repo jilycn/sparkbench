@@ -26,9 +26,10 @@ def test_three_agent_families_are_seeded_independent_and_reference_validated(tmp
     tasks = json.loads((tmp_path / "one" / "agent_tasks.json").read_text())
     assert [task["family"] for task in tasks] == ["records", "dependencies", "ledger"]
     assert len({task["id"] for task in tasks}) == 3
-    assert all(task["hidden_count"] == 8 and task["probe_count"] == 4 for task in tasks)
-    assert sum(task["hidden_count"] for task in tasks) == 24
+    assert all(task["hidden_count"] == 12 and task["probe_count"] == 4 for task in tasks)
+    assert sum(task["hidden_count"] for task in tasks) == 36
     assert sum(task["probe_count"] for task in tasks) == 12
+    assert sum(task["hidden_count"] + task["probe_count"] for task in tasks) == 48
     for task in tasks:
         for key in ("tests_file", "probes_file"):
             assert (tmp_path / "one" / task[key]).read_text() == (

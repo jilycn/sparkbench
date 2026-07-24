@@ -40,7 +40,8 @@ def compare_runs(root: Path, labels: list[str], axis: str | None = None, force=F
     scores = {label: value[0] for label, value in loaded.items()}
     manifests = {label: value[1] for label, value in loaded.items()}
     versions = {(score.get("scoring_version"), score.get("suite_version")) for score in scores.values()}
-    if len(versions) != 1 and not force:
+    version_mismatch = len(versions) != 1
+    if version_mismatch and not force:
         raise ValueError("scoring_version or suite_version mismatch; use --force to inspect as NOT COMPARABLE")
     baseline = labels[0]
     sample_match = all(all(manifests[label].get(key) == manifests[baseline].get(key) for key in IDENTITY_KEYS)
@@ -51,12 +52,12 @@ def compare_runs(root: Path, labels: list[str], axis: str | None = None, force=F
     rows = {}
     for name in axes:
         values = {label: scores[label].get("axes", {}).get(name, {}).get("score100") for label in labels}
-        deltas = {label: None if exploratory or any(value is None for value in values.values())
+        deltas = {label: None if version_mismatch or exploratory or any(value is None for value in values.values())
                   else round(values[label] - values[baseline], 1) for label in labels[1:]}
         rows[name] = {"values": values, "delta": deltas.get(labels[1]), "deltas": deltas}
     return {"labels": labels, "runs": {label: str(latest_run(root, label)) for label in labels}, "rows": rows,
-            "comparable": len(versions) == 1 and sample_match, "exploratory": exploratory,
-            "not_comparable": len(versions) != 1, "forced": force}
+            "comparable": not version_mismatch and sample_match, "exploratory": exploratory,
+            "not_comparable": version_mismatch, "forced": force}
 
 
 def render(report):

@@ -26,10 +26,11 @@ from sblib import append_jsonl, write_json_atomic, write_text_atomic
 
 
 PHASES = ("tools", "agent", "logic", "math", "context", "load")
+SUITE_VERSION = "2.2"
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/think_probe.py", "core/judge.py", "core/logic_judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "docs/SCORING_AGENT.md", "docs/SCORING_QA.md", "core/gen_agent_task.py", "core/gen_logic.py", "core/gen_math.py", "core/gen_longctx.py",
+    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/judge.py", "core/logic_judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "docs/SCORING.md", "core/gen_agent_task.py", "core/gen_logic.py", "core/gen_math.py", "core/gen_longctx.py",
 )
 
 TOOL_EVAL_PARAMETERS = {
@@ -426,7 +427,7 @@ def run(args: argparse.Namespace) -> int:
         provenance = capture_provenance(args.base_url, args.container, args.seed)
         manifest = {"label": args.label, "harness_git_commit": _run_json(["git", "-C", str(source_root), "rev-parse", "HEAD"]),
                     "git_dirty": bool(_run_json(["git", "-C", str(source_root), "status", "--porcelain"])),
-                    **snapshot, "scoring_version": 2, "suite_version": "2.2",
+                    **snapshot, "scoring_version": 2, "suite_version": SUITE_VERSION,
                     "math_sample_ids": generated.math_sample_ids, "agent_variant": generated.agent_variant,
                     "logic_sample_ids": generated.logic_sample_ids,
                     "tool_suite_hash": provenance["tooleval"].get("suite_hash"),
@@ -553,10 +554,8 @@ def main() -> int:
     command.add_argument("--model", default=os.environ.get("SPARKBENCH_MODEL", "local-ai"))
     command.add_argument("--container")
     command.add_argument("--trials", type=int, default=1)
-    command.add_argument("--probe", action="store_true")
     command.add_argument("--inject", action="store_true")
     command.add_argument("--power", action="store_true")
-    command.add_argument("--stress", action="store_true")
     command.add_argument("--seed", type=int, default=20260712)
     command.add_argument("--bench-root", default="~/bench/sparkbench")
     command.add_argument("--correlation-id")

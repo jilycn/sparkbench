@@ -50,3 +50,14 @@ def test_version_mismatch_refuses_unless_forced(tmp_path):
     with pytest.raises(ValueError):
         compare_runs(tmp_path, ["a", "b"])
     assert compare_runs(tmp_path, ["a", "b"], force=True)["not_comparable"] is True
+
+
+def test_suite_21_and_22_are_a_hard_comparison_boundary(tmp_path):
+    _run(tmp_path, "a_20260712-000000", "a", suite="2.1")
+    _run(tmp_path, "b_20260712-000000", "b", suite="2.2")
+    with pytest.raises(ValueError, match="suite_version mismatch"):
+        compare_runs(tmp_path, ["a", "b"])
+    forced = compare_runs(tmp_path, ["a", "b"], force=True)
+    assert forced["not_comparable"] is True
+    assert forced["comparable"] is False
+    assert forced["rows"]["MATH"]["delta"] is None

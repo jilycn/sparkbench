@@ -84,6 +84,8 @@ def test_logic_phase_uses_dedicated_score_artifact(tmp_path):
 
 
 def test_v22_generators_are_snapshot_provenance_and_static_suites_are_not():
+    assert sparkbench.SUITE_VERSION == "2.2"
+    assert "core/gen_agent_task.py" in sparkbench.HARNESS_FILES
     assert "core/gen_logic.py" in sparkbench.HARNESS_FILES
     assert "core/gen_math.py" in sparkbench.HARNESS_FILES
     assert "core/gen_longctx.py" in sparkbench.HARNESS_FILES
@@ -92,6 +94,8 @@ def test_v22_generators_are_snapshot_provenance_and_static_suites_are_not():
     assert "suites/math_stress.json" not in sparkbench.HARNESS_FILES
     assert "suites/longctx_suite.json" not in sparkbench.HARNESS_FILES
     assert "suites/longctx_doc.txt" not in sparkbench.HARNESS_FILES
+    assert "docs/SCORING.md" in sparkbench.HARNESS_FILES
+    assert "core/think_probe.py" not in sparkbench.HARNESS_FILES
 
 
 def test_development_smoke_agent_variant_can_never_be_complete():

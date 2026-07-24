@@ -1,3 +1,15 @@
+# SparkBench suite 2.2 results
+
+The suite 2.2 leaderboard starts empty. New runs use generated LOGIC, three independent AGENT task
+families, expanded MATH templates, and genuine CONTEXT authority arbitration. They are **not
+comparable** with suite 2.1 scores.
+
+## Suite 2.1 archive (verbatim)
+
+The complete pre-2.2 board is preserved byte-for-byte below for auditability. These stored values
+are never rescored or ranked with suite 2.2.
+
+<!-- BEGIN VERBATIM V2.1 ARCHIVE -->
 # SparkBench v2 results — NVIDIA DGX Spark (GB10)
 
 **Hardware:** NVIDIA DGX Spark — GB10, 128 GB unified memory (~119 GiB usable), ~273 GB/s memory
@@ -143,3 +155,4 @@ SparkOps registry on the box; machine-generated views: `~/sparkops/RECIPES.md` a
   recovered manually, and active restart-policy enforcement now ships in the ops tooling.
 - **2026-07-15** — first v2.1 board; MLP-only NVFP4 takes the throne from FP8 no-MTP.
 - **2026-07-12** — scoring v1 retired (v1 scores not comparable; see git history for the v1 board).
+<!-- END VERBATIM V2.1 ARCHIVE -->

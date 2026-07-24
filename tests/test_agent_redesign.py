@@ -5,11 +5,11 @@ import judge
 from judge import aggregate_scores, score_task
 
 
-def _task(task_id, *, passed=8, probes=4, safe=True, turns=2, converged=True):
+def _task(task_id, *, passed=12, probes=4, safe=True, turns=2, converged=True):
     return {
         "id": task_id,
         "hidden_passed": passed,
-        "hidden_total": 8,
+        "hidden_total": 12,
         "probes_passed": probes,
         "probes_total": 4,
         "policy_safe": safe,
@@ -41,11 +41,11 @@ def test_one_bad_task_is_averaged_instead_of_zeroing_the_axis():
     assert score["total"] == 46.6
 
 
-def test_partial_hidden_passes_do_not_use_the_old_31_or_32_denominator():
+def test_partial_hidden_passes_use_each_tasks_declared_denominator():
     score = aggregate_scores(
-        [_task("records", passed=7), _task("dependencies"), _task("ledger")]
+        [_task("records", passed=11), _task("dependencies"), _task("ledger")]
     )
-    assert score["A1_hidden"] == 43.1
+    assert score["A1_hidden"] == 43.8
 
 
 def test_agent_score_artifact_has_per_task_evidence(tmp_path):
@@ -70,7 +70,7 @@ def test_agent_pipeline_uses_independent_workspaces_and_retains_all_candidates(
             "family": family,
             "variant": "v",
             "filename": f"{family}_solution.py",
-            "hidden_count": 8,
+            "hidden_count": 12,
         }
         for family in ("records", "dependencies", "ledger")
     ]
@@ -85,8 +85,8 @@ def test_agent_pipeline_uses_independent_workspaces_and_retains_all_candidates(
         (task_work / task["filename"]).write_text("value = 1\n")
         return {
             "id": task["id"],
-            "passed": 8,
-            "total": 8,
+            "passed": 12,
+            "total": 12,
             "converged": True,
             "sandbox": "docker",
         }, [{"task": task["id"]}]
@@ -106,7 +106,7 @@ def test_agent_pipeline_uses_independent_workspaces_and_retains_all_candidates(
         "records_solution.py",
     ]
     metrics = json.loads((out / "metrics.json").read_text())
-    assert metrics["hidden_total"] == 24
+    assert metrics["hidden_total"] == 36
     assert metrics["converged_tasks"] == 3
 
 
@@ -122,7 +122,7 @@ def test_judge_never_executes_an_ast_denied_candidate(tmp_path, monkeypatch):
         "filename": "records_solution.py",
         "tests_file": "agent_records_tests.py",
         "probes_file": "agent_records_probes.py",
-        "hidden_count": 8,
+        "hidden_count": 12,
         "probe_count": 4,
     }
     monkeypatch.setattr(
