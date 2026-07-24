@@ -307,6 +307,8 @@ def run(args: argparse.Namespace) -> int:
                            "note": None if sampler.available else "nvidia-smi power sampling unavailable"}
         any_failed = False
         for trial in range(1, args.trials + 1):
+            if status.get("aborted"):
+                break
             trial_dir = run_dir / f"trial_{trial}"
             trial_dir.mkdir()
             phase_times = {}
@@ -325,6 +327,18 @@ def run(args: argparse.Namespace) -> int:
                     status["phases"][phase] = "ok"
                     status["trials"][f"trial_{trial}"][phase] = "ok"
                 write_status(run_dir, status)
+                if (trial_dir / "ENDPOINT_DOWN").exists():
+                    # Fail-fast: the endpoint is dead; benching the corpse records
+                    # instant-timeout zeros as if measured (bit us 4+ times).
+                    any_failed = True
+                    status["aborted"] = "endpoint_down"
+                    for pending in phases:
+                        if status["trials"][f"trial_{trial}"].get(pending) == "pending":
+                            status["trials"][f"trial_{trial}"][pending] = "skipped_endpoint_down"
+                        if status["phases"].get(pending) == "pending":
+                            status["phases"][pending] = "skipped_endpoint_down"
+                    write_status(run_dir, status)
+                    break
             if args.inject:
                 started_phase = time.time()
                 inject_result = subprocess.run([sys.executable, str(run_dir / "harness" / "inject_eval.py"), args.label, str(trial_dir)],

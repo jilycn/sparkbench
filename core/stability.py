@@ -53,7 +53,9 @@ def _dmesg_count():
 def system_snapshot(container: str | None):
     restarts = 0
     oom = False
-    container_observed = container is not None
+    container_requested = container is not None
+    container_observed = False
+    container_id = None
     if container:
         try:
             result = subprocess.run(["docker", "inspect", container], capture_output=True, text=True, timeout=10)
@@ -61,22 +63,37 @@ def system_snapshot(container: str | None):
                 data = json.loads(result.stdout)[0]
                 restarts = int(data.get("RestartCount", 0))
                 oom = bool(data.get("State", {}).get("OOMKilled", False))
-            else:
-                container_observed = False
+                container_id = data.get("Id")
+                container_observed = True
         except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError, IndexError):
             container_observed = False
-    return {"restarts": restarts, "oom": oom, "dmesg_count": _dmesg_count(), "container_observed": container_observed}
+    return {"restarts": restarts, "oom": oom, "dmesg_count": _dmesg_count(),
+            "container_requested": container_requested,
+            "container_observed": container_observed,
+            "container_id": container_id}
 
 
 def system_delta(before, after):
+    requested = bool(before.get("container_requested", before.get("container_observed")))
+    observed = bool(before.get("container_observed")) and bool(after.get("container_observed"))
+    before_id, after_id = before.get("container_id"), after.get("container_id")
+    recreated = bool(requested and before_id and after_id and before_id != after_id)
     return {"restarts": max(0, after["restarts"] - before["restarts"]),
             "oom": bool(after["oom"] and not before["oom"]),
             "dmesg": max(0, (after["dmesg_count"] or 0) - (before["dmesg_count"] or 0)),
-            "container_observed": before["container_observed"] and after["container_observed"]}
+            "container_observed": observed,
+            "observability_lost": bool(requested and not observed),
+            "recreated": recreated}
 
 
 def assess_stability(events, system):
-    fatal = system.get("restarts", 0) > 0 or system.get("oom", False) or system.get("dmesg", 0) > 0
+    # recreated: same-name container with a different id — its RestartCount reset,
+    # so the restart counter alone would miss the death. observability_lost: a
+    # container was requested but could not be inspected at both boundaries; an
+    # unmonitored run must not pass as stable (fail closed).
+    fatal = (system.get("restarts", 0) > 0 or system.get("oom", False)
+             or system.get("dmesg", 0) > 0 or system.get("recreated", False)
+             or system.get("observability_lost", False))
     total = max(1, events.get("total", 0))
     rates = {key: 100.0 * events.get(key, 0) / total for key in RATE_WEIGHTS}
     runaway = any(rate > RUNAWAY_RATE_PCT for rate in rates.values())
