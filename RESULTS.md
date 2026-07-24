@@ -46,7 +46,11 @@ against nothing. **Totals on rows carrying ⁴ are lower bounds and not comparab
 on where in the fixed phase order the server died, not only on model quality. Treat those rows as
 DNF-with-partial-data until the fail-fast fix lands.
 ⁵ STABILITY value produced by the v2.1 rate-scale retro-rescore (`rescore_v21.py`) from the run's
-recorded events; all other axes are as originally scored.
+recorded events; all other axes are as originally scored. Honesty note: these eight runs were
+first rescored by an earlier script version that overwrote their v2.0 `stability.json` in place,
+so the `*.pre-v21` backups preserve post-first-rescore content, not the true v2.0 originals. The
+v2.0 values remain reconstructible from the untouched `events.jsonl` files plus the v2.0 formula
+in git history.
 
 ## Partial / DNF (no comparable total)
 
