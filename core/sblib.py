@@ -182,29 +182,41 @@ class EndpointDown(RuntimeError):
 ENDPOINT_DOWN_THRESHOLD = 15
 ENDPOINT_DOWN_INSTANT_S = 2.0
 _instant_failures = 0
+_breaker_lock = threading.Lock()
 
 
-def _endpoint_breaker(cfg, status: str, latency_s: float) -> None:
-    """Trip after ENDPOINT_DOWN_THRESHOLD consecutive instant transport failures.
+def _endpoint_breaker(cfg, status: str, latency_s: float,
+                      http_status: int | None = None, tag: str = "") -> None:
+    """Trip after ENDPOINT_DOWN_THRESHOLD consecutive CONNECTION-LEVEL failures.
 
-    Writes an ENDPOINT_DOWN sentinel into the trial dir (the driver checks it after
-    every phase and aborts the run) and raises EndpointDown to end this phase now.
-    Any success — or any failure slow enough to be a real model response — resets.
+    Connection-level means the server never produced an HTTP response
+    (http_status is None): refused/reset/DNS/no-route. Fast 429/503/4xx/5xx
+    responses come from a LIVE server and never count (sol review 2026-07-24).
+    Disabled during load/stab phases: concurrent workers share this process and
+    a rejection storm under load is not evidence the endpoint is dead — the
+    single-stream phases before and after provide detection coverage. Any
+    success — or any failure slow enough to be a real model response — resets.
     """
     global _instant_failures
-    if status in ("http_error", "timeout") and latency_s < ENDPOINT_DOWN_INSTANT_S:
-        _instant_failures += 1
-    else:
-        _instant_failures = 0
+    if str(tag).startswith(("load", "stab", "conc")):
         return
-    if _instant_failures >= ENDPOINT_DOWN_THRESHOLD:
+    connection_level = (status in ("http_error", "timeout")
+                        and http_status is None
+                        and latency_s < ENDPOINT_DOWN_INSTANT_S)
+    with _breaker_lock:
+        if not connection_level:
+            _instant_failures = 0
+            return
+        _instant_failures += 1
+        count = _instant_failures
+    if count >= ENDPOINT_DOWN_THRESHOLD:
         try:
             (cfg.run_dir / "ENDPOINT_DOWN").write_text(
-                f"{_instant_failures} consecutive instant transport failures\n")
+                f"{count} consecutive connection-level failures\n")
         except OSError:
             pass
         raise EndpointDown(
-            f"endpoint down: {_instant_failures} consecutive transport failures "
+            f"endpoint down: {count} consecutive connection-level failures "
             f"under {ENDPOINT_DOWN_INSTANT_S}s")
 
 
@@ -329,7 +341,7 @@ def chat(
         "http_status": http_status,
         "http_body_snippet": http_body_snippet,
     })
-    _endpoint_breaker(cfg, status, latency_s)
+    _endpoint_breaker(cfg, status, latency_s, http_status, tag)
     return ChatResult(text, finish_reason, status, latency_s, ttft_s, prompt_tokens,
                       completion_tokens, request_id, error, list(tool_calls.values()),
                       "".join(reasoning_parts), http_status, http_body_snippet)

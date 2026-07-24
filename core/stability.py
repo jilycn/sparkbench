@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
 from pathlib import Path
 
 from sblib import write_json_atomic
@@ -57,16 +58,22 @@ def system_snapshot(container: str | None):
     container_observed = False
     container_id = None
     if container:
-        try:
-            result = subprocess.run(["docker", "inspect", container], capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                data = json.loads(result.stdout)[0]
-                restarts = int(data.get("RestartCount", 0))
-                oom = bool(data.get("State", {}).get("OOMKilled", False))
-                container_id = data.get("Id")
-                container_observed = True
-        except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError, IndexError):
-            container_observed = False
+        # Three bounded attempts: one docker-daemon hiccup must not brand the run
+        # (sol review 2026-07-24 — observation failure is not model failure).
+        for attempt in range(3):
+            try:
+                result = subprocess.run(["docker", "inspect", container], capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)[0]
+                    restarts = int(data.get("RestartCount", 0))
+                    oom = bool(data.get("State", {}).get("OOMKilled", False))
+                    container_id = data.get("Id")
+                    container_observed = True
+                    break
+            except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError, IndexError):
+                pass
+            if attempt < 2:
+                time.sleep(2)
     return {"restarts": restarts, "oom": oom, "dmesg_count": _dmesg_count(),
             "container_requested": container_requested,
             "container_observed": container_observed,
@@ -88,19 +95,21 @@ def system_delta(before, after):
 
 def assess_stability(events, system):
     # recreated: same-name container with a different id — its RestartCount reset,
-    # so the restart counter alone would miss the death. observability_lost: a
-    # container was requested but could not be inspected at both boundaries; an
-    # unmonitored run must not pass as stable (fail closed).
+    # so the restart counter alone would miss the death. Lost observability is
+    # NOT fatal: it is measurement failure, not model failure — the driver marks
+    # the run INVALID instead of falsely capping a healthy run at C (sol review
+    # 2026-07-24). Fatal is reserved for positive evidence.
     fatal = (system.get("restarts", 0) > 0 or system.get("oom", False)
-             or system.get("dmesg", 0) > 0 or system.get("recreated", False)
-             or system.get("observability_lost", False))
+             or system.get("dmesg", 0) > 0 or system.get("recreated", False))
     total = max(1, events.get("total", 0))
     rates = {key: 100.0 * events.get(key, 0) / total for key in RATE_WEIGHTS}
     runaway = any(rate > RUNAWAY_RATE_PCT for rate in rates.values())
     penalty = sum(RATE_WEIGHTS[key] * rate for key, rate in rates.items())
     penalty += RESTART_PENALTY * system.get("restarts", 0) + OOM_PENALTY * int(system.get("oom", False))
     score = max(0, round(100 - penalty, 1))
-    return {"score100": score, "grade_cap": "C" if fatal else ("A-" if runaway else None),
+    observation_failed = bool(system.get("observability_lost", False))
+    return {"score100": score, "observation_failed": observation_failed,
+            "grade_cap": "C" if fatal else ("A-" if runaway else None),
             "fatal": fatal, "runaway": runaway, "rates": {key: round(rate, 3) for key, rate in rates.items()}}
 
 

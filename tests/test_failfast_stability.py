@@ -60,10 +60,31 @@ def test_recreated_container_is_fatal():
     assert assess_stability({"total": 100}, delta)["fatal"] is True
 
 
-def test_lost_observability_is_fatal():
+def test_lost_observability_invalidates_not_fatal():
     delta = system_delta(_snap(observed=True), _snap(observed=False))
     assert delta["observability_lost"] is True
-    assert assess_stability({"total": 100}, delta)["fatal"] is True
+    result = assess_stability({"total": 100}, delta)
+    assert result["fatal"] is False
+    assert result["observation_failed"] is True
+
+
+def test_fast_http_rejections_never_trip_breaker(tmp_path):
+    import sblib
+    sblib._instant_failures = 0
+    cfg = type("C", (), {"run_dir": tmp_path})()
+    for _ in range(sblib.ENDPOINT_DOWN_THRESHOLD * 3):
+        sblib._endpoint_breaker(cfg, "http_error", 0.01, http_status=429)
+        sblib._endpoint_breaker(cfg, "http_error", 0.01, http_status=503)
+    assert not (tmp_path / "ENDPOINT_DOWN").exists()
+
+
+def test_load_phase_never_trips_breaker(tmp_path):
+    import sblib
+    sblib._instant_failures = 0
+    cfg = type("C", (), {"run_dir": tmp_path})()
+    for _ in range(sblib.ENDPOINT_DOWN_THRESHOLD * 3):
+        sblib._endpoint_breaker(cfg, "timeout", 0.01, http_status=None, tag="load-c8-0001")
+    assert not (tmp_path / "ENDPOINT_DOWN").exists()
 
 
 def test_unrequested_container_not_fatal():

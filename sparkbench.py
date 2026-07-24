@@ -332,14 +332,16 @@ def run(args: argparse.Namespace) -> int:
                     # instant-timeout zeros as if measured (bit us 4+ times).
                     any_failed = True
                     status["aborted"] = "endpoint_down"
+                    for trial_phases in status["trials"].values():
+                        for pending in phases:
+                            if trial_phases.get(pending) == "pending":
+                                trial_phases[pending] = "skipped_endpoint_down"
                     for pending in phases:
-                        if status["trials"][f"trial_{trial}"].get(pending) == "pending":
-                            status["trials"][f"trial_{trial}"][pending] = "skipped_endpoint_down"
                         if status["phases"].get(pending) == "pending":
                             status["phases"][pending] = "skipped_endpoint_down"
                     write_status(run_dir, status)
                     break
-            if args.inject:
+            if args.inject and not status.get("aborted"):
                 started_phase = time.time()
                 inject_result = subprocess.run([sys.executable, str(run_dir / "harness" / "inject_eval.py"), args.label, str(trial_dir)],
                                                cwd=run_dir / "harness", env={**os.environ, "SPARKBENCH_BASE_URL": args.base_url,
@@ -358,7 +360,12 @@ def run(args: argparse.Namespace) -> int:
             status["reason"] = "harness integrity mismatch"
             write_status(run_dir, status)
             return 2
-        stability.write_stability(run_dir, stability_before, args.container)
+        stability_payload = stability.write_stability(run_dir, stability_before, args.container)
+        if stability_payload.get("observation_failed"):
+            status["run_status"] = "INVALID"
+            status["reason"] = "stability observation failed (container requested but not inspectable)"
+            write_status(run_dir, status)
+            return 2
         status["run_status"] = "PARTIAL" if any_failed or set(phases) != set(PHASES) else "COMPLETE"
         status["ended_ts"] = time.time()
         write_status(run_dir, status)
