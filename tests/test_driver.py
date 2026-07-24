@@ -35,6 +35,7 @@ def test_materialization_is_explicit_static_seam(tmp_path):
     materialized = sparkbench.materialize_dynamic_inputs(source, tmp_path / "staging", seed=11)
     assert materialized.files == []
     assert materialized.math_sample_ids == []
+    assert materialized.logic_sample_ids == []
     assert (tmp_path / "staging").is_dir()
 
 
@@ -53,8 +54,9 @@ def test_real_materialization_stages_sampled_math_context_and_hidden_agent_input
     root = Path(__file__).parents[1]
     materialized = sparkbench.materialize_dynamic_inputs(root, tmp_path, seed=14)
     assert len(materialized.math_sample_ids) == 30
+    assert len(materialized.logic_sample_ids) == 8
     assert materialized.agent_variant in {"precedence", "shortcircuit", "closures"}
-    for name in ("math_suite.json", "longctx_doc.txt", "longctx_suite.json", "agent_hidden_tests.py",
+    for name in ("math_suite.json", "logic_suite.json", "longctx_doc.txt", "longctx_suite.json", "agent_hidden_tests.py",
                  "agent_edge_probes.py", "agent_task.json"):
         assert (tmp_path / name).is_file()
 
@@ -63,3 +65,18 @@ def test_agent_phase_includes_the_judge_that_produces_score_artifact(tmp_path):
     commands = sparkbench.phase_command("agent", tmp_path, tmp_path, "label", "http://example/v1", "model")
     assert len(commands) == 2
     assert commands[-1][1].endswith("judge.py")
+
+
+def test_logic_phase_uses_dedicated_score_artifact(tmp_path):
+    commands = sparkbench.phase_command("logic", tmp_path, tmp_path, "label", "http://example/v1", "model")
+    assert len(commands) == 2
+    assert commands[-1][1].endswith("logic_judge.py")
+    assert sparkbench.required_phase_artifact("logic", tmp_path).name == "logic_score.json"
+
+
+def test_v22_generators_are_snapshot_provenance_and_static_suites_are_not():
+    assert "core/gen_logic.py" in sparkbench.HARNESS_FILES
+    assert "core/gen_math.py" in sparkbench.HARNESS_FILES
+    assert "suites/logic_suite.json" not in sparkbench.HARNESS_FILES
+    assert "suites/math_suite.json" not in sparkbench.HARNESS_FILES
+    assert "suites/math_stress.json" not in sparkbench.HARNESS_FILES

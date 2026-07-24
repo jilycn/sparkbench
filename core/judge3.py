@@ -12,9 +12,10 @@ def grade_suite(run_dir, suite_name, answers_name, points, detail_name):
     suite = json.loads((Path.cwd() / suite_name).read_text())
     answers_path = run_dir / answers_name
     if not answers_path.exists():
-        return 0, {"missing": answers_name}, []
+        return 0, {"missing": answers_name}, [], {}
     answers = json.loads(answers_path.read_text())
     total, detail, flags = 0, {}, []
+    difficulty_counts = {}
     for item in suite:
         record = answers.get(item["id"], {})
         parsed = raw_answer(run_dir.parent, record)
@@ -22,17 +23,27 @@ def grade_suite(run_dir, suite_name, answers_name, points, detail_name):
         ok = normalized_equal(value, item["answer"], numeric=item.get("numeric", False), tolerance=item.get("tol", 0))
         detail[item["id"]] = "OK" if ok else f"wrong (got {value!r}, want {item['answer']!r})"
         total += points if ok else 0
+        if difficulty := item.get("difficulty"):
+            counts = difficulty_counts.setdefault(difficulty, {"correct": 0, "total": 0})
+            counts["correct"] += int(ok)
+            counts["total"] += 1
         if record.get("status") in ("timeout", "truncated", "http_error"):
             flags.append(f"{item['id']}: {record['status']}")
-    return total, detail, flags
+    for counts in difficulty_counts.values():
+        counts["score100"] = round(counts["correct"] / counts["total"] * 100, 1)
+    return total, detail, flags, difficulty_counts
 
 
 def main():
     run_dir = Path(sys.argv[1])
     score = {"C_math": 0, "D_longctx": 0, "E_concurrency": 0, "total": 0, "detail": {}, "flags": []}
-    score["C_math"], score["detail"]["math"], flags = grade_suite(run_dir, "math_suite.json", "math_answers.json", 1, "math")
+    score["C_math"], score["detail"]["math"], flags, score["math_breakdown"] = grade_suite(
+        run_dir, "math_suite.json", "math_answers.json", 1, "math"
+    )
     score["flags"].extend(flags)
-    score["D_longctx"], score["detail"]["longctx"], flags = grade_suite(run_dir, "longctx_suite.json", "longctx_answers.json", 3, "longctx")
+    score["D_longctx"], score["detail"]["longctx"], flags, _ = grade_suite(
+        run_dir, "longctx_suite.json", "longctx_answers.json", 3, "longctx"
+    )
     score["flags"].extend(flags)
     conc = run_dir / "conc_results.json"
     if conc.exists():

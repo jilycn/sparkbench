@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""SparkBench v2 snapshot-executing driver.
-
-The dynamic-suite materialization hook is intentionally static in Batch 1. Tasks 5, 6,
-and 9 replace it with generated math/context/agent inputs before the snapshot is frozen.
-"""
+"""SparkBench v2 snapshot-executing driver."""
 
 from __future__ import annotations
 
@@ -33,7 +29,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/think_probe.py", "core/judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "core/edge_probes.py", "core/test_interp.py", "suites/logic_suite.json", "suites/math_suite.json", "suites/math_pool.json", "suites/math_stress.json", "suites/longctx_suite.json", "suites/longctx_doc.txt", "suites/longctx_meta.json", "docs/SCORING_AGENT.md", "docs/SCORING_QA.md", "core/gen_agent_task.py", "core/reference_interp.py",
+    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/think_probe.py", "core/judge.py", "core/logic_judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "core/edge_probes.py", "core/test_interp.py", "suites/longctx_suite.json", "suites/longctx_doc.txt", "suites/longctx_meta.json", "docs/SCORING_AGENT.md", "docs/SCORING_QA.md", "core/gen_agent_task.py", "core/reference_interp.py", "core/gen_logic.py", "core/gen_math.py",
 )
 
 
@@ -49,29 +45,28 @@ def sha256(path: Path) -> str:
 class Materialization:
     files: list[Path]
     math_sample_ids: list[str]
+    logic_sample_ids: list[str]
     agent_variant: str
     context_variant: str
 
 
 def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base_url: str | None = None,
                                agent_variant: str | None = None) -> Materialization:
-    """Batch-1 seam for Tasks 5/6/9.
-
-    Future generators must write staged files here, validate them, and return their
-    relative paths before ``snapshot_harness`` copies and hashes the complete harness.
-    """
+    """Generate all run-specific inputs before the read-only snapshot is frozen."""
     staging.mkdir(parents=True, exist_ok=True)
-    pool_path = source_root / "suites" / "math_pool.json"
-    if not pool_path.exists():
-        # Batch-1 tests use minimal fake roots. Production v2 always commits the pool.
-        return Materialization([], [], "static-pending", "static-pending")
+    if not (source_root / "core" / "gen_math.py").exists():
+        # Minimal fake roots used by snapshot tests have no generator sources.
+        return Materialization([], [], [], "static-pending", "static-pending")
     from gen_agent_task import generate_agent_task
-    from gen_math import sample_pool
+    from gen_logic import generate_pool as generate_logic_pool
+    from gen_logic import sample_pool as sample_logic_pool
+    from gen_math import generate_pool as generate_math_pool
+    from gen_math import sample_pool as sample_math_pool
     from gen_longctx import generate_variant, tokenize_or_approx, validate_variant
-    pool = json.loads(pool_path.read_text())
-    sample = sample_pool(pool, seed)
-    target = staging / "math_suite.json"
-    target.write_text(json.dumps(sample, indent=2) + "\n")
+    math_sample = sample_math_pool(generate_math_pool(seed), seed)
+    logic_sample = sample_logic_pool(generate_logic_pool(seed), seed)
+    write_json_atomic(staging / "math_suite.json", math_sample)
+    write_json_atomic(staging / "logic_suite.json", logic_sample)
     variant = generate_variant(seed)
     if not validate_variant(variant):
         raise ValueError("generated context variant failed validation")
@@ -81,9 +76,20 @@ def materialize_dynamic_inputs(source_root: Path, staging: Path, seed: int, base
     (staging / "longctx_meta.json").write_text(json.dumps({"seed": seed, "token_count": token_count,
                                                               "token_source": token_source}, indent=2) + "\n")
     agent = generate_agent_task(seed, source_root, staging, variant=agent_variant)
-    return Materialization([Path("math_suite.json"), Path("longctx_doc.txt"), Path("longctx_suite.json"),
-                            Path("longctx_meta.json"), *agent["files"]], [item["id"] for item in sample],
-                           agent["variant"], f"seed-{seed}")
+    return Materialization(
+        [
+            Path("math_suite.json"),
+            Path("logic_suite.json"),
+            Path("longctx_doc.txt"),
+            Path("longctx_suite.json"),
+            Path("longctx_meta.json"),
+            *agent["files"],
+        ],
+        [item["id"] for item in math_sample],
+        [item["id"] for item in logic_sample],
+        agent["variant"],
+        f"seed-{seed}",
+    )
 
 
 def _make_read_only(root: Path) -> None:
@@ -216,7 +222,7 @@ def phase_command(phase: str, harness: Path, trial_dir: Path, label: str, base_u
                 [py, str(harness / "judge.py"), str(trial_dir / "round2")]]
     if phase == "logic":
         return [[py, str(harness / "logic_eval.py"), label, str(harness / "logic_suite.json"), str(trial_dir / "round2")],
-                [py, str(harness / "judge.py"), str(trial_dir / "round2")]]
+                [py, str(harness / "logic_judge.py"), str(trial_dir / "round2")]]
     if phase == "math":
         return [[py, str(harness / "qa_eval.py"), label, str(harness / "math_suite.json"),
                  str(trial_dir / "round3"), "math_answers.json"],
@@ -231,6 +237,16 @@ def phase_command(phase: str, harness: Path, trial_dir: Path, label: str, base_u
     raise ValueError(phase)
 
 
+def required_phase_artifact(phase: str, trial_dir: Path) -> Path | None:
+    return {
+        "agent": trial_dir / "round2" / "score.json",
+        "logic": trial_dir / "round2" / "logic_score.json",
+        "math": trial_dir / "round3" / "score3.json",
+        "context": trial_dir / "round3" / "score3.json",
+        "load": trial_dir / "round3" / "load.json",
+    }.get(phase)
+
+
 def run_phase(phase: str, harness: Path, trial_dir: Path, label: str, base_url: str, model: str) -> bool:
     environment = os.environ.copy()
     environment.update({"SPARKBENCH_BASE_URL": base_url, "SPARKBENCH_MODEL": model,
@@ -243,11 +259,7 @@ def run_phase(phase: str, harness: Path, trial_dir: Path, label: str, base_url: 
             result = subprocess.run(command, cwd=harness, env=environment, stdout=log, stderr=subprocess.STDOUT)
         if result.returncode:
             return False
-    required = {"agent": trial_dir / "round2" / "score.json",
-                "logic": trial_dir / "round2" / "score.json",
-                "math": trial_dir / "round3" / "score3.json",
-                "context": trial_dir / "round3" / "score3.json",
-                "load": trial_dir / "round3" / "load.json"}.get(phase)
+    required = required_phase_artifact(phase, trial_dir)
     if required is not None and not required.is_file():
         append_jsonl(trial_dir / "events.jsonl", {"request_id": f"phase-{phase}-artifact", "ts": time.time(),
                                                     "phase": phase, "status": "phase_error",
@@ -280,8 +292,9 @@ def run(args: argparse.Namespace) -> int:
         provenance = capture_provenance(args.base_url, args.container)
         manifest = {"label": args.label, "harness_git_commit": _run_json(["git", "-C", str(source_root), "rev-parse", "HEAD"]),
                     "git_dirty": bool(_run_json(["git", "-C", str(source_root), "status", "--porcelain"])),
-                    **snapshot, "scoring_version": 2, "suite_version": "2.1",
+                    **snapshot, "scoring_version": 2, "suite_version": "2.2",
                     "math_sample_ids": generated.math_sample_ids, "agent_variant": generated.agent_variant,
+                    "logic_sample_ids": generated.logic_sample_ids,
                     "context_variant": generated.context_variant, "cmdline": sys.argv,
                     "base_url": args.base_url, "model": args.model, "container": args.container,
                     "phases": phases, "trials": args.trials, "correlation_id": correlation_id,

@@ -21,8 +21,11 @@ def _median(values):
     return values[middle] if len(values) % 2 else round((values[middle - 1] + values[middle]) / 2, 1)
 
 
-def _axis(score, raw, weight):
-    return {"raw": raw, "score100": round(score, 1), "weight": weight, "weighted": round(score * weight / 100, 1)}
+def _axis(score, raw, weight, breakdown=None):
+    axis = {"raw": raw, "score100": round(score, 1), "weight": weight, "weighted": round(score * weight / 100, 1)}
+    if breakdown:
+        axis["breakdown"] = breakdown
+    return axis
 
 
 def _tool_score(path):
@@ -40,7 +43,11 @@ def _trial_axes(trial):
     if round2.exists():
         data = json.loads(round2.read_text())
         values["AGENT"] = sum(data.get(key, 0) for key in ("A1_hidden", "A2_probes", "A3_quality", "A4_efficiency")) / 70 * 100
-        values["LOGIC"] = data.get("B_logic", 0) / 30 * 100
+    logic_score = trial / "round2" / "logic_score.json"
+    if logic_score.exists():
+        data = json.loads(logic_score.read_text())
+        if "missing" not in data:
+            values["LOGIC"] = data.get("score100")
     round3 = trial / "round3" / "score3.json"
     if round3.exists():
         data = json.loads(round3.read_text())
@@ -73,12 +80,31 @@ def build_report(run_dir: Path):
                 "run_status": "INVALID", "axes": {}, "present": [], "overall": None, "grade": None, "trials": None}
     trials = sorted(path for path in run_dir.glob("trial_*") if path.is_dir())
     per_trial = [_trial_axes(trial) for trial in trials]
+    math_breakdowns = []
+    for trial in trials:
+        path = trial / "round3" / "score3.json"
+        data = json.loads(path.read_text()) if path.exists() else {}
+        math_breakdowns.append(data.get("math_breakdown", {}))
+    math_breakdown = {}
+    for difficulty in ("easy", "med", "hard"):
+        entries = [value[difficulty] for value in math_breakdowns if difficulty in value]
+        if len(entries) == len(trials) and entries:
+            math_breakdown[difficulty] = {
+                "correct": _median([entry["correct"] for entry in entries]),
+                "total": entries[0]["total"],
+                "score100": _median([entry["score100"] for entry in entries]),
+            }
     axes = {}
     for name, weight in WEIGHTS.items():
         if name == "STABILITY": continue
         values = [trial[name] for trial in per_trial if name in trial]
         if len(values) == len(trials) and values:
-            axes[name] = _axis(_median(values), f"{_median(values):.1f}/100", weight)
+            axes[name] = _axis(
+                _median(values),
+                f"{_median(values):.1f}/100",
+                weight,
+                math_breakdown if name == "MATH" else None,
+            )
     stability = run_dir / "stability.json"
     if run_status == "COMPLETE" and stability.exists():
         value = json.loads(stability.read_text())
