@@ -5,13 +5,14 @@ import pytest
 from sparkbench_compare import compare_runs
 
 
-def _run(root, name, label, *, version=2, suite="v2", seed=1, math=None, logic=None):
+def _run(root, name, label, *, version=2, suite="v2", seed=1, math=None, logic=None, tools="tools-1"):
     directory = root / name
     directory.mkdir()
     (directory / "scores.json").write_text(json.dumps({"label": label, "scoring_version": version, "suite_version": suite,
                                                          "axes": {"MATH": {"score100": 80}, "LOAD": {"score100": 70}}}))
     (directory / "manifest.json").write_text(json.dumps({"seed": seed, "math_sample_ids": math or ["m1"],
                                                            "logic_sample_ids": logic or ["l1"],
+                                                           "tool_suite_hash": tools,
                                                            "agent_variant": "closures", "context_variant": "seed-1"}))
 
 
@@ -34,6 +35,12 @@ def test_sample_mismatch_is_exploratory_not_a_point_comparison(tmp_path):
 def test_logic_sample_mismatch_is_exploratory(tmp_path):
     _run(tmp_path, "a_20260712-000000", "a", logic=["l1"])
     _run(tmp_path, "b_20260712-000000", "b", logic=["l2"])
+    assert compare_runs(tmp_path, ["a", "b"])["exploratory"] is True
+
+
+def test_external_tool_suite_hash_mismatch_is_exploratory(tmp_path):
+    _run(tmp_path, "a_20260712-000000", "a", tools="tools-1")
+    _run(tmp_path, "b_20260712-000000", "b", tools="tools-2")
     assert compare_runs(tmp_path, ["a", "b"])["exploratory"] is True
 
 

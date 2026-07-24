@@ -8,7 +8,14 @@ import json
 from pathlib import Path
 
 
-IDENTITY_KEYS = ("seed", "math_sample_ids", "logic_sample_ids", "agent_variant", "context_variant")
+IDENTITY_KEYS = (
+    "seed",
+    "math_sample_ids",
+    "logic_sample_ids",
+    "agent_variant",
+    "context_variant",
+    "tool_suite_hash",
+)
 
 
 def latest_run(root: Path, label: str):
