@@ -1,46 +1,132 @@
 #!/usr/bin/env python3
-"""Strict snapshot-local round-2 judge (agent scoring evolves further in Task 9)."""
-import ast
+"""Strict snapshot-local judge for the three independent agent tasks."""
+
+from __future__ import annotations
+
 import json
 import re
 import sys
 from pathlib import Path
 
-from judgelib import normalized_equal, raw_answer
 from sandbox import deny_reason, run_pytest, run_script
 from sblib import write_json_atomic
 
 
-def main():
+def _mean(values):
+    return sum(values) / len(values) if values else 0.0
+
+
+def _efficiency_fraction(task):
+    if not task.get("converged"):
+        return 0.0
+    turns = task.get("turns", 99)
+    base = 1.0 if turns <= 2 else 0.8 if turns == 3 else 0.6 if turns == 4 else 0.4 if turns == 5 else 0.2
+    penalties = (
+        task.get("invalid_tool_calls", 0)
+        + task.get("http_errors", 0)
+        + task.get("timeouts", 0)
+        + task.get("truncated_turns", 0)
+    )
+    return max(0.0, base - 0.2 * penalties)
+
+
+def aggregate_scores(tasks):
+    """Macro-average families so no single brittle task controls the axis."""
+    hidden = [
+        task["hidden_passed"] / task["hidden_total"]
+        if task.get("hidden_total")
+        else 0.0
+        for task in tasks
+    ]
+    probes = [
+        task["probes_passed"] / task["probes_total"]
+        if task.get("probes_total")
+        else 0.0
+        for task in tasks
+    ]
+    score = {
+        "A1_hidden": round(_mean(hidden) * 45, 1),
+        "A2_probes": round(_mean(probes) * 15, 1),
+        "A3_quality": round(_mean([float(task.get("policy_safe", False)) for task in tasks]) * 5, 1),
+        "A4_efficiency": round(_mean([_efficiency_fraction(task) for task in tasks]) * 5, 1),
+        "detail": {"tasks": tasks},
+    }
+    score["total"] = round(
+        sum(score[key] for key in ("A1_hidden", "A2_probes", "A3_quality", "A4_efficiency")),
+        1,
+    )
+    return score
+
+
+def _passed(output, pattern):
+    match = re.search(pattern, output)
+    return int(match.group(1)) if match else 0
+
+
+def score_task(run_dir: Path, task: dict, metric: dict) -> dict:
+    candidate = run_dir / "candidates" / task["filename"]
+    result = {
+        "id": task["id"],
+        "family": task["family"],
+        "variant": task["variant"],
+        "hidden_passed": 0,
+        "hidden_total": task["hidden_count"],
+        "probes_passed": 0,
+        "probes_total": task["probe_count"],
+        "policy_safe": False,
+        "turns": metric.get("turns", 0),
+        "converged": metric.get("converged", False),
+        "invalid_tool_calls": metric.get("invalid_tool_calls", 0),
+        "http_errors": metric.get("http_errors", 0),
+        "timeouts": metric.get("timeouts", 0),
+        "truncated_turns": metric.get("truncated_turns", 0),
+        "sandbox": metric.get("sandbox"),
+        "errors": [],
+    }
+    if not candidate.is_file():
+        result["errors"].append("candidate missing")
+        return result
+    reason = deny_reason(candidate.read_text())
+    result["policy_safe"] = reason is None
+    if reason:
+        # Never invoke either runner for an AST-denied candidate.
+        result["errors"].append(f"preflight denied: {reason}")
+        return result
+    hidden, hidden_error, hidden_mode = run_pytest(
+        candidate, Path.cwd() / task["tests_file"], timeout=180
+    )
+    if hidden:
+        result["hidden_passed"] = _passed(
+            hidden.stdout + hidden.stderr, r"(\d+) passed"
+        )
+    if hidden_error:
+        result["errors"].append(hidden_error)
+    probes, probe_error, probe_mode = run_script(
+        candidate, Path.cwd() / task["probes_file"], timeout=180
+    )
+    if probes:
+        result["probes_passed"] = _passed(
+            probes.stdout + probes.stderr, rf"(\d+)/{task['probe_count']}"
+        )
+    if probe_error:
+        result["errors"].append(probe_error)
+    result["sandbox"] = hidden_mode or probe_mode or result["sandbox"]
+    # Correctness is determined by the final judged candidate, not a stale
+    # in-loop result.
+    result["converged"] = result["hidden_passed"] >= result["hidden_total"]
+    return result
+
+
+def main() -> None:
     run_dir = Path(sys.argv[1])
-    score = {"A1_hidden": 0.0, "A2_probes": 0, "A3_quality": 0, "A4_efficiency": 0, "B_logic": 0,
-             "total": 0.0, "detail": {}}
-    interp = run_dir / "interp.py"
-    if interp.exists():
-        tests = Path.cwd() / ("agent_hidden_tests.py" if (Path.cwd() / "agent_hidden_tests.py").exists() else "test_interp.py")
-        result, error, sandbox_mode = run_pytest(interp, tests)
-        match = re.search(r"(\d+) passed", result.stdout + result.stderr) if result else None
-        score["A1_hidden"] = round((int(match.group(1)) if match else 0) / 32 * 45, 1)
-        probes = Path.cwd() / ("agent_edge_probes.py" if (Path.cwd() / "agent_edge_probes.py").exists() else "edge_probes.py")
-        probe_result, _probe_error, _probe_mode = run_script(interp, probes)
-        probe_match = re.search(r"(\d+)/10", probe_result.stdout) if probe_result else None
-        score["A2_probes"] = round((int(probe_match.group(1)) if probe_match else 0) / 10 * 15, 1)
-        score["A3_quality"] = 5 if deny_reason(interp.read_text()) is None else 0
-        score["detail"]["sandbox"] = sandbox_mode or error
-    answers_path = run_dir / "logic_answers.json"
-    if answers_path.exists():
-        answers = json.loads(answers_path.read_text())
-        suite = json.loads((Path.cwd() / "logic_suite.json").read_text())
-        for item in suite:
-            parsed = raw_answer(run_dir.parent, answers.get(item["id"], {}))
-            if isinstance(parsed, dict) and normalized_equal(parsed, item["answer"], casefold=True):
-                score["B_logic"] += 3
-    metrics = run_dir / "metrics.json"
-    if metrics.exists():
-        turns = json.loads(metrics.read_text()).get("turns", 99)
-        score["A4_efficiency"] = 5 if turns <= 6 else 4 if turns <= 9 else 3 if turns <= 12 else 2 if turns <= 15 else 0
-    score["total"] = sum(value for key, value in score.items() if key.startswith("A") or key == "B_logic")
-    write_json_atomic(run_dir / "score.json", score)
+    tasks = json.loads((Path.cwd() / "agent_tasks.json").read_text())
+    metrics_path = run_dir / "metrics.json"
+    metrics = json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
+    metric_by_id = {task["id"]: task for task in metrics.get("tasks", [])}
+    judged = [
+        score_task(run_dir, task, metric_by_id.get(task["id"], {})) for task in tasks
+    ]
+    write_json_atomic(run_dir / "score.json", aggregate_scores(judged))
 
 
 if __name__ == "__main__":

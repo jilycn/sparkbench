@@ -29,7 +29,7 @@ PHASES = ("tools", "agent", "logic", "math", "context", "load")
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (
-    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/think_probe.py", "core/judge.py", "core/logic_judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "core/edge_probes.py", "core/test_interp.py", "suites/longctx_suite.json", "suites/longctx_doc.txt", "suites/longctx_meta.json", "docs/SCORING_AGENT.md", "docs/SCORING_QA.md", "core/gen_agent_task.py", "core/reference_interp.py", "core/gen_logic.py", "core/gen_math.py",
+    "core/sblib.py", "core/sandbox.py", "core/stability.py", "core/power_sample.py", "core/inject_eval.py", "core/gen_inject.py", "core/agent_build_r2.py", "core/logic_eval.py", "core/qa_eval.py", "core/conc_eval.py", "core/think_probe.py", "core/judge.py", "core/logic_judge.py", "core/judge3.py", "core/judgelib.py", "sparkbench_report.py", "suites/longctx_suite.json", "suites/longctx_doc.txt", "suites/longctx_meta.json", "docs/SCORING_AGENT.md", "docs/SCORING_QA.md", "core/gen_agent_task.py", "core/gen_logic.py", "core/gen_math.py",
 )
 
 
@@ -218,7 +218,7 @@ def phase_command(phase: str, harness: Path, trial_dir: Path, label: str, base_u
         return [[tool, "--base-url", base_url, "--model", model, "--perf"]]
     if phase == "agent":
         return [[py, str(harness / "agent_build_r2.py"), label, str(trial_dir / "work_agent"),
-                 str(harness / "agent_hidden_tests.py"), str(trial_dir / "round2")],
+                 str(harness / "agent_tasks.json"), str(trial_dir / "round2")],
                 [py, str(harness / "judge.py"), str(trial_dir / "round2")]]
     if phase == "logic":
         return [[py, str(harness / "logic_eval.py"), label, str(harness / "logic_suite.json"), str(trial_dir / "round2")],
@@ -247,11 +247,16 @@ def required_phase_artifact(phase: str, trial_dir: Path) -> Path | None:
     }.get(phase)
 
 
+def final_run_status(any_failed: bool, phases: list[str], agent_variant: str | None) -> str:
+    if any_failed or set(phases) != set(PHASES) or agent_variant == "smoke":
+        return "PARTIAL"
+    return "COMPLETE"
+
+
 def run_phase(phase: str, harness: Path, trial_dir: Path, label: str, base_url: str, model: str) -> bool:
     environment = os.environ.copy()
     environment.update({"SPARKBENCH_BASE_URL": base_url, "SPARKBENCH_MODEL": model,
-                        "SPARKBENCH_RUN_DIR": str(trial_dir), "PYTHONDONTWRITEBYTECODE": "1",
-                        "SPARKBENCH_AGENT_SPEC": str(harness / "agent_task.json")})
+                        "SPARKBENCH_RUN_DIR": str(trial_dir), "PYTHONDONTWRITEBYTECODE": "1"})
     for command in phase_command(phase, harness, trial_dir, label, base_url, model):
         output = trial_dir / f"{phase}.log"
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -298,6 +303,7 @@ def run(args: argparse.Namespace) -> int:
                     "context_variant": generated.context_variant, "cmdline": sys.argv,
                     "base_url": args.base_url, "model": args.model, "container": args.container,
                     "phases": phases, "trials": args.trials, "correlation_id": correlation_id,
+                    "development_only": args.agent_variant == "smoke",
                     "started_ts": time.time(), "agent_sandbox": sandbox_mode, **provenance}
         write_json_atomic(run_dir / "manifest.json", manifest)
         status: dict[str, Any] = {"run_status": "RUNNING", "phases": {phase: "pending" for phase in phases},
@@ -379,7 +385,9 @@ def run(args: argparse.Namespace) -> int:
             status["reason"] = "stability observation failed (container requested but not inspectable)"
             write_status(run_dir, status)
             return 2
-        status["run_status"] = "PARTIAL" if any_failed or set(phases) != set(PHASES) else "COMPLETE"
+        status["run_status"] = final_run_status(any_failed, phases, args.agent_variant)
+        if args.agent_variant == "smoke":
+            status["reason"] = "development-only agent smoke variant"
         status["ended_ts"] = time.time()
         write_status(run_dir, status)
         report_log = run_dir / "report.log"

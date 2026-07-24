@@ -55,10 +55,19 @@ def test_real_materialization_stages_sampled_math_context_and_hidden_agent_input
     materialized = sparkbench.materialize_dynamic_inputs(root, tmp_path, seed=14)
     assert len(materialized.math_sample_ids) == 30
     assert len(materialized.logic_sample_ids) == 8
-    assert materialized.agent_variant in {"precedence", "shortcircuit", "closures"}
-    for name in ("math_suite.json", "logic_suite.json", "longctx_doc.txt", "longctx_suite.json", "agent_hidden_tests.py",
-                 "agent_edge_probes.py", "agent_task.json"):
+    assert materialized.agent_variant.startswith("records:")
+    for name in (
+        "math_suite.json",
+        "logic_suite.json",
+        "longctx_doc.txt",
+        "longctx_suite.json",
+        "agent_tasks.json",
+    ):
         assert (tmp_path / name).is_file()
+    tasks = json.loads((tmp_path / "agent_tasks.json").read_text())
+    for task in tasks:
+        assert (tmp_path / task["tests_file"]).is_file()
+        assert (tmp_path / task["probes_file"]).is_file()
 
 
 def test_agent_phase_includes_the_judge_that_produces_score_artifact(tmp_path):
@@ -80,3 +89,8 @@ def test_v22_generators_are_snapshot_provenance_and_static_suites_are_not():
     assert "suites/logic_suite.json" not in sparkbench.HARNESS_FILES
     assert "suites/math_suite.json" not in sparkbench.HARNESS_FILES
     assert "suites/math_stress.json" not in sparkbench.HARNESS_FILES
+
+
+def test_development_smoke_agent_variant_can_never_be_complete():
+    assert sparkbench.final_run_status(False, list(sparkbench.PHASES), "smoke") == "PARTIAL"
+    assert sparkbench.final_run_status(False, list(sparkbench.PHASES), None) == "COMPLETE"

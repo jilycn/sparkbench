@@ -67,6 +67,10 @@ def _probe_docker():
 
 
 def sandbox_available():
+    # Neither backend is allowed to turn a root benchmark process into a root
+    # code-execution service. SparkBench is intentionally a non-root harness.
+    if os.geteuid() == 0:
+        return None
     if _probe_unshare():
         return SANDBOX_UNSHARE
     if _probe_docker():
@@ -83,7 +87,7 @@ _PYTEST_SHIM = '''class _Raises:
 def raises(expected): return _Raises(expected)
 '''
 _RUNNER = '''import importlib.util
-spec = importlib.util.spec_from_file_location("test_interp", "test_interp.py")
+spec = importlib.util.spec_from_file_location("sparkbench_hidden_tests", "__TEST_FILE__")
 mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 tests = [getattr(mod, n) for n in dir(mod) if n.startswith("test_")]
 failed = []
@@ -96,13 +100,13 @@ raise SystemExit(1 if failed else 0)
 '''
 
 
-def _prepare_workspace(candidate: Path, script: Path, name: str):
+def _prepare_workspace(candidate: Path, script: Path, candidate_name: str, script_name: str):
     temporary = tempfile.TemporaryDirectory(prefix="sparkbench-agent-", ignore_cleanup_errors=True)
     work = Path(temporary.name)
-    shutil.copy2(candidate, work / "interp.py")
-    shutil.copy2(script, work / name)
+    shutil.copy2(candidate, work / candidate_name)
+    shutil.copy2(script, work / script_name)
     (work / "pytest.py").write_text(_PYTEST_SHIM)
-    (work / "runner.py").write_text(_RUNNER.replace("test_interp.py", name))
+    (work / "runner.py").write_text(_RUNNER.replace("__TEST_FILE__", script_name))
     return temporary, work
 
 
@@ -116,6 +120,7 @@ def _docker_command(work: Path | None, command: list[str], name: str | None = No
     full_command = [
         "docker", "run", "--rm", "--network=none", "--memory=2g", "--cpus=2", "--pids-limit=256",
         "--user", f"{os.getuid()}:{os.getgid()}", "--read-only", "--tmpfs", "/tmp:rw,size=64m",
+        "--env", "HOME=/tmp", "--env", "PYTHONPATH=", "--env", "PYTHONDONTWRITEBYTECODE=1",
     ]
     if name:
         full_command.extend(["--name", name])
@@ -148,16 +153,23 @@ def _cleanup_workspace(temporary) -> None:
         _record_cleanup_warning(f"{type(exc).__name__}: {exc}")
 
 
+def _unshare_command(command: list[str]) -> list[str]:
+    """Enter a fresh network namespace without changing the caller's uid."""
+    return ["unshare", "-n", "--", *command]
+
+
 def _run_in_sandbox(work: Path, command: list[str], mode: str, timeout: int):
     environment = {"PATH": os.environ.get("PATH", ""), "PYTHONPATH": "", "HOME": str(work), "PYTHONDONTWRITEBYTECODE": "1"}
     container_name = None
     if mode == SANDBOX_UNSHARE:
-        full_command = ["unshare", "-n", "--", *command]
+        full_command = _unshare_command(command)
         kwargs = {"cwd": work, "env": environment, "preexec_fn": _limits}
-    else:
+    elif mode == SANDBOX_DOCKER:
         container_name = f"sparkbench-sandbox-{uuid.uuid4().hex[:12]}"
         full_command = _docker_command(work, command, name=container_name)
         kwargs = {"cwd": work}
+    else:
+        return None, f"unsupported sandbox backend: {mode}"
     try:
         return subprocess.run(full_command, capture_output=True, text=True, timeout=timeout, **kwargs), None
     except subprocess.TimeoutExpired:
@@ -176,7 +188,7 @@ def _run(candidate: Path, script: Path, script_name: str, command: list[str], ti
     mode = sandbox_available()
     if not mode:
         return None, "sandbox unavailable: unshare and docker failed", None
-    temporary, work = _prepare_workspace(candidate, script, script_name)
+    temporary, work = _prepare_workspace(candidate, script, candidate.name, script_name)
     try:
         result, error = _run_in_sandbox(work, command, mode, timeout)
         return result, error, mode
@@ -185,10 +197,10 @@ def _run(candidate: Path, script: Path, script_name: str, command: list[str], ti
 
 
 def run_pytest(candidate: Path, tests: Path, timeout=180):
-    result, error, mode = _run(candidate, tests, "test_interp.py", [os.sys.executable, "runner.py"], timeout)
+    result, error, mode = _run(candidate, tests, tests.name, [os.sys.executable, "runner.py"], timeout)
     return result, error, mode
 
 
 def run_script(candidate: Path, script: Path, timeout=180):
-    result, error, mode = _run(candidate, script, "probes.py", [os.sys.executable, "probes.py"], timeout)
+    result, error, mode = _run(candidate, script, script.name, [os.sys.executable, script.name], timeout)
     return result, error, mode
