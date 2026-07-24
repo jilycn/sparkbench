@@ -4,8 +4,9 @@
 bandwidth, sm_121a, single GPU (TP=1).
 **Method:** full v2 runs, 1 trial each unless noted, reasoning/thinking disabled where the recipe
 allows, served as `local-ai` on `:8000`. Scoring policy v2; STABILITY uses the v2.1 rate-scaled
-formula (applied retroactively to pre-v2.1 runs via `rescore_v21.py` — same recorded events, new
-formula, provenance untouched). All runs July 2026. Last updated **2026-07-23**.
+formula. Pre-v2.1 runs had STABILITY retro-rescored from their recorded events via
+`rescore_v21.py` (rows marked ⁵; run manifests untouched, original stability artifacts backed up
+alongside). All runs July 2026. Last updated **2026-07-23**.
 
 **Axis weights:** TOOLS 27 · AGENT 22 · LOAD 13 · LOGIC 10 · CONTEXT 10 · STABILITY 10 · MATH 8
 
@@ -14,28 +15,38 @@ formula, provenance untouched). All runs July 2026. Last updated **2026-07-23**.
 | # | Recipe | Speed¹ | LOAD agg² | CTX TTFT | TOOLS | AGENT | LOGIC | MATH | CONTEXT | LOAD | STAB | **Total** | Grade |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | 1 | Qwen3.6-35B-A3B **MLP-Only NVFP4** (vLLM 0.25.1, aeon) | 38 t/s | 40 | 17.7 s | 91 | **82.6** | 50³ | 20.0 | 70 | 100 | 92.7 | **78.7** | B |
-| 2 | Qwen3.6-35B-A3B MLP-Only NVFP4 (vLLM 0.25.0) | 37 t/s | 50 | 20.7 s | 89 | 53.9 | 80 | 23.3 | 80 | 100 | 95.1 | **76.2** | B |
+| 2 | Qwen3.6-35B-A3B MLP-Only NVFP4 (vLLM 0.25.0) | 37 t/s | 50 | 20.7 s | 89 | 53.9 | 80 | 23.3 | 80 | 100 | 95.1⁵ | **76.2** | B |
 | 3 | Ornith-1.0-35B **AEON Ultimate NVFP4** (vLLM) | **107 t/s** | **77** | 15.2 s | 85 | 33.4 | 90 | 40.0 | 80 | 100 | 91.3 | **72.6** | B |
 | 4 | Qwen3.6-35B-A3B NVFP4 **"fast"** (spec decode) | 95 t/s | 45 | 11.2 s | 92 | 45.7 | 60 | 26.7 | 70 | 100 | 95.4 | **72.5** | B |
-| 5 | Qwen3.6-35B-A3B **FP8 no-MTP** (vLLM) | 48 t/s | 61 | 16.5 s | 91 | 45.3 | 40 | 16.7 | 80 | 100 | 95.2 | **70.4** | B |
-| 6 | Qwen3.6-35B-A3B **Unsloth NVFP4** (vLLM) | 68 t/s | 92 | 12.4 s | 89 | 7.1 | 80 | 23.3 | 70 | 100 | 97.8 | **65.3** | C |
-| 7 | Qwen3.6-35B-A3B NVFP4 **MTP** (spec decode) | **110 t/s** | 40 | 8.9 s | 88 | 7.1 | 70 | 10.0 | 90 | 100 | 94.7 | **64.7** | C |
-| 8 | Qwen3-Coder-Next **NVFP4 GB10** (vLLM) | 61 t/s | **142** | 35.5 s | 84 | 11.1 | 60 | 76.7 | 30 | 100 | 99.6 | **63.3** | C |
-| 9 | Qwen3.5-122B-A10B **DFlash** (installer) | 61 t/s | 23 | 36.0 s | 88 | 7.1 | 60 | 20.0 | 60 | 100 | 90.4 | **61.0** | C |
+| 5 | Qwen3.6-35B-A3B **FP8 no-MTP** (vLLM) | 48 t/s | 61 | 16.5 s | 91 | 45.3 | 40 | 16.7 | 80 | 100 | 95.2⁵ | **70.4** | B |
+| 6 | Qwen3.6-35B-A3B **Unsloth NVFP4** (vLLM) | 68 t/s | 92 | 12.4 s | 89 | 7.1 | 80 | 23.3 | 70 | 100 | 97.8⁵ | **65.3** | C |
+| 7 | Qwen3.6-35B-A3B NVFP4 **MTP** (spec decode) | **110 t/s** | 40 | 8.9 s | 88 | 7.1 | 70 | 10.0 | 90 | 100 | 94.7⁵ | **64.7** | C |
+| 8 | Qwen3-Coder-Next **NVFP4 GB10** (vLLM) | 61 t/s | **142** | 35.5 s | 84 | 11.1 | 60 | 76.7 | 30 | 100 | 99.6⁵ | **63.3** | C |
+| 9 | Qwen3.5-122B-A10B **DFlash** (installer) | 61 t/s | 23 | 36.0 s | 88 | 7.1 | 60 | 20.0 | 60 | 100 | 90.4⁵ | **61.0** | C |
 | 10 | DeepSeek-V4 **D-Spark GGUF 2-bit** (llama.cpp) | 24 t/s | 31 | — | 87 | 7.1 | 80 | 76.7 | 0⁴ | 100 | 0⁴ | **52.2** | D |
-| 11 | DeepSeek-V4-Flash **UD-IQ3_XXS GGUF** (llama.cpp) | 13 t/s | 6 | — | 87 | 0 | **100** | 76.7 | 0 | 0 | 41.0 | **43.7** | D |
+| 11 | DeepSeek-V4-Flash **UD-IQ3_XXS GGUF** (llama.cpp) | 13 t/s | 6 | — | 87 | 0 | **100** | 76.7 | 0 | 0 | 41.0⁵ | **43.7** | D |
 | 12 | Gemma-4-26B-A4B **NVFP4** (vLLM 0.25.1, aeon) | 30 t/s | — | — | 87 | 0 | 40 | 6.7 | 0⁴ | 0⁴ | 0⁴ | **28.0** | D |
 
-¹ Median single-stream generation speed: `completion_tokens / latency_s` over successful requests
-≥ 200 completion tokens, from each run's `events.jsonl`. Includes prefill, so it slightly
-understates pure decode. Do **not** derive speed from `latency − ttft`: streaming buffering makes
-`ttft_s` unreliable and produces nonsense (we measured "692–3823 t/s" that way).
-² Aggregate throughput during the concurrent LOAD phase: total completion tokens / wall window.
+¹ **Effective output-token throughput**, not pure decode speed: median
+`completion_tokens / latency_s` over successful requests ≥ 200 completion tokens, from each run's
+`events.jsonl`. Includes queueing, prefill, and the whole stream (with long prompts the gap to
+decode speed can be substantial); the ≥200-token success-only filter introduces survivorship and
+length-selection bias; token counts are tokenizer-dependent across families. Comparable within
+this board, indicative beyond it. Do **not** derive speed from `latency − ttft`: the harness sets
+`ttft_s` on the first *content* chunk — reasoning/tool-call chunks stream earlier and their tokens
+are counted in `completion_tokens`, so the subtraction drops reasoning time while keeping
+reasoning tokens (this, plus SSE buffering, produced the absurd "692–3823 t/s" values).
+² Aggregate endpoint throughput during the concurrent LOAD phase (fixed concurrency): total
+model-reported completion tokens / full concurrent worker window.
 ³ Champion LOGIC: in-run 50; an approved 3-trial LOGIC-only rerun scored 80/60/80 (median 80,
 range 20). Official total stays 78.7 as scored; merging the rerun median would give 81.7.
 ⁴ Zeros from benching a dead endpoint after a mid-run kill (harness fail-fast gap — known
 limitation): the serve died (legitimate OOM-tripwire kill or crash) and later phases scored
-against nothing.
+against nothing. **Totals on rows carrying ⁴ are lower bounds and not comparable** — they depend
+on where in the fixed phase order the server died, not only on model quality. Treat those rows as
+DNF-with-partial-data until the fail-fast fix lands.
+⁵ STABILITY value produced by the v2.1 rate-scale retro-rescore (`rescore_v21.py`) from the run's
+recorded events; all other axes are as originally scored.
 
 ## Partial / DNF (no comparable total)
 
@@ -52,21 +63,27 @@ against nothing.
 
 - **AGENT is the discriminator.** Everything serves tools acceptably (TOOLS 84–92); only the
   champion actually drives a multi-turn agentic task (82.6 vs ≤ 53.9 for everything else).
-- **The engine version was worth +28.7 AGENT.** Rows 1 and 2 are the *same weights* — the only
-  change is vLLM 0.25.0 → 0.25.1 (aeon build). Multi-turn tool streaming got materially better.
-  Re-bench your champion when the engine moves.
+- **The newer engine build correlated with +28.7 AGENT.** Rows 1 and 2 are the *same weights*
+  under the same snapshotted AGENT harness — the change is the image (vLLM 0.25.0 → 0.25.1 aeon
+  build). Both are single-trial runs (a 3-trial repeatability run is in progress), so read this
+  as strong correlation pending repeats, not a proven causal delta. Re-bench your champion when
+  the engine moves.
 - **Speed and quality remain separate axes.** The two ~110 t/s recipes (AEON, MTP) give up 6–14
   total points; the champion is the *slowest* B-tier recipe at 38 t/s. Pick by workload: AEON at
   107 t/s / 72.6 is the latency-optimized alternative to the 78.7 champion.
-- **Attention quantization predicts AGENT death.** Every recipe with attention compressed to
-  4-bit scored AGENT ≤ 11; recipes that keep attention in high precision (MLP-only quant, FP8)
-  hold 45–83. Check the quant config before you download.
-- **Streaming agentic parsing is its own failure mode.** Gemma-4 (both sizes, two engines) and
-  Laguna time out or emit nothing usable in multi-turn streaming tool loops while acing
-  single-turn TOOLS — parser/loop behavior, not intelligence. TheAgentCompany reports the same
-  0% pattern for Gemma-4.
-- **GGUF pays ~2–3x speed on GB10.** No native-FP4 path: 13–24 t/s vs 38–110 for
-  vLLM NVFP4/FP8 of comparable or larger models.
+- **Attention quantization was associated with AGENT collapse in this campaign.** Every tested
+  recipe with attention compressed to 4-bit scored AGENT ≤ 11; recipes keeping attention in high
+  precision (MLP-only quant, FP8) held 45–83. Model, parser, and engine are confounded across
+  these rows, so treat it as a screening heuristic, not a law — but check the quant config before
+  you download.
+- **Multi-turn streaming tool loops fail where single-turn tool calls succeed.** Gemma-4 (both
+  sizes, two engines) and Laguna ace single-turn TOOLS yet time out or emit nothing usable in
+  multi-turn streaming loops. Our best inference is parser/loop behavior rather than model
+  capability (TheAgentCompany reports the same 0% pattern for Gemma-4), but we did not isolate
+  the cause.
+- **The tested GGUF configurations paid ~2–3x in speed on GB10** (13–24 t/s vs 38–110 for the
+  vLLM NVFP4/FP8 rows; no native-FP4 path in llama.cpp). The comparison spans different models,
+  sizes, and engines — attribute it to these configurations, not to GGUF universally.
 
 ## Champion recipe (exact)
 
@@ -93,8 +110,9 @@ SparkOps registry on the box; machine-generated views: `~/sparkops/RECIPES.md` a
   `vllm/vllm-openai:v0.25.1` works for those; the aeon build is fine for non-speculative serving.
 - **Unified memory commits under load, not at boot.** A recipe can serve cleanly and OOM the
   kernel minutes-to-hours later (KV growth, spec-decode verify buffers uncounted by
-  `gpu-memory-utilization`). Post-serving watchdog: any new kernel NVRM line or available memory
-  ≤ 1 GiB → abort. Init-window NVRM probing lines are benign (verified on a healthy champion).
+  `gpu-memory-utilization`). Operator-side control (not part of this repo): a watchdog script
+  that aborts on any new kernel NVRM line after engine-ready, or available memory ≤ 1 GiB.
+  Init-window NVRM probing lines are benign (verified on a healthy champion).
 - **Hardware-class check:** recipes validated on discrete-VRAM Blackwell (RTX PRO 6000 / 5090) do
   NOT transfer utilization/context values to 121 GB unified memory. "Single GPU" is not enough.
 - **Quant-specific flags:** never graft memory/context/batch flags across precisions of the same
@@ -106,6 +124,8 @@ SparkOps registry on the box; machine-generated views: `~/sparkops/RECIPES.md` a
 
 - **2026-07-23** — champion re-verified on vLLM 0.25.1 (78.7/B); Laguna dropped after 3 attempts;
   Gemma-4 family closed (streaming-agentic AGENT 0); speed lane added to reporting; STABILITY
-  v2.1 rate-scale retro-applied; power-cut reboot survived with single-champion auto-restore.
+  v2.1 rate-scale retro-applied (rows marked ⁵). A site power-cut reboot exposed a real gap: a
+  stale pre-tooling container with `restart=always` auto-revived instead of the promoted champion;
+  recovered manually, and active restart-policy enforcement now ships in the ops tooling.
 - **2026-07-15** — first v2.1 board; MLP-only NVFP4 takes the throne from FP8 no-MTP.
 - **2026-07-12** — scoring v1 retired (v1 scores not comparable; see git history for the v1 board).

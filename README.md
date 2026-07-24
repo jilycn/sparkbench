@@ -53,10 +53,11 @@ Useful variants:
 
 ```bash
 --phases agent,load        # ~20 min gate run (our tier-1 screen: fail this → don't bother with full)
---trials 3                 # repeatability: medians + ranges across trials
 --container my-container   # docker container name, enables restart/oom detection in STABILITY
---trials 3                 # repeat the full phase suite N times: per-axis median + range,
-                           # repeatability stamp (verified needs 3+ trials, all ranges <= 5)
+--trials 3                 # repeat the full phase suite N times: per-axis median + range.
+                           # "verified" repeatability needs 3+ trials, no fatal event, all six
+                           # non-STABILITY axes present, and every axis range <= 5.
+                           # STABILITY is assessed once across the whole run, not per trial.
 --seed 42                  # reproducible generated samples
 --probe --inject --power   # report-only sidebars (edge probes, prompt injection, GPU power)
 ```
@@ -73,7 +74,7 @@ Run the test suite: `venv/bin/python -m pytest -q`.
 | **MATH** | 8% | 30 seeded, stratified problems under a tight budget (2048 tokens / 120 s). Punishes models that need long chain-of-thought to compute. |
 | **CONTEXT** | 10% | Adversarial long-context retrieval + reasoning over a generated document. Verifies the advertised window actually works. |
 | **LOAD** | 13% | Concurrent trivial requests scored on a latency SLO: full marks at p95 ≤ 15 s, sliding to zero at 60 s. Correctness is a sanity floor (>1% wrong caps at 50; >5% zeroes). "Can the pipe survive real usage." |
-| **STABILITY** | 10% | Event-sourced: timeouts, truncations, HTTP errors, container restarts, OOM/dmesg. Rate-scaled (v2.1): `100 − Σ(event-weight × per-request rate)` minus flat penalties per restart/OOM. Fatal server events cap the run grade at C; runaway truncation rates cap at A-. Applied retroactively to older runs via `rescore_v21.py`. |
+| **STABILITY** | 10% | Event-sourced: timeouts, truncations, HTTP errors, container restarts, OOM/dmesg. Rate-scaled (v2.1): `100 − Σ(event-weight × per-request rate)` minus flat penalties per restart/OOM. Fatal server events cap the run grade at C; a runaway rate (>5% of requests timing out, truncating, or erroring) caps at A-. Applied retroactively to older runs via `rescore_v21.py` (originals preserved alongside; rescored rows are marked in RESULTS.md). |
 
 Grade policy ([docs/SCORING.md](docs/SCORING.md)): any fatal server event caps the grade at C; any
 scored-phase truncation/runaway caps at A-. The grade is a summary — read the profile.
