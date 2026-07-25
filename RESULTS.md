@@ -1,8 +1,45 @@
 # SparkBench suite 2.2 results
 
-The suite 2.2 leaderboard starts empty. New runs use generated LOGIC, three independent AGENT task
-families, expanded MATH templates, and genuine CONTEXT authority arbitration. They are **not
-comparable** with suite 2.1 scores.
+Suite 2.2 runs use generated LOGIC, three independent AGENT task families, expanded MATH
+templates, and genuine CONTEXT authority arbitration. They are **not comparable** with suite 2.1
+scores (archived verbatim below). Scoring policy v2, weights TOOLS 27 / AGENT 22 / LOAD 13 /
+LOGIC 10 / CONTEXT 10 / STABILITY 10 / MATH 8. Speed = effective output-token throughput
+(completion tokens / wall latency, ≥200-token samples) — reported, never scored.
+
+## Suite 2.2 leaderboard — last updated 2026-07-25
+
+All single-trial per standing policy, except the champion requalification (n=3, fresh container).
+All solo GB10 (128 GB unified), served via SparkOps with live provenance re-verification.
+
+| # | Recipe key | Weights (quant) | Engine/image | Score | Grade | Speed (t/s) | Run |
+|---|---|---|---|---:|---|---:|---|
+| 1 | `ornith-aeon-ultimate-nvfp4` | AEON-7/Ornith-1.0-35B-AEON-Ultimate-Uncensored-NVFP4 | aeon-vllm-ultimate (vLLM 0.25.0) | **83.7** | B+ | 107.5 | `20260725-002548` |
+| 2 | `ornith-aeon-v0260` ← **CHAMPION, promoted 2026-07-25** | same weights (NVFP4) | stock vllm-openai **0.26.0** | **83.3** | B+ | **110.4** | `20260725-095834` |
+| 3 | `q36-fast-speed` | unsloth/Qwen3.6-35B-A3B-NVFP4-Fast | aeon-vllm-ultimate | 81.6 | B+ | 91.8 | `20260725-010728` |
+| 4 | `q36-mlponly-champion` | vroomfondel/Qwen3.6-35B-A3B-NVFP4-MLP-Only | vllm-openai 0.26.0 (engine A/B) | 79.2 | B | 37.7 | `20260725-015801` |
+| 5 | `q36-mlponly-v0251` | same weights (NVFP4 MLP-only) | vllm-openai 0.25.1 (requal, n=3) | 79.2 | B | 37.4 | `20260724-201727` |
+
+Per-phase breakdown (raw phase scores, 0-100):
+
+| Recipe | TOOLS | AGENT | LOGIC | MATH | CONTEXT | LOAD | STAB |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ornith-aeon-ultimate-nvfp4 | 86.0 | 84.6 | 87.5 | 30.0 | 80.0 | 100 | 96.8 |
+| ornith-aeon-v0260 (champion) | 86.0 | 78.6 | 87.5 | 40.0 | 80.0 | 100 | 97.8 |
+| q36-fast-speed | 91.0 | 88.1 | 50.0 | 26.7 | 80.0 | 100 | 95.2 |
+| q36-mlponly-champion | 91.0 | 88.6 | 37.5 | 23.3 | 70.0 | 100 | 93.7 |
+| q36-mlponly-v0251 | 87.0 | 84.6 | 50.0 | 20.0 | 80.0 | 100 | 94.7 |
+
+What 2.2 says so far:
+
+- **AEON weights + vLLM 0.26.0 promoted to default** (`ornith-aeon-v0260`, 83.3/B+ at 110.4 t/s):
+  −0.4 pts vs the same weights on the AEON image, +2.9 t/s, on a stock maintained image — the
+  operational win took it. +4.1 pts and ~3× speed over the prior default.
+- **AGENT does not separate the top Qwen/Ornith recipes** (84.6–88.6 band, dependencies-task
+  ceiling suspected). The discriminators in this family are LOGIC, MATH, and speed.
+- **The v2.1 "+28.7 engine delta" did not reproduce on 2.2**: MLP-Only scores 79.2 on both vLLM
+  0.25.1 and 0.26.0. Engine choice is not the lever it appeared to be on the old suite.
+- MATH is the weakest axis across the family (20–40); LOAD is a solved axis (100 across the
+  board); STABILITY 93.7–97.8.
 
 ## Suite 2.1 archive (verbatim)
 
