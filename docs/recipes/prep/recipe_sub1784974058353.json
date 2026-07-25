@@ -1,0 +1,58 @@
+{
+ "quantization": "NVFP4",
+ "modelFullPath": "sakamakismile/Ornith-1.0-35B-NVFP4",
+ "runtime": "vLLM",
+ "recipeType": "sparkrun",
+ "aggregateScore": 1837.0392013973474,
+ "recipe": {
+  "model": "sakamakismile/Ornith-1.0-35B-NVFP4",
+  "description": "",
+  "command": "vllm serve \\\n    {model} \\\n    --served-model-name {served_model_name} \\\n    --host {host} \\\n    --port {port} \\\n    --trust-remote-code \\\n    --gpu-memory-utilization {gpu_memory_utilization} \\\n    --kv-cache-dtype {kv_cache_dtype} \\\n    --load-format {load_format} \\\n    --max-num-batched-tokens {max_num_batched_tokens} \\\n    --max-num-seqs {max_num_seqs} \\\n    --performance-mode {performance_mode} \\\n    --enable-flashinfer-autotune \\\n    --enable-auto-tool-choice \\\n    --tool-call-parser {tool_call_parser} \\\n    --enable-prefix-caching \\\n    --enable-chunked-prefill \\\n    --tensor-parallel-size {tensor_parallel} \\\n    --distributed-executor-backend {distributed_executor_backend}\n",
+  "fullRecipe": {
+   "metadata": {
+    "description": "Ornith-1.0-35B NVFP4 vLLM \u2014 Stormgrid tuned (Ray TP=2, dual RoCE HCAs)",
+    "num_kv_heads": 2,
+    "quantization": "compressed-tensors",
+    "head_dim": 256,
+    "model_params": "35B",
+    "model_dtype": "nvfp4",
+    "maintainer": "stormgrid",
+    "kv_dtype": "fp8",
+    "quant_bits": 4,
+    "num_layers": 40
+   },
+   "env": {
+    "VLLM_ALLOW_LONG_MAX_MODEL_LEN": "1",
+    "NCCL_NVLS_ENABLE": "0",
+    "VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS": "1",
+    "PROMETHEUS_METRICS_ENABLED": "0",
+    "VLLM_MARLIN_USE_ATOMIC_ADD": "1",
+    "NCCL_IB_MERGE_NICS": "1"
+   },
+   "command": "vllm serve \\\n    {model} \\\n    --served-model-name {served_model_name} \\\n    --host {host} \\\n    --port {port} \\\n    --trust-remote-code \\\n    --gpu-memory-utilization {gpu_memory_utilization} \\\n    --kv-cache-dtype {kv_cache_dtype} \\\n    --load-format {load_format} \\\n    --max-num-batched-tokens {max_num_batched_tokens} \\\n    --max-num-seqs {max_num_seqs} \\\n    --performance-mode {performance_mode} \\\n    --enable-flashinfer-autotune \\\n    --enable-auto-tool-choice \\\n    --tool-call-parser {tool_call_parser} \\\n    --enable-prefix-caching \\\n    --enable-chunked-prefill \\\n    --tensor-parallel-size {tensor_parallel} \\\n    --distributed-executor-backend {distributed_executor_backend}\n",
+   "model": "sakamakismile/Ornith-1.0-35B-NVFP4",
+   "builder": "eugr",
+   "defaults": {
+    "gpu_memory_utilization": 0.6,
+    "load_format": "fastsafetensors",
+    "data_parallel": 2,
+    "kv_cache_dtype": "fp8",
+    "port": 8000,
+    "host": "0.0.0.0",
+    "tensor_parallel": 1,
+    "max_num_seqs": 4,
+    "distributed_executor_backend": "ray",
+    "max_num_batched_tokens": 65536,
+    "performance_mode": "throughput",
+    "served_model_name": "sakamakismile/Ornith-1.0-35B-NVFP4",
+    "tool_call_parser": "qwen3_coder"
+   },
+   "runtime": "vllm",
+   "recipe_version": "2",
+   "min_nodes": 2,
+   "container": "sparkrun-eugr-vllm-tf5"
+  },
+  "container": "sparkrun-eugr-vllm-tf5",
+  "version": "2"
+ }
+}

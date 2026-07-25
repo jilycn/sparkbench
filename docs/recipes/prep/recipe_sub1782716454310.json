@@ -1,0 +1,40 @@
+{
+ "quantization": "NVFP4",
+ "aggregateScore": 1617.8954807692312,
+ "modelFullPath": "nvidia/Qwen3.6-35B-A3B-NVFP4",
+ "runtime": "vLLM",
+ "recipeType": "spark-vllm-docker",
+ "recipe": {
+  "name": "Qwen36-35B-A3B-NVFP4-nvidia",
+  "container": "vllm-node",
+  "command": "vllm serve nvidia/Qwen3.6-35B-A3B-NVFP4 \\\n  --host {host} \\\n  --port {port} \\\n  --tensor-parallel-size {tensor_parallel} \\\n  --trust-remote-code \\\n  --kv-cache-dtype fp8 \\\n  --attention-backend flashinfer \\\n  --moe-backend marlin \\\n  --gpu-memory-utilization {gpu_memory_utilization} \\\n  --max-model-len {max_model_len} \\\n  --max-num-seqs {max_num_seqs} \\\n  --max-num-batched-tokens {max_num_batched_tokens} \\\n  --enable-chunked-prefill \\\n  --async-scheduling \\\n  --enable-prefix-caching \\\n  --speculative-config '{{\"method\":\"mtp\",\"num_speculative_tokens\":3,\"moe_backend\":\"triton\"}}' \\\n  --load-format fastsafetensors \\\n  --reasoning-parser qwen3 \\\n  --tool-call-parser qwen3_xml \\\n  --enable-auto-tool-choice\n",
+  "description": "vLLM serving nvidia/Qwen3.6-35B-A3B-NVFP4",
+  "fullRecipe": {
+   "name": "Qwen36-35B-A3B-NVFP4-nvidia",
+   "container": "vllm-node",
+   "cluster_only": false,
+   "description": "vLLM serving nvidia/Qwen3.6-35B-A3B-NVFP4",
+   "model": "nvidia/Qwen3.6-35B-A3B-NVFP4",
+   "defaults": {
+    "max_model_len": 262144,
+    "tensor_parallel": 1,
+    "host": "0.0.0.0",
+    "max_num_seqs": 4,
+    "gpu_memory_utilization": 0.4,
+    "max_num_batched_tokens": 8192,
+    "port": 8000
+   },
+   "recipe_version": "1",
+   "command": "vllm serve nvidia/Qwen3.6-35B-A3B-NVFP4 \\\n  --host {host} \\\n  --port {port} \\\n  --tensor-parallel-size {tensor_parallel} \\\n  --trust-remote-code \\\n  --kv-cache-dtype fp8 \\\n  --attention-backend flashinfer \\\n  --moe-backend marlin \\\n  --gpu-memory-utilization {gpu_memory_utilization} \\\n  --max-model-len {max_model_len} \\\n  --max-num-seqs {max_num_seqs} \\\n  --max-num-batched-tokens {max_num_batched_tokens} \\\n  --enable-chunked-prefill \\\n  --async-scheduling \\\n  --enable-prefix-caching \\\n  --speculative-config '{{\"method\":\"mtp\",\"num_speculative_tokens\":3,\"moe_backend\":\"triton\"}}' \\\n  --load-format fastsafetensors \\\n  --reasoning-parser qwen3 \\\n  --tool-call-parser qwen3_xml \\\n  --enable-auto-tool-choice\n",
+   "env": {
+    "VLLM_MARLIN_USE_ATOMIC_ADD": "1"
+   },
+   "mods": [
+    "mods/fix-qwen3.6-chat-template"
+   ]
+  },
+  "clusterOnly": false,
+  "version": "1",
+  "model": "nvidia/Qwen3.6-35B-A3B-NVFP4"
+ }
+}
