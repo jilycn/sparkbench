@@ -45,11 +45,9 @@ def test_math_judge_reports_per_difficulty_splits(tmp_path, monkeypatch):
         records[item["id"]] = {"request_id": request_id, "status": "ok"}
     (round3 / "math_answers.json").write_text(json.dumps(records))
     monkeypatch.chdir(tmp_path)
-    total, _detail, _flags, breakdown = grade_suite(
-        round3, "math_suite.json", "math_answers.json", 1, "math"
-    )
-    assert total == 2
-    assert breakdown == {
+    grade = grade_suite(round3, "math_suite.json", "math_answers.json", 1)
+    assert grade.points == 2
+    assert grade.difficulty_counts == {
         "easy": {"correct": 1, "total": 1, "score100": 100.0},
         "med": {"correct": 0, "total": 1, "score100": 0.0},
         "hard": {"correct": 1, "total": 1, "score100": 100.0},
@@ -149,3 +147,59 @@ def test_booleans_and_integers_are_not_interchangeable():
     assert not normalized_equal({"Signal": True}, {"Signal": 1})
     assert not normalized_equal({"Slot": 1}, {"Slot": True})
     assert normalized_equal({"Signal": True}, {"Signal": True})
+
+
+def test_logic_judge_reports_envelope_categories_and_withholds_fenced_credit(tmp_path):
+    trial = tmp_path / "trial_1"
+    round2 = trial / "round2"
+    raw = trial / "raw"
+    round2.mkdir(parents=True)
+    raw.mkdir()
+    suite = [
+        {"id": "a", "family": "assignment", "answer": {"A": 1}},
+        {"id": "b", "family": "assignment", "answer": {"B": 2}},
+        {"id": "c", "family": "code", "answer": {"code": [1]}},
+    ]
+    bodies = {
+        "a": '{\n  "A": 1\n}',              # pretty printed, compliant
+        "b": '```json\n{"B": 2}\n```',      # correct but fenced
+        "c": "no idea",                      # no answer at all
+    }
+    records = {}
+    for item in suite:
+        request_id = f"logic-{item['id']}"
+        (raw / f"{request_id}.txt").write_text(bodies[item["id"]])
+        records[item["id"]] = {"request_id": request_id}
+    (round2 / "logic_answers.json").write_text(json.dumps(records))
+
+    score = grade_logic(round2, suite)
+
+    assert score["correct"] == 1
+    compliance = score["format_compliance"]
+    assert compliance["total"] == 3
+    assert compliance["graded"] == 1
+    assert compliance["transport_failures"] == 0
+    assert compliance["envelopes"]["multiline_terminal"] == 1
+    assert compliance["envelopes"]["fenced_terminal"] == 1
+    assert compliance["envelopes"]["no_json"] == 1
+    # A withheld answer must not read as a reasoning failure.
+    assert score["detail"]["b"].startswith("not graded [fenced_terminal]")
+    assert "{'B': 2}" in score["detail"]["b"]
+
+
+def test_round3_judge_flags_a_missing_transcript_as_transport(tmp_path, monkeypatch):
+    suite = [{"id": "q", "difficulty": "easy", "answer": 2, "numeric": True}]
+    (tmp_path / "math_suite.json").write_text(json.dumps(suite))
+    trial = tmp_path / "trial_1"
+    round3 = trial / "round3"
+    round3.mkdir(parents=True)
+    (trial / "raw").mkdir()
+    (round3 / "math_answers.json").write_text(json.dumps({"q": {"request_id": "gone"}}))
+    monkeypatch.chdir(tmp_path)
+
+    grade = grade_suite(round3, "math_suite.json", "math_answers.json", 1)
+
+    assert grade.points == 0
+    assert grade.compliance["transport_failures"] == 1
+    assert grade.compliance["graded"] == 0
+    assert any("gone" in flag for flag in grade.flags)

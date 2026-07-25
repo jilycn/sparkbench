@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -185,6 +186,27 @@ def normalized_equal(actual, expected, *, casefold=False, numeric=False, toleran
     if isinstance(actual, dict) and isinstance(expected, dict):
         return actual.keys() == expected.keys() and all(normalized_equal(actual[key], expected[key], casefold=casefold) for key in actual)
     return actual == expected
+
+
+def summarize_envelopes(answers: Iterable[ParsedAnswer]) -> dict:
+    """Report-only tally of how a model packaged its answers.
+
+    Format compliance sits next to a phase score, never inside it. A closing
+    code fence is a formatting habit rather than a reasoning error, and
+    charging it silently to LOGIC or MATH is exactly what hid the suite 2.2
+    parser defect across a whole board. `graded` is the denominator that
+    actually fed the score, and transport failures are counted apart from
+    model behaviour so a missing file cannot read as non-compliance.
+    """
+    counts = dict.fromkeys(ENVELOPES, 0)
+    for answer in answers:
+        counts[answer.envelope] = counts.get(answer.envelope, 0) + 1
+    return {
+        "total": sum(counts.values()),
+        "graded": sum(counts[name] for name in GRADABLE_ENVELOPES),
+        "transport_failures": sum(counts[name] for name in TRANSPORT_ENVELOPES),
+        "envelopes": counts,
+    }
 
 
 def raw_parsed_answer(run_dir: Path, record: dict) -> ParsedAnswer:
