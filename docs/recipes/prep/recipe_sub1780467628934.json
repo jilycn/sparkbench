@@ -1,0 +1,38 @@
+{
+ "recipeType": "spark-vllm-docker",
+ "quantization": "NVFP4",
+ "runtime": "vLLM",
+ "modelFullPath": "Hcompany/Holo-3.1-35B-A3B-NVFP4",
+ "aggregateScore": 2355.0087748485157,
+ "recipe": {
+  "fullRecipe": {
+   "command": "vllm serve Hcompany/Holo-3.1-35B-A3B-NVFP4 \\\n  --served-model-name holo3.1 \\\n  --host {host} \\\n  --port {port} \\\n  --gpu-memory-utilization {gpu_memory_utilization} \\\n  --max-model-len {max_model_len} \\\n  --max-num-seqs {max_num_seqs} \\\n  --max-num-batched-tokens {max_num_batched_tokens} \\\n  --kv-cache-dtype fp8 \\\n  --mamba_ssm_cache_dtype float32 \\\n  --enable-prefix-caching \\\n  --trust-remote-code \\\n  --enable-auto-tool-choice \\\n  --tool-call-parser qwen3_coder \\\n  --reasoning-parser qwen3 \\\n  --limit-mm-per-prompt '{{\"image\": 3, \"video\": 0}}' \\\n  --tensor-parallel-size {tensor_parallel} \\\n  --distributed-executor-backend ray\n",
+   "name": "Holo-3.1-35B-A3B-NVFP4",
+   "description": "vLLM serving Holo3.1-35B-A3B (computer-use VLM) in NVFP4; lean 0.28 GPU, TP=2-capable.",
+   "recipe_version": "1",
+   "cluster_only": false,
+   "model": "Hcompany/Holo-3.1-35B-A3B-NVFP4",
+   "container": "vllm-node",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "VLLM_MARLIN_USE_ATOMIC_ADD": "1"
+   },
+   "defaults": {
+    "max_num_batched_tokens": 16384,
+    "tensor_parallel": 1,
+    "port": 8008,
+    "gpu_memory_utilization": 0.28,
+    "max_model_len": 262144,
+    "host": "0.0.0.0",
+    "max_num_seqs": 10
+   }
+  },
+  "model": "Hcompany/Holo-3.1-35B-A3B-NVFP4",
+  "name": "Holo-3.1-35B-A3B-NVFP4",
+  "command": "vllm serve Hcompany/Holo-3.1-35B-A3B-NVFP4 \\\n  --served-model-name holo3.1 \\\n  --host {host} \\\n  --port {port} \\\n  --gpu-memory-utilization {gpu_memory_utilization} \\\n  --max-model-len {max_model_len} \\\n  --max-num-seqs {max_num_seqs} \\\n  --max-num-batched-tokens {max_num_batched_tokens} \\\n  --kv-cache-dtype fp8 \\\n  --mamba_ssm_cache_dtype float32 \\\n  --enable-prefix-caching \\\n  --trust-remote-code \\\n  --enable-auto-tool-choice \\\n  --tool-call-parser qwen3_coder \\\n  --reasoning-parser qwen3 \\\n  --limit-mm-per-prompt '{{\"image\": 3, \"video\": 0}}' \\\n  --tensor-parallel-size {tensor_parallel} \\\n  --distributed-executor-backend ray\n",
+  "clusterOnly": false,
+  "description": "vLLM serving Holo3.1-35B-A3B (computer-use VLM) in NVFP4; lean 0.28 GPU, TP=2-capable.",
+  "container": "vllm-node",
+  "version": "1"
+ }
+}

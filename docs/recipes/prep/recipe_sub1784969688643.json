@@ -1,0 +1,55 @@
+{
+ "recipeType": "sparkrun",
+ "aggregateScore": 2125.534585871578,
+ "quantization": "W4A16_NVFP4",
+ "runtime": "vLLM",
+ "modelFullPath": "Hcompany/Holo-3.1-35B-A3B-NVFP4",
+ "recipe": {
+  "command": "vllm serve \\\n    {model} \\\n    --served-model-name {served_model_name} \\\n    --host {host} \\\n    --port {port} \\\n    --gpu-memory-utilization {gpu_memory_utilization} \\\n    --max-model-len {max_model_len} \\\n    --max-num-seqs {max_num_seqs} \\\n    --max-num-batched-tokens {max_num_batched_tokens} \\\n    --kv-cache-dtype {kv_cache_dtype} \\\n    --mamba-ssm-cache-dtype {mamba_ssm_cache_dtype} \\\n    --enable-prefix-caching \\\n    --trust-remote-code \\\n    --enable-auto-tool-choice \\\n    --tool-call-parser {tool_call_parser} \\\n    --reasoning-parser {reasoning_parser} \\\n    --tensor-parallel-size {tensor_parallel} \\\n    --distributed-executor-backend {distributed_executor_backend}\n",
+  "fullRecipe": {
+   "model": "Hcompany/Holo-3.1-35B-A3B-NVFP4",
+   "container": "sparkrun-eugr-vllm-tf5",
+   "recipe_version": "2",
+   "metadata": {
+    "num_layers": 40,
+    "kv_dtype": "fp8",
+    "model_params": "35B",
+    "quantization": "w4a16_nvfp4",
+    "maintainer": "stormgrid",
+    "head_dim": 256,
+    "model_dtype": "nvfp4",
+    "description": "Holo3.1-35B-A3B NVFP4 vLLM \u2014 Stormgrid tuned (Arena",
+    "num_kv_heads": 2
+   },
+   "command": "vllm serve \\\n    {model} \\\n    --served-model-name {served_model_name} \\\n    --host {host} \\\n    --port {port} \\\n    --gpu-memory-utilization {gpu_memory_utilization} \\\n    --max-model-len {max_model_len} \\\n    --max-num-seqs {max_num_seqs} \\\n    --max-num-batched-tokens {max_num_batched_tokens} \\\n    --kv-cache-dtype {kv_cache_dtype} \\\n    --mamba-ssm-cache-dtype {mamba_ssm_cache_dtype} \\\n    --enable-prefix-caching \\\n    --trust-remote-code \\\n    --enable-auto-tool-choice \\\n    --tool-call-parser {tool_call_parser} \\\n    --reasoning-parser {reasoning_parser} \\\n    --tensor-parallel-size {tensor_parallel} \\\n    --distributed-executor-backend {distributed_executor_backend}\n",
+   "builder": "eugr",
+   "runtime": "vllm",
+   "min_nodes": 2,
+   "env": {
+    "NCCL_IB_MERGE_NICS": "1",
+    "VLLM_MARLIN_USE_ATOMIC_ADD": "1",
+    "NCCL_NVLS_ENABLE": "0"
+   },
+   "defaults": {
+    "kv_cache_dtype": "fp8",
+    "data_parallel": 2,
+    "distributed_executor_backend": "ray",
+    "max_num_seqs": 10,
+    "mamba_ssm_cache_dtype": "float32",
+    "tool_call_parser": "qwen3_coder",
+    "port": 8008,
+    "max_num_batched_tokens": 16384,
+    "max_model_len": 262144,
+    "gpu_memory_utilization": 0.4,
+    "host": "0.0.0.0",
+    "reasoning_parser": "qwen3",
+    "tensor_parallel": 1,
+    "served_model_name": "Hcompany/Holo-3.1-35B-A3B-NVFP4"
+   }
+  },
+  "description": "",
+  "version": "2",
+  "model": "Hcompany/Holo-3.1-35B-A3B-NVFP4",
+  "container": "sparkrun-eugr-vllm-tf5"
+ }
+}
