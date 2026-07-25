@@ -58,10 +58,13 @@ What 2.2 says so far:
   the champion both do. Reasoning therefore lands in the answer content and consumes the per-item
   token budget: 21 of 48 judged items truncated (LOGIC 4/8, MATH 16/30, CONTEXT 1/10). The 77.3
   stands as measured for that recipe. Read its LOGIC 25.0 as a property of the recipe as published,
-  not of the weights. Suite 2.2.1 surfaces these counts in each phase's `format_compliance` block;
-  suite 2.2 reported them as zero.
-- **Every LOGIC and MATH number here understates nothing, but the instrument nearly hid a model.**
-  Holo's LOGIC and CONTEXT were depressed by a judge defect, not by the model. See below.
+  not of the weights. Suite 2.2 had no aggregate format-compliance summary: round 3 listed 17 of these truncations
+  as per-item flags in `score3.json`, and LOGIC's four were not surfaced at all because the logic
+  judge emitted no flags. Suite 2.2.1 reports the existing per-item delivery statuses as
+  phase-level counts.
+- **No other archived score moved under this parser repair.** Holo's LOGIC and CONTEXT were
+  depressed by a judge defect rather than by the model; every other run re-graded to the value it
+  was published at. See below.
 
 ## Suite 2.2.1 judge repair
 
