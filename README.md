@@ -71,7 +71,7 @@ Run the test suite: `venv/bin/python -m pytest -q`.
 |---|---:|---|
 | **TOOLS** | 27% | Single-turn function calling over a fixed eval suite: valid calls, correct arguments, correct format — and *not* calling tools when it shouldn't. |
 | **AGENT** | 22% | Three independent multi-turn coding families (records, dependency scheduling, ledger), one semantic variant each. Every task has 12 hidden correctness tests + 4 adversarial probes; family scores are macro-averaged to reduce task-flake variance. |
-| **LOGIC** | 10% | Eight seeded puzzles sampled across four generated families. Every answer is uniquely solver-verified and every clue set is irreducible; final-line JSON is strict. |
+| **LOGIC** | 10% | Eight seeded puzzles sampled across four generated families. Every answer is uniquely solver-verified and every clue set is irreducible; the answer must be a terminal JSON object. |
 | **MATH** | 8% | 30 seeded problems balanced 10/10/10 easy/medium/hard across 15 independently verified templates under 2048-token / 120-second per-item budgets. |
 | **CONTEXT** | 10% | Ten questions over a seeded generated document: deep retrieval, compositional joins, near misses, and genuine source-authority arbitration under conflicting evidence. |
 | **LOAD** | 13% | Concurrent trivial requests scored on a latency SLO: full marks at p95 ≤ 15 s, sliding to zero at 60 s. Correctness is a sanity floor (>1% wrong caps at 50; >5% zeroes). "Can the pipe survive real usage." |

@@ -26,7 +26,7 @@ from sblib import append_jsonl, write_json_atomic, write_text_atomic
 
 
 PHASES = ("tools", "agent", "logic", "math", "context", "load")
-SUITE_VERSION = "2.2"
+SUITE_VERSION = "2.2.1"
 # This list is deliberately explicit. Add new runtime inputs here before they are
 # eligible for a frozen run; do not replace it with a glob.
 HARNESS_FILES = (

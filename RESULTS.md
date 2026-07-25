@@ -1,4 +1,4 @@
-# SparkBench suite 2.2 results
+# SparkBench suite 2.2.1 results
 
 Suite 2.2 runs use generated LOGIC, three independent AGENT task families, expanded MATH
 templates, and genuine CONTEXT authority arbitration. They are **not comparable** with suite 2.1
@@ -6,10 +6,13 @@ scores (archived verbatim below). Scoring policy v2, weights TOOLS 27 / AGENT 22
 LOGIC 10 / CONTEXT 10 / STABILITY 10 / MATH 8. Speed = effective output-token throughput
 (completion tokens / wall latency, ≥200-token samples) — reported, never scored.
 
-## Suite 2.2 leaderboard — last updated 2026-07-25
+## Suite 2.2.1 leaderboard — last updated 2026-07-25
 
 All single-trial per standing policy, except the champion requalification (n=3, fresh container).
 All solo GB10 (128 GB unified), served via SparkOps with live provenance re-verification.
+
+Rows marked † were re-graded by the suite 2.2.1 judge repair from their own preserved transcripts,
+not re-benched. See "Suite 2.2.1 judge repair" below. Every other value is as originally measured.
 
 | # | Recipe key | Weights (quant) | Engine/image | Score | Grade | Speed (t/s) | Run |
 |---|---|---|---|---:|---|---:|---|
@@ -18,8 +21,8 @@ All solo GB10 (128 GB unified), served via SparkOps with live provenance re-veri
 | 3 | `q36-fast-speed` | unsloth/Qwen3.6-35B-A3B-NVFP4-Fast | aeon-vllm-ultimate | 81.6 | B+ | 91.8 | `20260725-010728` |
 | 4 | `q36-mlponly-champion` | vroomfondel/Qwen3.6-35B-A3B-NVFP4-MLP-Only | vllm-openai 0.26.0 (engine A/B) | 79.2 | B | 37.7 | `20260725-015801` |
 | 5 | `q36-mlponly-v0251` | same weights (NVFP4 MLP-only) | vllm-openai 0.25.1 (requal, n=3) | 79.2 | B | 37.4 | `20260724-201727` |
-| 6 | `ornith1-35b-nvfp4-sakamaki` | sakamakismile/Ornith-1.0-35B-NVFP4 | eugr nightly `2026072502` | 77.3 | B | 64.9 | `20260725-131654` |
-| 7 | `holo31-35b-nvfp4-arena-b` | Hcompany/Holo-3.1-35B-A3B-NVFP4 | eugr nightly `2026072502` | 73.0 | B | 74.5 | `20260725-122449` |
+| 6 | `holo31-35b-nvfp4-arena-b` † | Hcompany/Holo-3.1-35B-A3B-NVFP4 | eugr nightly `2026072502` | 77.4 | B | 74.5 | `20260725-122449` |
+| 7 | `ornith1-35b-nvfp4-sakamaki` | sakamakismile/Ornith-1.0-35B-NVFP4 | eugr nightly `2026072502` | 77.3 | B | 64.9 | `20260725-131654` |
 
 Per-phase breakdown (raw phase scores, 0-100):
 
@@ -30,8 +33,8 @@ Per-phase breakdown (raw phase scores, 0-100):
 | q36-fast-speed | 91.0 | 88.1 | 50.0 | 26.7 | 80.0 | 100 | 95.2 |
 | q36-mlponly-champion | 91.0 | 88.6 | 37.5 | 23.3 | 70.0 | 100 | 93.7 |
 | q36-mlponly-v0251 | 87.0 | 84.6 | 50.0 | 20.0 | 80.0 | 100 | 94.7 |
+| holo31-35b-nvfp4-arena-b † | 85.0 | 90.4 | 62.5 | 36.7 | 90.0 | 50.0 | 99.6 |
 | ornith1-35b-nvfp4-sakamaki | 82.0 | 86.3 | 25.0 | 36.7 | 80.0 | 100 | 97.6 |
-| holo31-35b-nvfp4-arena-b | 85.0 | 90.4 | 37.5 | 36.7 | 70.0 | 50.0 | 99.6 |
 
 What 2.2 says so far:
 
@@ -44,12 +47,45 @@ What 2.2 says so far:
   0.25.1 and 0.26.0. Engine choice is not the lever it appeared to be on the old suite.
 - MATH is the weakest axis across the family (20–40); STABILITY 93.7–99.6.
 - **Arena rank does not predict SparkBench rank** (2026-07-25 candidates, sol-gated recipes,
-  arena-verbatim configs): Holo-3.1 (arena board-best 2125.5) lands 7th at 73.0 — it posts the
-  best AGENT ever recorded (90.4) and best context TTFT (4.6 s), but LOAD halves (50.0, only
-  non-100 on the board; `max_num_seqs 10` @ util 0.4 under concurrency is suspect, config kept
-  verbatim per sourcing rules) and LOGIC 37.5/TOOLS 85 trail. sakamakismile Ornith (arena 1837)
-  lands 6th at 77.3 — LOAD 100 but LOGIC 25. Arena's prefill-heavy aggregate rewards different
-  muscles than tool/agent/logic work.
+  arena-verbatim configs): Holo-3.1 (arena board-best 2125.5) lands 6th at 77.4 — it posts the
+  best AGENT ever recorded (90.4), the best CONTEXT on the board (90.0) and the best context TTFT
+  (4.6 s), but LOAD halves (50.0, only non-100 on the board; `max_num_seqs 10` @ util 0.4 under
+  concurrency is suspect, config kept verbatim per sourcing rules). sakamakismile Ornith (arena
+  1837) lands 7th at 77.3 — LOAD 100 but LOGIC 25, the weakest on the board. Arena's prefill-heavy
+  aggregate rewards different muscles than tool/agent/logic work.
+- **Every LOGIC and MATH number here understates nothing, but the instrument nearly hid a model.**
+  Holo's LOGIC and CONTEXT were depressed by a judge defect, not by the model. See below.
+
+## Suite 2.2.1 judge repair
+
+Suite 2.2 accepted a terminal JSON answer only when the whole object fitted on the last physical
+line. A model that pretty-printed a compliant answer was graded wrong, and the failure was silent:
+the score detail read `wrong (got None, want ...)`, which is indistinguishable from a reasoning
+error. Suite 2.2.1 decodes with `raw_decode` and requires the decode to consume the reply through
+its final character.
+
+The contract is unchanged. Replies that append prose or a closing code fence after the answer
+object still fail it, and crediting those envelopes would be a scoring-policy decision rather than
+a repair. Questions, prompts, phases and weights are identical to 2.2.
+
+Archived runs were re-graded from their preserved transcripts by `rescore_v221.py`, which writes
+`.v221.json` sidecars and a `rescore_v221.json` provenance record per run and never modifies a
+published artifact. Across the seven archived 2.2 runs, four items regraded, all in
+`holo31-35b-nvfp4-arena-b`:
+
+| Run | LOGIC | CONTEXT | Total |
+|---|---|---|---|
+| `holo31-35b-nvfp4-arena-b` | 37.5 to 62.5 | 70.0 to 90.0 | 73.0 to **77.4** |
+
+No other run moved. Two Holo answers were exactly correct and unreadable by the old parser
+(`logic-assignment-02`, `logic-schedule-04`), plus two CONTEXT items. Rank order above is otherwise
+unchanged, and the champion decision is unaffected.
+
+Provenance caveat, recorded in every rescore record: run transcripts were not hash sealed when
+written, so their immutability since the original run cannot be established after the fact. These
+are derived rescores. They are comparable with other 2.2.1 values and with future 2.2.1 runs, and
+strict-graded 2.2 numbers as originally published should be re-graded before being compared with
+them.
 
 ## Suite 2.1 archive (verbatim)
 

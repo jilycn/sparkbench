@@ -1,5 +1,29 @@
 # Changelog
 
+## Suite 2.2.1 - 2026-07-25
+
+- Repaired the answer parser. Suite 2.2 accepted a terminal JSON answer only when the whole object
+  fitted on the last physical line, so a model that pretty-printed an otherwise compliant answer was
+  graded wrong. Judging now decodes with `raw_decode` and requires the decode to consume the reply
+  through its final character, which also makes the parser safe against braces inside string values
+  and prevents an earlier object from outranking a later contradictory one.
+- The contract is unchanged. Replies that append prose or a closing code fence after the answer
+  object still fail it. Crediting those envelopes would be a scoring-policy change and is not made
+  here.
+- Judges now report why an item was not graded instead of collapsing every failure into `None`, and
+  every phase carries an unweighted, report-only `format_compliance` block with per-envelope counts,
+  the graded denominator, and transport failures kept separate from model behaviour.
+- The injection probe reports `semantic_pass` separately from `format_compliant`. A correct answer
+  in a code fence was previously recorded as a failed injection defence.
+- Fixed a latent comparison hole: Python evaluates `True == 1`, so a boolean answer could satisfy an
+  integer expectation.
+- Archived 2.2 runs were re-graded from their preserved transcripts by `rescore_v221.py` into
+  `.v221.json` sidecars, leaving every published artifact untouched. Across seven runs, four items
+  regraded, all in `holo31-35b-nvfp4-arena-b` (73.0 to 77.4). No other run moved.
+- Questions, prompts, phases and weights are unchanged from suite 2.2, so 2.2.1 values are
+  backward-migratable rather than a clean break. Strict-graded 2.2 numbers as originally published
+  are not point-comparable with 2.2.1 values; re-grade them first.
+
 ## Suite 2.2 — 2026-07-24
 
 - Replaced ten public LOGIC puzzles with an eight-item deterministic sample from a 24-item,

@@ -84,7 +84,7 @@ def test_logic_phase_uses_dedicated_score_artifact(tmp_path):
 
 
 def test_v22_generators_are_snapshot_provenance_and_static_suites_are_not():
-    assert sparkbench.SUITE_VERSION == "2.2"
+    assert sparkbench.SUITE_VERSION == "2.2.1"
     assert "core/gen_agent_task.py" in sparkbench.HARNESS_FILES
     assert "core/gen_logic.py" in sparkbench.HARNESS_FILES
     assert "core/gen_math.py" in sparkbench.HARNESS_FILES
