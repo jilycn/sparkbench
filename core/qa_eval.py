@@ -35,6 +35,10 @@ def main():
         result = chat(cfg, [{"role": "system", "content": SYS}, {"role": "user", "content": user}],
                       max_tokens=BUDGETS[phase][0], wall_budget_s=BUDGETS[phase][1],
                       tag=f"{phase}-{item['id']}")
+        # `parsed` is a runner diagnostic only. No judge reads it: judging
+        # re-derives the answer from the stored transcript via judgelib, so a bug
+        # here cannot inflate a score. This extractor is not quote-safe and may
+        # disagree with the judge; never cite it as an answer.
         answers[item["id"]] = {
             "request_id": result.request_id, "seconds": round(result.latency_s, 1),
             "error": result.error, "status": result.status, "parsed": extract_json(result.text),
