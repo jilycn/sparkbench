@@ -18,6 +18,8 @@ All solo GB10 (128 GB unified), served via SparkOps with live provenance re-veri
 | 3 | `q36-fast-speed` | unsloth/Qwen3.6-35B-A3B-NVFP4-Fast | aeon-vllm-ultimate | 81.6 | B+ | 91.8 | `20260725-010728` |
 | 4 | `q36-mlponly-champion` | vroomfondel/Qwen3.6-35B-A3B-NVFP4-MLP-Only | vllm-openai 0.26.0 (engine A/B) | 79.2 | B | 37.7 | `20260725-015801` |
 | 5 | `q36-mlponly-v0251` | same weights (NVFP4 MLP-only) | vllm-openai 0.25.1 (requal, n=3) | 79.2 | B | 37.4 | `20260724-201727` |
+| 6 | `ornith1-35b-nvfp4-sakamaki` | sakamakismile/Ornith-1.0-35B-NVFP4 | eugr nightly `2026072502` | 77.3 | B | 64.9 | `20260725-131654` |
+| 7 | `holo31-35b-nvfp4-arena-b` | Hcompany/Holo-3.1-35B-A3B-NVFP4 | eugr nightly `2026072502` | 73.0 | B | 74.5 | `20260725-122449` |
 
 Per-phase breakdown (raw phase scores, 0-100):
 
@@ -28,6 +30,8 @@ Per-phase breakdown (raw phase scores, 0-100):
 | q36-fast-speed | 91.0 | 88.1 | 50.0 | 26.7 | 80.0 | 100 | 95.2 |
 | q36-mlponly-champion | 91.0 | 88.6 | 37.5 | 23.3 | 70.0 | 100 | 93.7 |
 | q36-mlponly-v0251 | 87.0 | 84.6 | 50.0 | 20.0 | 80.0 | 100 | 94.7 |
+| ornith1-35b-nvfp4-sakamaki | 82.0 | 86.3 | 25.0 | 36.7 | 80.0 | 100 | 97.6 |
+| holo31-35b-nvfp4-arena-b | 85.0 | 90.4 | 37.5 | 36.7 | 70.0 | 50.0 | 99.6 |
 
 What 2.2 says so far:
 
@@ -38,8 +42,14 @@ What 2.2 says so far:
   ceiling suspected). The discriminators in this family are LOGIC, MATH, and speed.
 - **The v2.1 "+28.7 engine delta" did not reproduce on 2.2**: MLP-Only scores 79.2 on both vLLM
   0.25.1 and 0.26.0. Engine choice is not the lever it appeared to be on the old suite.
-- MATH is the weakest axis across the family (20–40); LOAD is a solved axis (100 across the
-  board); STABILITY 93.7–97.8.
+- MATH is the weakest axis across the family (20–40); STABILITY 93.7–99.6.
+- **Arena rank does not predict SparkBench rank** (2026-07-25 candidates, sol-gated recipes,
+  arena-verbatim configs): Holo-3.1 (arena board-best 2125.5) lands 7th at 73.0 — it posts the
+  best AGENT ever recorded (90.4) and best context TTFT (4.6 s), but LOAD halves (50.0, only
+  non-100 on the board; `max_num_seqs 10` @ util 0.4 under concurrency is suspect, config kept
+  verbatim per sourcing rules) and LOGIC 37.5/TOOLS 85 trail. sakamakismile Ornith (arena 1837)
+  lands 6th at 77.3 — LOAD 100 but LOGIC 25. Arena's prefill-heavy aggregate rewards different
+  muscles than tool/agent/logic work.
 
 ## Suite 2.1 archive (verbatim)
 
