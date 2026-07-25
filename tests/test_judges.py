@@ -3,7 +3,8 @@ from pathlib import Path
 
 from judge3 import grade_suite
 from logic_judge import grade_logic
-from judgelib import final_json_object, normalized_equal, raw_parsed_answer, terminal_answer
+from judgelib import (final_json_object, normalized_equal, raw_parsed_answer,
+                      summarize_envelopes, terminal_answer)
 
 
 def test_harvested_m1_cinder_team_is_not_leniently_accepted():
@@ -177,8 +178,8 @@ def test_logic_judge_reports_envelope_categories_and_withholds_fenced_credit(tmp
     assert score["correct"] == 1
     compliance = score["format_compliance"]
     assert compliance["total"] == 3
-    assert compliance["graded"] == 1
-    assert compliance["transport_failures"] == 0
+    assert compliance["contract_compliant"] == 1
+    assert compliance["missing_transcripts"] == 0
     assert compliance["envelopes"]["multiline_terminal"] == 1
     assert compliance["envelopes"]["fenced_terminal"] == 1
     assert compliance["envelopes"]["no_json"] == 1
@@ -200,6 +201,51 @@ def test_round3_judge_flags_a_missing_transcript_as_transport(tmp_path, monkeypa
     grade = grade_suite(round3, "math_suite.json", "math_answers.json", 1)
 
     assert grade.points == 0
-    assert grade.compliance["transport_failures"] == 1
-    assert grade.compliance["graded"] == 0
+    assert grade.compliance["missing_transcripts"] == 1
+    assert grade.compliance["contract_compliant"] == 0
     assert any("gone" in flag for flag in grade.flags)
+
+
+# --- contract width regressions (sol review, 2026-07-25) ------------------
+
+
+def test_prose_before_the_object_on_the_same_line_does_not_qualify():
+    # Suite 2.2 rejected this, so accepting it would widen the contract rather
+    # than repair it.
+    parsed = terminal_answer('The final answer is {"answer": 7}')
+    assert not parsed.is_gradable
+    assert parsed.envelope == "trailing_content"
+
+
+def test_concatenated_objects_on_one_line_do_not_qualify():
+    parsed = terminal_answer('{"scratch": 1}{"answer": 7}')
+    assert not parsed.is_gradable
+
+
+def test_an_indented_terminal_object_still_qualifies():
+    parsed = terminal_answer('reasoning\n    {"answer": 7}')
+    assert parsed.is_gradable
+    assert parsed.value == {"answer": 7}
+
+
+def test_an_unterminated_opening_fence_is_not_a_closing_fence():
+    # ```json opens a fence. Reporting it as fenced_terminal would put a wrong
+    # number in the published compliance counts.
+    parsed = terminal_answer('{"answer": 1}\n```json')
+    assert parsed.envelope != "fenced_terminal"
+
+
+def test_compliance_separates_delivery_failures_from_packaging():
+    answers = [
+        terminal_answer('{"answer": 1}'),
+        terminal_answer('{"answer": 2}\ntrailing note'),
+        terminal_answer("cut off mid-thought"),
+    ]
+    summary = summarize_envelopes(answers, ["ok", "ok", "truncated"])
+    assert summary["total"] == 3
+    assert summary["contract_compliant"] == 1
+    # The truncated reply never had a chance to comply, so it leaves the base.
+    assert summary["format_evaluable"] == 2
+    assert summary["compliance_rate"] == 0.5
+    assert summary["delivery"]["truncated"] == 1
+    assert summary["missing_transcripts"] == 0

@@ -35,7 +35,22 @@ def _tool_score(path):
     return float(match.group(1)) / float(match.group(2)) * 100 if match else None
 
 
-def _trial_axes(trial):
+def _artifact(directory: Path, name: str, suffix: str) -> Path:
+    """Prefer a suffixed sidecar such as score3.v221.json when one exists.
+
+    This lets a rescore rebuild every derived field through the same code path
+    that produced the original, instead of hand-patching a published report.
+    Hand-patching is how a file ends up with a corrected score100 sitting next
+    to a stale raw string, median, or grade.
+    """
+    if suffix:
+        candidate = directory / f"{Path(name).stem}{suffix}.json"
+        if candidate.exists():
+            return candidate
+    return directory / name
+
+
+def _trial_axes(trial, suffix=""):
     values = {}
     tool = _tool_score(trial / "tools.log")
     if tool is not None: values["TOOLS"] = tool
@@ -43,12 +58,12 @@ def _trial_axes(trial):
     if round2.exists():
         data = json.loads(round2.read_text())
         values["AGENT"] = sum(data.get(key, 0) for key in ("A1_hidden", "A2_probes", "A3_quality", "A4_efficiency")) / 70 * 100
-    logic_score = trial / "round2" / "logic_score.json"
+    logic_score = _artifact(trial / "round2", "logic_score.json", suffix)
     if logic_score.exists():
         data = json.loads(logic_score.read_text())
         if "missing" not in data:
             values["LOGIC"] = data.get("score100")
-    round3 = trial / "round3" / "score3.json"
+    round3 = _artifact(trial / "round3", "score3.json", suffix)
     if round3.exists():
         data = json.loads(round3.read_text())
         detail = data.get("detail", {})
@@ -71,7 +86,7 @@ def _cap(grade, cap):
     return grade
 
 
-def build_report(run_dir: Path):
+def build_report(run_dir: Path, artifact_suffix: str = ""):
     status = json.loads((run_dir / "status.json").read_text())
     manifest = json.loads((run_dir / "manifest.json").read_text())
     run_status = status["run_status"]
@@ -79,10 +94,10 @@ def build_report(run_dir: Path):
         return {"label": run_dir.name, "scoring_version": manifest["scoring_version"], "suite_version": manifest["suite_version"],
                 "run_status": "INVALID", "axes": {}, "present": [], "overall": None, "grade": None, "trials": None}
     trials = sorted(path for path in run_dir.glob("trial_*") if path.is_dir())
-    per_trial = [_trial_axes(trial) for trial in trials]
+    per_trial = [_trial_axes(trial, artifact_suffix) for trial in trials]
     math_breakdowns = []
     for trial in trials:
-        path = trial / "round3" / "score3.json"
+        path = _artifact(trial / "round3", "score3.json", artifact_suffix)
         data = json.loads(path.read_text()) if path.exists() else {}
         math_breakdowns.append(data.get("math_breakdown", {}))
     math_breakdown = {}

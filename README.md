@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/jilycn/sparkbench/actions/workflows/ci.yml/badge.svg)](https://github.com/jilycn/sparkbench/actions/workflows/ci.yml)
 
-A frozen-snapshot benchmark for **local LLM serving recipes**. Current question set: **suite 2.2**.
+A frozen-snapshot benchmark for **local LLM serving recipes**. Current question set: **suite 2.2.1**.
 Point it at any OpenAI-compatible
 endpoint and it measures the whole serving experience — tool calling, multi-turn agentic coding,
 logic, math under budget, adversarial long context, latency under concurrent load, and run
@@ -119,7 +119,7 @@ refuses cross-version or cross-sample comparisons), `sparkbench_leaderboard.py <
 ## Comparability rules
 
 Scores compare only when the scoring version, suite version, and sampled task identities match.
-Suite 2.2 is a hard boundary: v2.1 scores remain archived exactly as recorded and are not comparable.
+Suite 2.2.1 is a hard boundary: v2.1 scores remain archived exactly as recorded and are not comparable.
 The leaderboard ranks only the latest COMPLETE runs in one identical-sample 2.2 cohort; other
 samples are shown as non-comparable rather than mixed into the ranking.
 

@@ -8,8 +8,7 @@ import json
 from pathlib import Path
 
 from sblib import write_text_atomic
-
-CURRENT_SUITE = "2.2"
+from scoreio import CURRENT_SUITE, SUPERSEDED_SUITES, resolve_scores
 IDENTITY_KEYS = (
     "seed",
     "math_sample_ids",
@@ -61,17 +60,22 @@ def _official_cohort(items):
 
 
 def build_leaderboard(root: Path):
-    complete, partial, archive_v21, legacy = [], [], [], []
+    complete, partial, archive_superseded, legacy = [], [], [], []
     for directory in sorted(path for path in root.iterdir() if path.is_dir()):
-        scores = directory / "scores.json"
         status = directory / "status.json"
-        if scores.exists() and status.exists():
-            score, state = _load(scores), _load(status)
+        resolved = resolve_scores(directory)
+        if resolved and status.exists():
+            score, source = resolved
+            state = _load(status)
             if score.get("scoring_version") == 2 and score.get("suite_version") == CURRENT_SUITE:
+                score = {**score, "artifact_source": source}
                 (complete if state.get("run_status") == "COMPLETE" else partial).append((directory, score))
                 continue
-            if score.get("scoring_version") == 2 and score.get("suite_version") == "2.1":
-                archive_v21.append((directory, score, state.get("run_status", "UNKNOWN")))
+            # A superseded run stays visible as recorded. That includes a 2.2
+            # run whose rescore was refused, which must not silently vanish
+            # from the board just because it could not be migrated.
+            if score.get("scoring_version") == 2 and score.get("suite_version") in SUPERSEDED_SUITES:
+                archive_superseded.append((directory, score, state.get("run_status", "UNKNOWN")))
                 continue
         old = directory / "scorecard.json"
         if old.exists():
@@ -94,10 +98,12 @@ def build_leaderboard(root: Path):
     for directory, score in sorted(partial, key=lambda item: item[0].name):
         present = ", ".join(score.get("present", [])) or "none"
         lines.append(f"- {score.get('label', directory.name)} — {present} ({directory.name})")
-    lines += ["", "## Suite 2.1 archive", "",
-              "Stored v2.1 results are reproduced as recorded; never rescored or ranked with suite 2.2.", "",
+    lines += ["", "## Superseded-suite archive", "",
+              "Stored results from an earlier suite, reproduced exactly as recorded. Suite 2.1 is never "
+              "rescored or ranked alongside the current cohort. A suite 2.2 row here is one whose 2.2.1 "
+              "rescore was refused or could not be verified.", "",
               "| Recipe | Overall | Grade | Status | Run |", "|---|---:|---|---|---|"]
-    for directory, score, state in sorted(archive_v21, key=lambda item: item[0].name):
+    for directory, score, state in sorted(archive_superseded, key=lambda item: item[0].name):
         lines.append(
             f"| {score.get('label', directory.name)} | {score.get('overall', '—')} | "
             f"{score.get('grade', '—')} | {state} | {directory.name} |"

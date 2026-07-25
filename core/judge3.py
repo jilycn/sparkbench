@@ -47,10 +47,12 @@ def grade_suite(run_dir: Path, suite_name: str, answers_name: str, points: int) 
     answers = json.loads(answers_path.read_text())
     grade = SuiteGrade()
     parsed_answers = []
+    statuses = []
     for item in suite:
         record = answers.get(item["id"], {})
         parsed = raw_parsed_answer(run_dir.parent, record)
         parsed_answers.append(parsed)
+        statuses.append(record.get("status"))
         value = parsed.value.get("answer") if parsed.is_gradable else None
         ok = parsed.is_gradable and normalized_equal(
             value, item["answer"], numeric=item.get("numeric", False), tolerance=item.get("tol", 0)
@@ -67,7 +69,7 @@ def grade_suite(run_dir: Path, suite_name: str, answers_name: str, points: int) 
             grade.flags.append(f"{item['id']}: {parsed.detail}")
     for counts in grade.difficulty_counts.values():
         counts["score100"] = round(counts["correct"] / counts["total"] * 100, 1)
-    grade.compliance = summarize_envelopes(parsed_answers)
+    grade.compliance = summarize_envelopes(parsed_answers, statuses)
     return grade
 
 

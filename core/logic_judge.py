@@ -43,10 +43,13 @@ def grade_logic(run_dir: Path, suite: list[dict]) -> dict:
     detail = {}
     families = {}
     parsed_answers = []
+    statuses = []
     correct = 0
     for item in suite:
-        parsed = raw_parsed_answer(run_dir.parent, records.get(item["id"], {}))
+        record = records.get(item["id"], {})
+        parsed = raw_parsed_answer(run_dir.parent, record)
         parsed_answers.append(parsed)
+        statuses.append(record.get("status"))
         ok = parsed.is_gradable and normalized_equal(parsed.value, item["answer"], casefold=True)
         correct += int(ok)
         detail[item["id"]] = describe(parsed, item["answer"], ok)
@@ -61,7 +64,7 @@ def grade_logic(run_dir: Path, suite: list[dict]) -> dict:
         "score100": round(correct / len(suite) * 100, 1) if suite else 0.0,
         "family_breakdown": families,
         "detail": detail,
-        "format_compliance": summarize_envelopes(parsed_answers),
+        "format_compliance": summarize_envelopes(parsed_answers, statuses),
     }
 
 

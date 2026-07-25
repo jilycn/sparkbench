@@ -34,13 +34,22 @@ sys.path.insert(0, str(REPO / "core"))
 
 from judge3 import grade_suite  # noqa: E402
 from logic_judge import grade_logic  # noqa: E402
-from sblib import write_json_atomic  # noqa: E402
+from sblib import write_json_atomic, write_text_atomic  # noqa: E402
+
+sys.path.insert(0, str(REPO))
+from sparkbench_report import build_report, markdown  # noqa: E402
 
 BENCH_ROOT = Path.home() / "bench" / "sparkbench"
 SOURCE_SUITE = "2.2"
 TARGET_SUITE = "2.2.1"
 WEIGHTS = {"TOOLS": 27, "AGENT": 22, "LOGIC": 10, "MATH": 8, "CONTEXT": 10, "LOAD": 13, "STABILITY": 10}
 RESCORED_AXES = ("LOGIC", "MATH", "CONTEXT")
+SIDECAR_SUFFIX = ".v221"
+
+#: Judge sources whose behaviour determines every rescored value. Hashed into
+#: each record so a reader can tell which parser produced the numbers even if
+#: the working tree has since moved on.
+JUDGE_SOURCES = ("core/judgelib.py", "core/logic_judge.py", "core/judge3.py", "rescore_v221.py")
 
 PROVENANCE_WARNING = (
     "Derived rescore. Transcripts were not hash sealed at run time, so their "
@@ -64,20 +73,85 @@ def judge_commit() -> str:
         return "unknown"
 
 
-def transcript_hashes(trial: Path, answers_files: list[Path]) -> dict[str, str]:
-    """Hash every transcript the rescored phases actually read."""
+def worktree_clean() -> bool | None:
+    """Whether the judge sources came from a committed tree. None if unknown."""
+    try:
+        done = subprocess.run(["git", "-C", str(REPO), "status", "--porcelain"],
+                              capture_output=True, text=True, check=True)
+        return not done.stdout.strip()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+
+
+def judge_source_hashes() -> dict[str, str]:
+    return {name: sha256_of(REPO / name) for name in JUDGE_SOURCES if (REPO / name).is_file()}
+
+
+def harness_verification(run: Path, manifest: dict) -> dict:
+    """Re-hash the frozen harness against the manifest recorded at run time.
+
+    A rescore reads the run's own snapshotted suites. If that snapshot no longer
+    matches what the run recorded, the questions being graded are not the
+    questions that were asked, and the rescore is meaningless.
+    """
+    recorded = manifest.get("files", {})
+    mismatched, missing = [], []
+    for name, digest in recorded.items():
+        path = run / "harness" / name
+        if not path.is_file():
+            missing.append(name)
+        elif sha256_of(path) != digest:
+            mismatched.append(name)
+    return {"files_checked": len(recorded), "missing": sorted(missing),
+            "mismatched": sorted(mismatched), "verified": not missing and not mismatched}
+
+
+def ineligible_reason(run: Path, published: dict, manifest: dict, status: dict, harness: dict) -> str | None:
+    """Why this run must not be rescored, or None when it may be.
+
+    Fails closed. A rescore that silently accepts a partial or tampered run
+    would publish a number nobody can stand behind.
+    """
+    if status.get("run_status") != "COMPLETE":
+        return f"run_status is {status.get('run_status')!r}, not COMPLETE"
+    if manifest.get("scoring_version") != 2:
+        return f"scoring_version is {manifest.get('scoring_version')!r}, not 2"
+    if manifest.get("suite_version") != SOURCE_SUITE:
+        return f"suite_version is {manifest.get('suite_version')!r}, not {SOURCE_SUITE}"
+    if published.get("overall") is None:
+        return "published report has no overall score"
+    absent = sorted(set(WEIGHTS) - set(published.get("axes", {})))
+    if absent:
+        return f"published report is missing axes: {', '.join(absent)}"
+    if not harness["verified"]:
+        return (f"frozen harness does not match the manifest "
+                f"(missing {harness['missing']}, mismatched {harness['mismatched']})")
+    return None
+
+
+def transcript_hashes(trial: Path, answers_files: list[Path]) -> tuple[dict[str, str], list[str]]:
+    """Hash every transcript the rescored phases read, and name the absent ones.
+
+    Missing transcripts are listed explicitly rather than silently skipped: an
+    item graded against a file that is not there is evidence of nothing.
+    """
     hashes: dict[str, str] = {}
+    missing: list[str] = []
     for answers_path in answers_files:
         if not answers_path.is_file():
+            missing.append(f"{trial.name}/{answers_path.name} (answers file absent)")
             continue
-        for record in json.loads(answers_path.read_text()).values():
+        for item_id, record in json.loads(answers_path.read_text()).items():
             request_id = record.get("request_id")
             if not request_id:
+                missing.append(f"{trial.name}/{item_id} (no request_id)")
                 continue
             path = trial / "raw" / f"{request_id}.txt"
             if path.is_file():
                 hashes[str(path.relative_to(trial.parent))] = sha256_of(path)
-    return hashes
+            else:
+                missing.append(f"{trial.name}/raw/{request_id}.txt")
+    return hashes, missing
 
 
 def changed_items(old_detail: dict, new_detail: dict, trial_name: str, phase: str) -> list[dict]:
@@ -155,40 +229,64 @@ def published_detail(path: Path, key: str | None = None) -> dict:
 
 
 def rescore_run(run: Path) -> dict | None:
-    """Re-grade every trial of one run and write its sidecars and record."""
+    """Re-grade every trial of one run and write its sidecars and record.
+
+    Returns None when the run is not a suite 2.2 archive, and a record with
+    `skipped` set when it is one but fails an eligibility check.
+    """
     scores_path = run / "scores.json"
-    if not scores_path.is_file():
+    manifest_path = run / "manifest.json"
+    status_path = run / "status.json"
+    if not (scores_path.is_file() and manifest_path.is_file() and status_path.is_file()):
         return None
     published = json.loads(scores_path.read_text())
-    if published.get("suite_version") != SOURCE_SUITE:
+    manifest = json.loads(manifest_path.read_text())
+    status = json.loads(status_path.read_text())
+    if manifest.get("suite_version") != SOURCE_SUITE:
         return None
 
+    harness = harness_verification(run, manifest)
     stamp = {
         "suite_version_from": SOURCE_SUITE,
         "suite_version_to": TARGET_SUITE,
         "judge_commit": judge_commit(),
-        "parser": "judgelib.terminal_answer (raw_decode, terminal-object contract)",
+        "judge_worktree_clean": worktree_clean(),
+        "judge_source_sha256": judge_source_hashes(),
+        "parser": "judgelib.terminal_answer (raw_decode, line-start terminal object)",
         "rescored_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "provenance_warning": PROVENANCE_WARNING,
     }
 
-    originals = {"scores.json": sha256_of(scores_path)}
+    blocked = ineligible_reason(run, published, manifest, status, harness)
+    if blocked:
+        record = {"label": published.get("label", run.name), "run": run.name, "rescore": stamp,
+                  "skipped": blocked, "harness_verification": harness}
+        write_json_atomic(run / "rescore_v221.json", record)
+        return record
+
+    originals = {"scores.json": sha256_of(scores_path),
+                 "manifest.json": sha256_of(manifest_path),
+                 "status.json": sha256_of(status_path)}
     scorecard = run / "scorecard.md"
     if scorecard.is_file():
         originals["scorecard.md"] = sha256_of(scorecard)
+    inputs = {f"harness/{path.name}": sha256_of(path) for path in sorted((run / "harness").glob("*_suite.json"))}
 
     transcripts: dict[str, str] = {}
+    absent: list[str] = []
     changes: list[dict] = []
-    per_trial: list[dict] = []
     for trial in sorted(run.glob("trial_*")):
         graded = rescore_trial(run, trial)
-        per_trial.append(graded["axes"])
         originals.update(write_trial_sidecars(trial, graded, stamp))
-        transcripts.update(transcript_hashes(trial, [
-            trial / "round2" / "logic_answers.json",
-            trial / "round3" / "math_answers.json",
-            trial / "round3" / "longctx_answers.json",
-        ]))
+        answers_files = [trial / "round2" / "logic_answers.json",
+                         trial / "round3" / "math_answers.json",
+                         trial / "round3" / "longctx_answers.json"]
+        for answers_path in answers_files:
+            if answers_path.is_file():
+                inputs[str(answers_path.relative_to(run))] = sha256_of(answers_path)
+        hashed, missing = transcript_hashes(trial, answers_files)
+        transcripts.update(hashed)
+        absent += missing
         changes += changed_items(published_detail(trial / "round2" / "logic_score.json"),
                                  graded["logic"]["detail"], trial.name, "LOGIC")
         changes += changed_items(published_detail(trial / "round3" / "score3.json", "math"),
@@ -196,34 +294,39 @@ def rescore_run(run: Path) -> dict | None:
         changes += changed_items(published_detail(trial / "round3" / "score3.json", "longctx"),
                                  graded["longctx"].detail, trial.name, "CONTEXT")
 
-    axes = {name: value["score100"] for name, value in published["axes"].items()}
-    rescored_axes = {axis: round(median(t[axis] for t in per_trial), 1) for axis in RESCORED_AXES}
-    merged = axes | rescored_axes
-    # Mirror the driver: each weighted axis is rounded before the sum.
-    overall = round(sum(round(merged[axis] * weight / 100, 1) for axis, weight in WEIGHTS.items()), 1)
+    # Rebuild every derived field through the report builder rather than
+    # patching the published one, so raw strings, medians, ranges, legacy
+    # reason and grade cannot drift from the corrected scores.
+    report = build_report(run, artifact_suffix=SIDECAR_SUFFIX)
+    report["suite_version"] = TARGET_SUITE
+    report["rescore"] = stamp
+    write_json_atomic(run / "scores.v221.json", report)
+    write_text_atomic(run / "scorecard.v221.md", markdown(report))
 
+    axes = {name: value["score100"] for name, value in published["axes"].items()}
+    rescored = {name: value["score100"] for name, value in report["axes"].items()}
     record = {
-        "label": published["label"],
+        "label": report["label"],
         "run": run.name,
         "rescore": stamp,
-        "trials": len(per_trial),
-        "axes": {axis: {"published": axes[axis], "rescored": rescored_axes[axis]} for axis in RESCORED_AXES},
-        "overall": {"published": published["overall"], "rescored": overall},
-        "moved": abs(overall - published["overall"]) > 0.05,
+        "trials": report["trials"]["n"] if report["trials"] else 0,
+        "axes": {axis: {"published": axes.get(axis), "rescored": rescored.get(axis)}
+                 for axis in RESCORED_AXES},
+        "overall": {"published": published["overall"], "rescored": report["overall"]},
+        "grade": {"published": published.get("grade"), "rescored": report.get("grade")},
+        "moved": abs((report["overall"] or 0) - published["overall"]) > 0.05,
         "change_counts": {
             "score_change": sum(1 for change in changes if change["kind"] == "score_change"),
             "explanation_only": sum(1 for change in changes if change["kind"] == "explanation_only"),
         },
         "changed_items": changes,
+        "harness_verification": harness,
         "original_artifact_sha256": originals,
+        "input_sha256": inputs,
         "transcript_sha256": transcripts,
+        "missing_transcripts": absent,
     }
     write_json_atomic(run / "rescore_v221.json", record)
-    write_json_atomic(run / "scores.v221.json", {**published, "suite_version": TARGET_SUITE,
-                                                 "axes": {name: {**value, "score100": merged[name],
-                                                                 "weighted": round(merged[name] * WEIGHTS[name] / 100, 1)}
-                                                          for name, value in published["axes"].items()},
-                                                 "overall": overall, "rescore": stamp})
     return record
 
 
@@ -234,6 +337,9 @@ def main() -> int:
         if record:
             records.append(record)
     for record in records:
+        if record.get("skipped"):
+            print(f"SKIP  {record['label']:32s} {record['skipped']}")
+            continue
         mark = "MOVED" if record["moved"] else "same "
         counts = record["change_counts"]
         print(f"{mark} {record['label']:32s} "

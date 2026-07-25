@@ -47,8 +47,10 @@ TRANSPORT_ENVELOPES: frozenset[str] = frozenset({"missing_transcript"})
 
 _DECODER = json.JSONDecoder()
 
-# A closing code fence, optionally tagged, at the very end of a reply.
-_TRAILING_FENCE = re.compile(r"\n?[ \t]*```[a-zA-Z0-9_+-]*[ \t]*\Z")
+# A closing code fence: backticks alone on the final line. An info string
+# (```json) opens a fence, so accepting one here would report an unterminated
+# opening fence as a tidy closing one and corrupt the compliance counts.
+_TRAILING_FENCE = re.compile(r"\n[ \t]*```[ \t]*\Z")
 
 
 @dataclass(frozen=True)
@@ -78,17 +80,35 @@ class ParsedAnswer:
         return self.value if self.is_gradable else None
 
 
-def _candidate_starts(text: str):
-    """Yield ascending indices where a JSON value could begin.
+def _line_start_candidates(text: str):
+    """Yield indices of values that begin a line, ignoring leading indentation.
+
+    The contract is that the answer object is the last thing in the reply, and
+    suite 2.2 enforced that by reading the final line. Allowing a value to start
+    mid-line would widen the contract rather than repair it: `answer: {"a": 1}`
+    and `{"scratch": 1}{"answer": 1}` both end with a decodable object that
+    consumes the tail, and neither is a compliant reply.
 
     Ascending order matters: for a nested object only the outermost start can
     consume through the end of the text, so the first accepted candidate is the
     outermost object rather than an inner fragment.
     """
+    at_line_start = True
     for index, char in enumerate(text):
-        if char in "{[":
-            yield index
-        elif char not in " \t\r\n" and (index == 0 or text[index - 1] == "\n"):
+        if char == "\n":
+            at_line_start = True
+        elif char in " \t\r":
+            continue
+        else:
+            if at_line_start:
+                yield index
+            at_line_start = False
+
+
+def _any_position_candidates(text: str):
+    """Yield every position an object could begin at, for diagnostics only."""
+    for index, char in enumerate(text):
+        if char == "{":
             yield index
 
 
@@ -101,7 +121,7 @@ def _terminal_json(text: str) -> tuple[object, int] | None:
     be selected over a later contradictory one.
     """
     end = len(text)
-    for start in _candidate_starts(text):
+    for start in _line_start_candidates(text):
         try:
             value, consumed = _DECODER.raw_decode(text, start)
         except ValueError:
@@ -119,7 +139,7 @@ def _last_json_object(text: str) -> dict | None:
     """
     best: dict | None = None
     best_end = -1
-    for start in _candidate_starts(text):
+    for start in _any_position_candidates(text):
         try:
             value, consumed = _DECODER.raw_decode(text, start)
         except ValueError:
@@ -188,23 +208,44 @@ def normalized_equal(actual, expected, *, casefold=False, numeric=False, toleran
     return actual == expected
 
 
-def summarize_envelopes(answers: Iterable[ParsedAnswer]) -> dict:
+#: Runner-reported statuses that mean the reply never had a fair chance to be
+#: compliant. Counting these as format behaviour would blame a model for a
+#: truncated or failed request.
+DELIVERY_FAILURES: tuple[str, ...] = ("timeout", "truncated", "http_error")
+
+
+def summarize_envelopes(answers: Iterable[ParsedAnswer], statuses: Iterable[str | None] = ()) -> dict:
     """Report-only tally of how a model packaged its answers.
 
     Format compliance sits next to a phase score, never inside it. A closing
     code fence is a formatting habit rather than a reasoning error, and
     charging it silently to LOGIC or MATH is exactly what hid the suite 2.2
-    parser defect across a whole board. `graded` is the denominator that
-    actually fed the score, and transport failures are counted apart from
-    model behaviour so a missing file cannot read as non-compliance.
+    parser defect across a whole board.
+
+    Delivery is reported apart from packaging. A truncated or timed-out reply
+    has no compliance opinion to offer, so `format_evaluable` excludes it and
+    `compliance_rate` is measured against that, not against every item.
     """
     counts = dict.fromkeys(ENVELOPES, 0)
     for answer in answers:
         counts[answer.envelope] = counts.get(answer.envelope, 0) + 1
+    delivery = dict.fromkeys(DELIVERY_FAILURES, 0)
+    delivery["ok"] = 0
+    for status in statuses:
+        key = status if status in DELIVERY_FAILURES else "ok"
+        delivery[key] += 1
+    total = sum(counts.values())
+    undelivered = sum(delivery[name] for name in DELIVERY_FAILURES)
+    missing = sum(counts[name] for name in TRANSPORT_ENVELOPES)
+    evaluable = max(total - undelivered - missing, 0)
+    compliant = sum(counts[name] for name in GRADABLE_ENVELOPES)
     return {
-        "total": sum(counts.values()),
-        "graded": sum(counts[name] for name in GRADABLE_ENVELOPES),
-        "transport_failures": sum(counts[name] for name in TRANSPORT_ENVELOPES),
+        "total": total,
+        "contract_compliant": compliant,
+        "format_evaluable": evaluable,
+        "compliance_rate": round(compliant / evaluable, 3) if evaluable else None,
+        "delivery": delivery,
+        "missing_transcripts": missing,
         "envelopes": counts,
     }
 

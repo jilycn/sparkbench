@@ -7,6 +7,8 @@ import argparse
 import json
 from pathlib import Path
 
+from scoreio import resolve_scores
+
 
 IDENTITY_KEYS = (
     "seed",
@@ -20,17 +22,25 @@ IDENTITY_KEYS = (
 
 def latest_run(root: Path, label: str):
     candidates = []
-    for score_path in root.glob("*/scores.json"):
-        data = json.loads(score_path.read_text())
-        if data.get("label") == label:
-            candidates.append(score_path.parent)
+    for manifest_path in root.glob("*/manifest.json"):
+        resolved = resolve_scores(manifest_path.parent)
+        if resolved and resolved[0].get("label") == label:
+            candidates.append(manifest_path.parent)
     if not candidates:
         raise ValueError(f"no scored run for label {label!r}")
     return sorted(candidates, key=lambda path: path.name)[-1]
 
 
 def _load(directory):
-    return json.loads((directory / "scores.json").read_text()), json.loads((directory / "manifest.json").read_text())
+    """Scores a reader should trust for this run, plus its run-time manifest.
+
+    Prefers a provenance-checked 2.2.1 rescore so a migrated run can be
+    compared with future 2.2.1 runs instead of against its stale strict score.
+    """
+    resolved = resolve_scores(directory)
+    if resolved is None:
+        raise ValueError(f"no readable scores in {directory}")
+    return resolved[0], json.loads((directory / "manifest.json").read_text())
 
 
 def compare_runs(root: Path, labels: list[str], axis: str | None = None, force=False):
