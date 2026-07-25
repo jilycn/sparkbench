@@ -120,7 +120,7 @@ refuses cross-version or cross-sample comparisons), `sparkbench_leaderboard.py <
 
 Scores compare only when the scoring version, suite version, and sampled task identities match.
 Suite 2.2.1 is a hard boundary: v2.1 scores remain archived exactly as recorded and are not comparable.
-The leaderboard ranks only the latest COMPLETE runs in one identical-sample 2.2 cohort; other
+The leaderboard ranks only the latest COMPLETE runs in one identical-sample 2.2.1 cohort; other
 samples are shown as non-comparable rather than mixed into the ranking.
 
 ## Credits

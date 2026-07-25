@@ -40,7 +40,8 @@ def _load(directory):
     resolved = resolve_scores(directory)
     if resolved is None:
         raise ValueError(f"no readable scores in {directory}")
-    return resolved[0], json.loads((directory / "manifest.json").read_text())
+    scores, source = resolved
+    return {**scores, "artifact_source": source}, json.loads((directory / "manifest.json").read_text())
 
 
 def compare_runs(root: Path, labels: list[str], axis: str | None = None, force=False):
@@ -66,6 +67,7 @@ def compare_runs(root: Path, labels: list[str], axis: str | None = None, force=F
                   else round(values[label] - values[baseline], 1) for label in labels[1:]}
         rows[name] = {"values": values, "delta": deltas.get(labels[1]), "deltas": deltas}
     return {"labels": labels, "runs": {label: str(latest_run(root, label)) for label in labels}, "rows": rows,
+            "sources": {label: scores[label].get("artifact_source") for label in labels},
             "comparable": not version_mismatch and sample_match, "exploratory": exploratory,
             "not_comparable": version_mismatch, "forced": force}
 
@@ -74,7 +76,12 @@ def render(report):
     heading = "NOT COMPARABLE" if report["not_comparable"] else ("exploratory (different sampled suite)" if report["exploratory"] else "comparable")
     labels = report["labels"]
     delta_labels = [f"Δ {label}" for label in labels[1:]]
-    lines = [f"# SparkBench comparison — {heading}", "", "| Axis | " + " | ".join(labels + delta_labels) + " |",
+    migrated = [label for label, source in report.get("sources", {}).items()
+                if (source or "").endswith(".v221.json")]
+    lines = [f"# SparkBench comparison — {heading}", ""]
+    if migrated:
+        lines += [f"Rescored (migrated) values: {', '.join(migrated)}.", ""]
+    lines += ["| Axis | " + " | ".join(labels + delta_labels) + " |",
              "|---|" + "---|" * (len(labels) + len(delta_labels))]
     for axis, row in report["rows"].items():
         values = ["missing" if row["values"][label] is None else f"{row['values'][label]:.1f}" for label in labels]

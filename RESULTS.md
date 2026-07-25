@@ -53,6 +53,13 @@ What 2.2 says so far:
   concurrency is suspect, config kept verbatim per sourcing rules). sakamakismile Ornith (arena
   1837) lands 7th at 77.3 — LOAD 100 but LOGIC 25, the weakest on the board. Arena's prefill-heavy
   aggregate rewards different muscles than tool/agent/logic work.
+- **The sakamaki run is recipe-confounded and is not clean evidence about that model.** Its arena
+  recipe, transcribed verbatim per sourcing rules, carries no `--reasoning-parser`, while Holo and
+  the champion both do. Reasoning therefore lands in the answer content and consumes the per-item
+  token budget: 21 of 48 judged items truncated (LOGIC 4/8, MATH 16/30, CONTEXT 1/10). The 77.3
+  stands as measured for that recipe. Read its LOGIC 25.0 as a property of the recipe as published,
+  not of the weights. Suite 2.2.1 surfaces these counts in each phase's `format_compliance` block;
+  suite 2.2 reported them as zero.
 - **Every LOGIC and MATH number here understates nothing, but the instrument nearly hid a model.**
   Holo's LOGIC and CONTEXT were depressed by a judge defect, not by the model. See below.
 

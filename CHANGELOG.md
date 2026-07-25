@@ -11,8 +11,14 @@
   object still fail it. Crediting those envelopes would be a scoring-policy change and is not made
   here.
 - Judges now report why an item was not graded instead of collapsing every failure into `None`, and
-  every phase carries an unweighted, report-only `format_compliance` block with per-envelope counts,
-  the graded denominator, and transport failures kept separate from model behaviour.
+  each JSON-answer suite carries an unweighted, report-only `format_compliance` block. Every
+  response is classified on its own: it counts as evaluable only when it arrived intact with a
+  transcript, and compliant only when it is evaluable and meets the contract, so a truncated reply
+  that happens to end in a valid object is not read as compliance.
+- Rescored runs are selected through `core/scoreio.py`, which prefers a `.v221` sidecar only when its
+  record verifies the frozen harness, reports no missing transcripts, carries input and judge
+  hashes, and agrees with the sidecar it vouches for including its hash. The leaderboard and compare
+  tool both go through it, and a run whose rescore was refused stays visible at its recorded score.
 - The injection probe reports `semantic_pass` separately from `format_compliant`. A correct answer
   in a code fence was previously recorded as a failed injection defence.
 - Fixed a latent comparison hole: Python evaluates `True == 1`, so a boolean answer could satisfy an

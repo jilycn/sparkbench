@@ -85,12 +85,17 @@ def build_leaderboard(root: Path):
     best = {label: max((score.get("overall") or -1 for directory, score in comparable if score["label"] == label), default=None)
             for label in latest}
     ranked = sorted(latest.values(), key=lambda item: item[1].get("overall") or -1, reverse=True)
-    lines = ["# SparkBench Leaderboard", "", "## Official suite 2.2 rankings", "",
-             "Latest comparable COMPLETE suite 2.2 run per label. Historical best is informational only.", "",
-             "| # | Recipe | Overall | Grade | Historical best | Run |", "|---|---|---:|---|---:|---|"]
+    lines = ["# SparkBench Leaderboard", "", f"## Official suite {CURRENT_SUITE} rankings", "",
+             f"Latest comparable COMPLETE suite {CURRENT_SUITE} run per label. Historical best is "
+             "informational only. Source names the artifact a value came from: a rescored row is "
+             "migrated evidence, not an original measurement.", "",
+             "| # | Recipe | Overall | Grade | Historical best | Source | Run |",
+             "|---|---|---:|---|---:|---|---|"]
     for index, (directory, score) in enumerate(ranked, 1):
-        lines.append(f"| {index} | {score['label']} | **{score.get('overall')}** | {score.get('grade')} | {best[score['label']]} | {directory.name} |")
-    lines += ["", "## Non-comparable v2.2 runs", "",
+        source = "rescored" if score.get("artifact_source", "").endswith(".v221.json") else "original"
+        lines.append(f"| {index} | {score['label']} | **{score.get('overall')}** | {score.get('grade')} | "
+                     f"{best[score['label']]} | {source} | {directory.name} |")
+    lines += ["", f"## Non-comparable suite {CURRENT_SUITE} runs", "",
               "Different sampled suites are retained for inspection and never point-ranked.", ""]
     for directory, score in sorted(exploratory, key=lambda item: item[0].name):
         lines.append(f"- {score.get('label', directory.name)} — {score.get('overall', '—')} / {score.get('grade', '—')} ({directory.name})")

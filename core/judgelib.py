@@ -214,7 +214,8 @@ def normalized_equal(actual, expected, *, casefold=False, numeric=False, toleran
 DELIVERY_FAILURES: tuple[str, ...] = ("timeout", "truncated", "http_error")
 
 
-def summarize_envelopes(answers: Iterable[ParsedAnswer], statuses: Iterable[str | None] = ()) -> dict:
+def summarize_envelopes(answers: Iterable[ParsedAnswer],
+                        statuses: Iterable[str | None] | None = None) -> dict:
     """Report-only tally of how a model packaged its answers.
 
     Format compliance sits next to a phase score, never inside it. A closing
@@ -222,25 +223,39 @@ def summarize_envelopes(answers: Iterable[ParsedAnswer], statuses: Iterable[str 
     charging it silently to LOGIC or MATH is exactly what hid the suite 2.2
     parser defect across a whole board.
 
-    Delivery is reported apart from packaging. A truncated or timed-out reply
-    has no compliance opinion to offer, so `format_evaluable` excludes it and
-    `compliance_rate` is measured against that, not against every item.
+    Each response is classified on its own. Delivery and packaging cannot be
+    tallied separately and reconciled by subtraction: a truncated reply that
+    happens to end in a terminal object would then be counted compliant, and a
+    reply that both timed out and lost its transcript would be subtracted
+    twice, silently removing an unrelated delivered response from the base.
+
+    A response is format-evaluable only when it arrived intact and its
+    transcript exists, and compliant only when it is evaluable and meets the
+    contract. `compliance_rate` is measured against that base, so a phase full
+    of truncations reports a small denominator rather than a flattering rate.
     """
+    answers = list(answers)
+    statuses = [None] * len(answers) if statuses is None else list(statuses)
+    if len(statuses) != len(answers):
+        raise ValueError(
+            f"compliance needs one status per answer, got {len(statuses)} for {len(answers)}"
+        )
+
     counts = dict.fromkeys(ENVELOPES, 0)
-    for answer in answers:
-        counts[answer.envelope] = counts.get(answer.envelope, 0) + 1
     delivery = dict.fromkeys(DELIVERY_FAILURES, 0)
     delivery["ok"] = 0
-    for status in statuses:
-        key = status if status in DELIVERY_FAILURES else "ok"
-        delivery[key] += 1
-    total = sum(counts.values())
-    undelivered = sum(delivery[name] for name in DELIVERY_FAILURES)
-    missing = sum(counts[name] for name in TRANSPORT_ENVELOPES)
-    evaluable = max(total - undelivered - missing, 0)
-    compliant = sum(counts[name] for name in GRADABLE_ENVELOPES)
+    evaluable = compliant = missing = 0
+    for answer, status in zip(answers, statuses):
+        counts[answer.envelope] = counts.get(answer.envelope, 0) + 1
+        delivered = status if status in DELIVERY_FAILURES else "ok"
+        delivery[delivered] += 1
+        absent = answer.envelope in TRANSPORT_ENVELOPES
+        missing += int(absent)
+        if delivered == "ok" and not absent:
+            evaluable += 1
+            compliant += int(answer.is_gradable)
     return {
-        "total": total,
+        "total": len(answers),
         "contract_compliant": compliant,
         "format_evaluable": evaluable,
         "compliance_rate": round(compliant / evaluable, 3) if evaluable else None,

@@ -62,11 +62,20 @@ compliant pretty-printed answers as wrong. Suite 2.2.1 repairs the parser. The c
 unchanged: a reply that appends prose or a closing code fence after the object still does not meet
 it.
 
-Every phase reports a `format_compliance` block next to its score: counts per envelope
-(`strict_single_line`, `multiline_terminal`, `fenced_terminal`, `trailing_content`,
-`non_dict_json`, `no_json`), the graded denominator, and transport failures such as a missing
-transcript counted separately from model behaviour. Compliance is report-only and unweighted.
-TOOLS already measures structured output; LOGIC, MATH and CONTEXT measure semantic correctness.
+Each JSON-answer suite (LOGIC, MATH, CONTEXT) reports a `format_compliance` block next to its
+score. It carries counts per envelope (`strict_single_line`, `multiline_terminal`,
+`fenced_terminal`, `trailing_content`, `non_dict_json`, `no_json`), a `delivery` breakdown of
+runner statuses (`ok`, `timeout`, `truncated`, `http_error`), and `missing_transcripts`.
+
+Each response is classified on its own rather than by reconciling separate totals. A response is
+`format_evaluable` only when it arrived intact and its transcript exists, and `contract_compliant`
+only when it is evaluable and meets the contract. `compliance_rate` is measured against the
+evaluable base, so a phase full of truncations reports a small denominator instead of a flattering
+rate. A truncated reply that happens to end in a valid object is not evidence that the model
+complied.
+
+Compliance is report-only and unweighted. TOOLS already measures structured output; LOGIC, MATH and
+CONTEXT measure semantic correctness.
 
 ## CONTEXT
 

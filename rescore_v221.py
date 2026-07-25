@@ -118,6 +118,12 @@ def ineligible_reason(run: Path, published: dict, manifest: dict, status: dict, 
         return f"scoring_version is {manifest.get('scoring_version')!r}, not 2"
     if manifest.get("suite_version") != SOURCE_SUITE:
         return f"suite_version is {manifest.get('suite_version')!r}, not {SOURCE_SUITE}"
+    # A published report that disagrees with its own manifest is evidence of
+    # tampering or of a partial rewrite, either way not safe to migrate.
+    if published.get("suite_version") not in (None, manifest.get("suite_version")):
+        return "published scores and manifest disagree about suite_version"
+    if published.get("scoring_version") not in (None, manifest.get("scoring_version")):
+        return "published scores and manifest disagree about scoring_version"
     if published.get("overall") is None:
         return "published report has no overall score"
     absent = sorted(set(WEIGHTS) - set(published.get("axes", {})))
@@ -228,6 +234,33 @@ def published_detail(path: Path, key: str | None = None) -> dict:
     return detail.get(key, {}) if key else detail
 
 
+def answers_files(trial: Path) -> list[Path]:
+    return [trial / "round2" / "logic_answers.json",
+            trial / "round3" / "math_answers.json",
+            trial / "round3" / "longctx_answers.json"]
+
+
+def preflight(run: Path) -> tuple[dict[str, str], dict[str, str], list[str]]:
+    """Hash every input before anything is written.
+
+    Discovering a missing transcript after the trial sidecars already exist
+    would leave a run carrying half a rescore, which the trust resolver would
+    then have to reason about. Refuse before writing instead.
+    """
+    inputs = {f"harness/{path.name}": sha256_of(path)
+              for path in sorted((run / "harness").glob("*_suite.json"))}
+    transcripts: dict[str, str] = {}
+    absent: list[str] = []
+    for trial in sorted(run.glob("trial_*")):
+        for answers_path in answers_files(trial):
+            if answers_path.is_file():
+                inputs[str(answers_path.relative_to(run))] = sha256_of(answers_path)
+        hashed, missing = transcript_hashes(trial, answers_files(trial))
+        transcripts.update(hashed)
+        absent += missing
+    return inputs, transcripts, absent
+
+
 def rescore_run(run: Path) -> dict | None:
     """Re-grade every trial of one run and write its sidecars and record.
 
@@ -257,10 +290,14 @@ def rescore_run(run: Path) -> dict | None:
         "provenance_warning": PROVENANCE_WARNING,
     }
 
+    inputs, transcripts, absent = preflight(run)
     blocked = ineligible_reason(run, published, manifest, status, harness)
+    if not blocked and absent:
+        blocked = f"{len(absent)} transcript(s) missing: {', '.join(absent[:3])}"
     if blocked:
         record = {"label": published.get("label", run.name), "run": run.name, "rescore": stamp,
-                  "skipped": blocked, "harness_verification": harness}
+                  "skipped": blocked, "harness_verification": harness,
+                  "missing_transcripts": absent}
         write_json_atomic(run / "rescore_v221.json", record)
         return record
 
@@ -270,23 +307,11 @@ def rescore_run(run: Path) -> dict | None:
     scorecard = run / "scorecard.md"
     if scorecard.is_file():
         originals["scorecard.md"] = sha256_of(scorecard)
-    inputs = {f"harness/{path.name}": sha256_of(path) for path in sorted((run / "harness").glob("*_suite.json"))}
 
-    transcripts: dict[str, str] = {}
-    absent: list[str] = []
     changes: list[dict] = []
     for trial in sorted(run.glob("trial_*")):
         graded = rescore_trial(run, trial)
         originals.update(write_trial_sidecars(trial, graded, stamp))
-        answers_files = [trial / "round2" / "logic_answers.json",
-                         trial / "round3" / "math_answers.json",
-                         trial / "round3" / "longctx_answers.json"]
-        for answers_path in answers_files:
-            if answers_path.is_file():
-                inputs[str(answers_path.relative_to(run))] = sha256_of(answers_path)
-        hashed, missing = transcript_hashes(trial, answers_files)
-        transcripts.update(hashed)
-        absent += missing
         changes += changed_items(published_detail(trial / "round2" / "logic_score.json"),
                                  graded["logic"]["detail"], trial.name, "LOGIC")
         changes += changed_items(published_detail(trial / "round3" / "score3.json", "math"),
@@ -300,8 +325,10 @@ def rescore_run(run: Path) -> dict | None:
     report = build_report(run, artifact_suffix=SIDECAR_SUFFIX)
     report["suite_version"] = TARGET_SUITE
     report["rescore"] = stamp
-    write_json_atomic(run / "scores.v221.json", report)
-    write_text_atomic(run / "scorecard.v221.md", markdown(report))
+    scores_sidecar = run / "scores.v221.json"
+    scorecard_sidecar = run / "scorecard.v221.md"
+    write_json_atomic(scores_sidecar, report)
+    write_text_atomic(scorecard_sidecar, markdown(report))
 
     axes = {name: value["score100"] for name, value in published["axes"].items()}
     rescored = {name: value["score100"] for name, value in report["axes"].items()}
@@ -310,6 +337,12 @@ def rescore_run(run: Path) -> dict | None:
         "run": run.name,
         "rescore": stamp,
         "trials": report["trials"]["n"] if report["trials"] else 0,
+        "source_run": {
+            "scoring_version": manifest.get("scoring_version"),
+            "suite_version": manifest.get("suite_version"),
+            "run_status": status.get("run_status"),
+            "axes_present": sorted(published.get("axes", {})),
+        },
         "axes": {axis: {"published": axes.get(axis), "rescored": rescored.get(axis)}
                  for axis in RESCORED_AXES},
         "overall": {"published": published["overall"], "rescored": report["overall"]},
@@ -322,6 +355,10 @@ def rescore_run(run: Path) -> dict | None:
         "changed_items": changes,
         "harness_verification": harness,
         "original_artifact_sha256": originals,
+        "rescored_artifact_sha256": {
+            "scores.v221.json": sha256_of(scores_sidecar),
+            "scorecard.v221.md": sha256_of(scorecard_sidecar),
+        },
         "input_sha256": inputs,
         "transcript_sha256": transcripts,
         "missing_transcripts": absent,

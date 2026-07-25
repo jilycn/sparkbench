@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from judge3 import grade_suite
 from logic_judge import grade_logic
 from judgelib import (final_json_object, normalized_equal, raw_parsed_answer,
@@ -249,3 +251,38 @@ def test_compliance_separates_delivery_failures_from_packaging():
     assert summary["compliance_rate"] == 0.5
     assert summary["delivery"]["truncated"] == 1
     assert summary["missing_transcripts"] == 0
+
+
+def test_a_truncated_reply_that_ends_in_an_object_is_not_counted_compliant():
+    # Delivery and packaging must be paired per response. Tallied separately
+    # and reconciled by subtraction, this reports a perfect compliance rate.
+    answers = [
+        terminal_answer('{"answer": 1}\nstray note'),   # delivered, noncompliant
+        terminal_answer('{"answer": 2}'),               # truncated, looks compliant
+    ]
+    summary = summarize_envelopes(answers, ["ok", "truncated"])
+    assert summary["format_evaluable"] == 1
+    assert summary["contract_compliant"] == 0
+    assert summary["compliance_rate"] == 0.0
+    assert summary["delivery"]["truncated"] == 1
+
+
+def test_a_timeout_with_no_transcript_is_only_removed_once():
+    answers = [
+        terminal_answer('{"answer": 1}'),
+        raw_parsed_answer(Path("/nonexistent"), {"request_id": "gone"}),
+    ]
+    summary = summarize_envelopes(answers, ["ok", "timeout"])
+    # Two responses, one of them both timed out and lost its transcript. The
+    # healthy response must survive in the base.
+    assert summary["total"] == 2
+    assert summary["format_evaluable"] == 1
+    assert summary["contract_compliant"] == 1
+    assert summary["compliance_rate"] == 1.0
+    assert summary["missing_transcripts"] == 1
+    assert summary["delivery"]["timeout"] == 1
+
+
+def test_compliance_refuses_mismatched_status_and_answer_counts():
+    with pytest.raises(ValueError, match="one status per answer"):
+        summarize_envelopes([terminal_answer('{"a": 1}')], ["ok", "ok"])
