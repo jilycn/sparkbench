@@ -1,0 +1,910 @@
+{
+  "aggregateScore": 746.4592457517077,
+  "benchmarkId": "sub1781065516643",
+  "benchmarkType": "Text",
+  "clusterSize": 1,
+  "creator": {
+    "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJhoGE8dP0_gFUwOkayNYuePhyt95LF1rJwdplFM5y0EpFTOB--6w=s96-c",
+    "forumProfile": "https://forums.developer.nvidia.com/u/jlapenna",
+    "name": "Joe LaPenna"
+  },
+  "modelFullPath": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4",
+  "modelHuggingFaceUrl": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4",
+  "modelName": "NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4",
+  "processedAt": "2026-06-10T07:10:53.551Z",
+  "promptProcessingSpeed": 1469.7784540430257,
+  "quantization": "NVFP4",
+  "recipe": {
+    "command": "vllm serve {model} \\\n  --host {host} \\\n  --port {port} \\\n  --max-model-len {max_model_len} \\\n  --max-num-batched-tokens {max_num_batched_tokens} \\\n  --max-num-seqs {max_num_seqs} \\\n  --trust-remote-code \\\n  --gpu-memory-utilization {gpu_memory_utilization} \\\n  --kv-cache-dtype {kv_cache_dtype} \\\n  --enforce-eager \\\n  --load-format {load_format} \\\n  --enable-prefix-caching \\\n  -tp {tensor_parallel} \\\n  -pp {pipeline_parallel}\n",
+    "container": "sparkrun-eugr-vllm-tf5",
+    "description": "",
+    "fullRecipe": {
+      "builder": "eugr",
+      "command": "vllm serve {model} \\\n  --host {host} \\\n  --port {port} \\\n  --max-model-len {max_model_len} \\\n  --max-num-batched-tokens {max_num_batched_tokens} \\\n  --max-num-seqs {max_num_seqs} \\\n  --trust-remote-code \\\n  --gpu-memory-utilization {gpu_memory_utilization} \\\n  --kv-cache-dtype {kv_cache_dtype} \\\n  --enforce-eager \\\n  --load-format {load_format} \\\n  --enable-prefix-caching \\\n  -tp {tensor_parallel} \\\n  -pp {pipeline_parallel}\n",
+      "container": "sparkrun-eugr-vllm-tf5",
+      "defaults": {
+        "exit_on_first_fail": false,
+        "gpu_memory_utilization": 0.85,
+        "host": "0.0.0.0",
+        "kv_cache_dtype": "fp8",
+        "load_format": "safetensors",
+        "max_model_len": 262144,
+        "max_num_batched_tokens": 16384,
+        "max_num_seqs": 16,
+        "pipeline_parallel": 1,
+        "port": 8000,
+        "tensor_parallel": 1
+      },
+      "env": {
+        "RAY_memory_usage_threshold": "0.99",
+        "VLLM_OTEL_TRACING_ENABLED": "1"
+      },
+      "hardware": {
+        "memory_limit": "100G"
+      },
+      "metadata": {
+        "description": "NVIDIA Nemotron 3 Super 120B A12B NVFP4",
+        "head_dim": 128,
+        "kv_dtype": "fp8",
+        "model_dtype": "nvfp4",
+        "num_kv_heads": 2,
+        "num_layers": 88,
+        "quant_bits": 4,
+        "quantization": "nvfp4"
+      },
+      "model": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4",
+      "recipe_version": "2",
+      "runtime": "vllm"
+    },
+    "model": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4",
+    "version": "2"
+  },
+  "recipeApproved": true,
+  "recipeApprovedAt": "2026-06-10T17:12:28.802Z",
+  "recipeApprovedBy": "raphael.amorim@gmail.com",
+  "recipeCopyCount": 3,
+  "recipePermalinkId": "3cc5a9b2-752b-43d8-95c4-03b80c867ac6",
+  "recipeType": "sparkrun",
+  "runtime": "vLLM",
+  "shareCounts": {
+    "text": 3
+  },
+  "submissionId": "sub1781065516643",
+  "submittedAt": "2026-06-10T07:10:50.119Z",
+  "tests": [
+    {
+      "e2eTtft": 17334.391765868833,
+      "e2eTtftStdDev": 2766.0673169209176,
+      "estPpt": 17330.94885953081,
+      "estPptStdDev": 2766.0673169209176,
+      "testName": "ctx_pp @ d8192 (c5)",
+      "tokensPerSec": 2155.541639974837,
+      "tokensPerSecStdDev": 168.67673035458824,
+      "ttfr": 17334.391765868833,
+      "ttfrStdDev": 2766.0673169209176
+    },
+    {
+      "testName": "ctx_tg @ d8192 (c5)",
+      "tokensPerSec": 34.11389724319178,
+      "tokensPerSecStdDev": 3.1798620906977875
+    },
+    {
+      "e2eTtft": 19452.385764536062,
+      "e2eTtftStdDev": 4256.243800583978,
+      "estPpt": 19448.874853398105,
+      "estPptStdDev": 4256.188398401889,
+      "testName": "pp2048 @ d8192 (c5)",
+      "tokensPerSec": 455.4461082741237,
+      "tokensPerSecStdDev": 7.186013171779135,
+      "ttfr": 19452.31775973613,
+      "ttfrStdDev": 4256.188398401889
+    },
+    {
+      "testName": "tg128 @ d8192 (c5)",
+      "tokensPerSec": 26.215305740095243,
+      "tokensPerSecStdDev": 0.31919967665402826
+    },
+    {
+      "e2eTtft": 9365.132906465442,
+      "e2eTtftStdDev": 384.4080368590212,
+      "estPpt": 9362.11825213201,
+      "estPptStdDev": 384.4080368590212,
+      "testName": "ctx_pp @ d4096 (c5)",
+      "tokensPerSec": 2179.5484669709385,
+      "tokensPerSecStdDev": 87.17676171891442,
+      "ttfr": 9365.132906465442,
+      "ttfrStdDev": 384.4080368590212
+    },
+    {
+      "testName": "ctx_tg @ d4096 (c5)",
+      "tokensPerSec": 46.29364254562203,
+      "tokensPerSecStdDev": 1.9768708621874183
+    },
+    {
+      "e2eTtft": 13097.543398467435,
+      "e2eTtftStdDev": 1131.6901011570358,
+      "estPpt": 13094.528744134,
+      "estPptStdDev": 1131.6901011570358,
+      "testName": "pp2048 @ d4096 (c5)",
+      "tokensPerSec": 749.0845599737935,
+      "tokensPerSecStdDev": 12.98856339915028,
+      "ttfr": 13097.543398467435,
+      "ttfrStdDev": 1131.6901011570358
+    },
+    {
+      "testName": "tg128 @ d4096 (c5)",
+      "tokensPerSec": 41.60883446957941,
+      "tokensPerSecStdDev": 4.794921912866257
+    },
+    {
+      "e2eTtft": 28415.27067986511,
+      "e2eTtftStdDev": 8397.960885233862,
+      "estPpt": 28412.337266861392,
+      "estPptStdDev": 8397.960885233864,
+      "testName": "ctx_pp @ d8192 (c10)",
+      "tokensPerSec": 2275.525928745447,
+      "tokensPerSecStdDev": 130.6046168512741,
+      "ttfr": 28415.27067986511,
+      "ttfrStdDev": 8397.960885233862
+    },
+    {
+      "testName": "ctx_tg @ d8192 (c10)",
+      "tokensPerSec": 30.651078565362724,
+      "tokensPerSecStdDev": 1.7596061126329783
+    },
+    {
+      "e2eTtft": 31832.941489433386,
+      "e2eTtftStdDev": 10820.221632531138,
+      "estPpt": 31830.00807642967,
+      "estPptStdDev": 10820.22163253114,
+      "testName": "pp2048 @ d8192 (c10)",
+      "tokensPerSec": 472.5911377226368,
+      "tokensPerSecStdDev": 3.381704335635535,
+      "ttfr": 31832.941489433386,
+      "ttfrStdDev": 10820.221632531138
+    },
+    {
+      "testName": "tg128 @ d8192 (c10)",
+      "tokensPerSec": 25.34179202933038,
+      "tokensPerSecStdDev": 0.8310099006738573
+    },
+    {
+      "e2eTtft": 6841.242638831318,
+      "e2eTtftStdDev": 6.0695092401279345,
+      "estPpt": 6837.735342160158,
+      "estPptStdDev": 6.0695092401279345,
+      "testName": "ctx_pp @ d8192 (c2)",
+      "tokensPerSec": 2394.6340115225908,
+      "tokensPerSecStdDev": 2.077517970308685,
+      "ttfr": 6841.242638831318,
+      "ttfrStdDev": 6.0695092401279345
+    },
+    {
+      "testName": "ctx_tg @ d8192 (c2)",
+      "tokensPerSec": 25.977170064863397,
+      "tokensPerSecStdDev": 0.05684045173226764
+    },
+    {
+      "e2eTtft": 9011.77683116839,
+      "e2eTtftStdDev": 314.08027559104266,
+      "estPpt": 9008.26953449723,
+      "estPptStdDev": 314.08027559104266,
+      "testName": "pp2048 @ d8192 (c2)",
+      "tokensPerSec": 452.57981458334075,
+      "tokensPerSecStdDev": 15.827299221633913,
+      "ttfr": 9011.77683116839,
+      "ttfrStdDev": 314.08027559104266
+    },
+    {
+      "testName": "tg128 @ d8192 (c2)",
+      "tokensPerSec": 25.696482273461868,
+      "tokensPerSecStdDev": 0.08747741914372285
+    },
+    {
+      "e2eTtft": 3481.02457083102,
+      "e2eTtftStdDev": 4.525522143654767,
+      "estPpt": 3478.143706495757,
+      "estPptStdDev": 4.525522143654767,
+      "testName": "ctx_pp @ d4096 (c2)",
+      "tokensPerSec": 2353.018408213198,
+      "tokensPerSecStdDev": 3.079265185201975,
+      "ttfr": 3481.02457083102,
+      "ttfrStdDev": 4.525522143654767
+    },
+    {
+      "testName": "ctx_tg @ d4096 (c2)",
+      "tokensPerSec": 26.087957745309623,
+      "tokensPerSecStdDev": 0.14305228723007019
+    },
+    {
+      "e2eTtft": 5121.771840834602,
+      "e2eTtftStdDev": 6.22098532195931,
+      "estPpt": 5118.890976499339,
+      "estPptStdDev": 6.22098532195931,
+      "testName": "pp2048 @ d4096 (c2)",
+      "tokensPerSec": 799.6420910954571,
+      "tokensPerSecStdDev": 0.962104419241759,
+      "ttfr": 5121.771840834602,
+      "ttfrStdDev": 6.22098532195931
+    },
+    {
+      "testName": "tg128 @ d4096 (c2)",
+      "tokensPerSec": 26.02868951902123,
+      "tokensPerSecStdDev": 0.024220816667214224
+    },
+    {
+      "e2eTtft": 160313.5857722683,
+      "e2eTtftStdDev": 67039.49844827356,
+      "estPpt": 160309.48733692832,
+      "estPptStdDev": 67039.49844827356,
+      "testName": "ctx_pp @ d100000 (c5)",
+      "tokensPerSec": 1990.6215114898525,
+      "tokensPerSecStdDev": 2.870152635454663,
+      "ttfr": 160313.5857722683,
+      "ttfrStdDev": 67039.49844827356
+    },
+    {
+      "testName": "ctx_tg @ d100000 (c5)",
+      "tokensPerSec": 3.1584348263434827,
+      "tokensPerSecStdDev": 0.0038007867271591393
+    },
+    {
+      "e2eTtft": 8270.965625332126,
+      "e2eTtftStdDev": 453.9050132232809,
+      "estPpt": 8261.572268992313,
+      "estPptStdDev": 453.69904041285787,
+      "testName": "pp2048 @ d100000 (c5)",
+      "tokensPerSec": 1232.5883101657364,
+      "tokensPerSecStdDev": 65.08652226290279,
+      "ttfr": 8265.670704332297,
+      "ttfrStdDev": 453.69904041285787
+    },
+    {
+      "testName": "tg128 @ d100000 (c5)",
+      "tokensPerSec": 43.77917894698169,
+      "tokensPerSecStdDev": 0.27774106424160316
+    },
+    {
+      "e2eTtft": 81206.59340866648,
+      "e2eTtftStdDev": 18268.088083251096,
+      "estPpt": 81202.65915266644,
+      "estPptStdDev": 18268.088083251092,
+      "testName": "ctx_pp @ d100000 (c2)",
+      "tokensPerSec": 2010.5855395029027,
+      "tokensPerSecStdDev": 4.814652717978251,
+      "ttfr": 81206.59340866648,
+      "ttfrStdDev": 18268.088083251096
+    },
+    {
+      "testName": "ctx_tg @ d100000 (c2)",
+      "tokensPerSec": 5.457770809535912,
+      "tokensPerSecStdDev": 0.014290203805503878
+    },
+    {
+      "e2eTtft": 3531.36221516858,
+      "e2eTtftStdDev": 265.41719271860364,
+      "estPpt": 3527.4279591685627,
+      "estPptStdDev": 265.41719271860364,
+      "testName": "pp2048 @ d100000 (c2)",
+      "tokensPerSec": 1155.1990213370782,
+      "tokensPerSecStdDev": 81.04764109759506,
+      "ttfr": 3531.36221516858,
+      "ttfrStdDev": 265.41719271860364
+    },
+    {
+      "testName": "tg128 @ d100000 (c2)",
+      "tokensPerSec": 25.06942402730387,
+      "tokensPerSecStdDev": 0.18809190514074756
+    },
+    {
+      "e2eTtft": 181369.04037993468,
+      "e2eTtftStdDev": 87752.1190940102,
+      "estPpt": 181365.3234239353,
+      "estPptStdDev": 87752.11909401021,
+      "testName": "ctx_pp @ d65535 (c10)",
+      "tokensPerSec": 2118.774573040492,
+      "tokensPerSecStdDev": 9.220398472730835,
+      "ttfr": 181369.04037993468,
+      "ttfrStdDev": 87752.1190940102
+    },
+    {
+      "testName": "ctx_tg @ d65535 (c10)",
+      "tokensPerSec": 4.381416327102801,
+      "tokensPerSecStdDev": 0.022947291109851265
+    },
+    {
+      "e2eTtft": 37647.347137634155,
+      "e2eTtftStdDev": 11797.461391887024,
+      "estPpt": 37643.63018163471,
+      "estPptStdDev": 11797.461391887022,
+      "testName": "pp2048 @ d65535 (c10)",
+      "tokensPerSec": 406.98055582452986,
+      "tokensPerSecStdDev": 0.9595905678678704,
+      "ttfr": 37647.347137634155,
+      "ttfrStdDev": 11797.461391887024
+    },
+    {
+      "testName": "tg128 @ d65535 (c10)",
+      "tokensPerSec": 22.996063228829453,
+      "tokensPerSecStdDev": 0.08073050307913995
+    },
+    {
+      "e2eTtft": 30833.13621666457,
+      "e2eTtftStdDev": 445.11397493755777,
+      "estPpt": 30829.90278333212,
+      "estPptStdDev": 445.11397493755777,
+      "testName": "ctx_pp @ d65535 (c1)",
+      "tokensPerSec": 2126.1349493896773,
+      "tokensPerSecStdDev": 30.40542126358227,
+      "ttfr": 30833.13621666457,
+      "ttfrStdDev": 445.11397493755777
+    },
+    {
+      "testName": "ctx_tg @ d65535 (c1)",
+      "tokensPerSec": 14.93599898531608,
+      "tokensPerSecStdDev": 0.03186289062434543
+    },
+    {
+      "e2eTtft": 5106.745354666297,
+      "e2eTtftStdDev": 39.12920476925265,
+      "estPpt": 5103.511921333848,
+      "estPptStdDev": 39.12920476925265,
+      "testName": "pp2048 @ d65535 (c1)",
+      "tokensPerSec": 401.3158244890963,
+      "tokensPerSecStdDev": 3.069213449370806,
+      "ttfr": 5106.745354666297,
+      "ttfrStdDev": 39.12920476925265
+    },
+    {
+      "testName": "tg128 @ d65535 (c1)",
+      "tokensPerSec": 14.887423047966905,
+      "tokensPerSecStdDev": 0.130811721188115
+    },
+    {
+      "e2eTtft": 1097.9663239995716,
+      "e2eTtftStdDev": 10.524264307268519,
+      "estPpt": 1095.3673053348514,
+      "estPptStdDev": 10.524264307268519,
+      "testName": "pp2048 (c1)",
+      "tokensPerSec": 1869.8645663625646,
+      "tokensPerSecStdDev": 17.912407045899588,
+      "ttfr": 1097.9663239995716,
+      "ttfrStdDev": 10.524264307268519
+    },
+    {
+      "testName": "tg128 (c1)",
+      "tokensPerSec": 15.157062207179615,
+      "tokensPerSecStdDev": 0.005333592951374526
+    },
+    {
+      "e2eTtft": 102209.4158730004,
+      "e2eTtftStdDev": 42022.42901546657,
+      "estPpt": 102205.60327366984,
+      "estPptStdDev": 42022.42901546657,
+      "testName": "ctx_pp @ d65535 (c5)",
+      "tokensPerSec": 2124.003250559879,
+      "tokensPerSecStdDev": 11.396979527429647,
+      "ttfr": 102209.4158730004,
+      "ttfrStdDev": 42022.42901546657
+    },
+    {
+      "testName": "ctx_tg @ d65535 (c5)",
+      "tokensPerSec": 4.876138917922842,
+      "tokensPerSecStdDev": 0.029447747202709606
+    },
+    {
+      "e2eTtft": 21919.190740467944,
+      "e2eTtftStdDev": 4389.067661925304,
+      "estPpt": 21915.378141137386,
+      "estPptStdDev": 4389.067661925304,
+      "testName": "pp2048 @ d65535 (c5)",
+      "tokensPerSec": 412.83438186104735,
+      "tokensPerSecStdDev": 5.899809123652385,
+      "ttfr": 21919.190740467944,
+      "ttfrStdDev": 4389.067661925304
+    },
+    {
+      "testName": "tg128 @ d65535 (c5)",
+      "tokensPerSec": 25.11210453152896,
+      "tokensPerSecStdDev": 0.24090618150224763
+    },
+    {
+      "e2eTtft": 25083.01281833216,
+      "e2eTtftStdDev": 3875.9851636989624,
+      "estPpt": 25078.66198367022,
+      "estPptStdDev": 3875.9851636989624,
+      "testName": "ctx_pp @ d32768 (c2)",
+      "tokensPerSec": 2263.2843867632637,
+      "tokensPerSecStdDev": 12.4472476652009,
+      "ttfr": 25083.01281833216,
+      "ttfrStdDev": 3875.9851636989624
+    },
+    {
+      "testName": "ctx_tg @ d32768 (c2)",
+      "tokensPerSec": 14.486138923676132,
+      "tokensPerSecStdDev": 0.07402430353185034
+    },
+    {
+      "e2eTtft": 9646.936751501926,
+      "e2eTtftStdDev": 561.9630029774617,
+      "estPpt": 9642.585916839986,
+      "estPptStdDev": 561.9630029774617,
+      "testName": "pp2048 @ d32768 (c2)",
+      "tokensPerSec": 423.7600452159775,
+      "tokensPerSecStdDev": 23.42300820656382,
+      "ttfr": 9646.936751501926,
+      "ttfrStdDev": 561.9630029774617
+    },
+    {
+      "testName": "tg128 @ d32768 (c2)",
+      "tokensPerSec": 25.485483280244562,
+      "tokensPerSecStdDev": 0.07233606710200431
+    },
+    {
+      "e2eTtft": 15956.74575180116,
+      "e2eTtftStdDev": 2776.2329131447536,
+      "estPpt": 15952.457216134158,
+      "estPptStdDev": 2776.2329131447536,
+      "testName": "ctx_pp @ d4096 (c10)",
+      "tokensPerSec": 2331.3297061978355,
+      "tokensPerSecStdDev": 69.60178441346838,
+      "ttfr": 15956.74575180116,
+      "ttfrStdDev": 2776.2329131447536
+    },
+    {
+      "testName": "ctx_tg @ d4096 (c10)",
+      "tokensPerSec": 51.2908453930655,
+      "tokensPerSecStdDev": 1.003264735386519
+    },
+    {
+      "e2eTtft": 21674.493143732736,
+      "e2eTtftStdDev": 5101.597747422446,
+      "estPpt": 21670.204608065735,
+      "estPptStdDev": 5101.597747422446,
+      "testName": "pp2048 @ d4096 (c10)",
+      "tokensPerSec": 784.1530223501936,
+      "tokensPerSecStdDev": 14.113840643489258,
+      "ttfr": 21674.493143732736,
+      "ttfrStdDev": 5101.597747422446
+    },
+    {
+      "testName": "tg128 @ d4096 (c10)",
+      "tokensPerSec": 40.49814819130505,
+      "tokensPerSecStdDev": 1.464959221541417
+    },
+    {
+      "e2eTtft": 6945.9318076696945,
+      "e2eTtftStdDev": 7.859785973297852,
+      "estPpt": 6942.392365337582,
+      "estPptStdDev": 7.859785973297852,
+      "testName": "ctx_pp @ d16384 (c1)",
+      "tokensPerSec": 2359.948386013791,
+      "tokensPerSecStdDev": 2.6715997089260908,
+      "ttfr": 6945.9318076696945,
+      "ttfrStdDev": 7.859785973297852
+    },
+    {
+      "testName": "ctx_tg @ d16384 (c1)",
+      "tokensPerSec": 15.102354294123932,
+      "tokensPerSecStdDev": 0.010016565057769005
+    },
+    {
+      "e2eTtft": 4888.752419671316,
+      "e2eTtftStdDev": 318.3444860602803,
+      "estPpt": 4885.2129773392035,
+      "estPptStdDev": 318.3444860602803,
+      "testName": "pp2048 @ d16384 (c1)",
+      "tokensPerSec": 421.09885794838846,
+      "tokensPerSecStdDev": 28.76634156471094,
+      "ttfr": 4888.752419671316,
+      "ttfrStdDev": 318.3444860602803
+    },
+    {
+      "testName": "tg128 @ d16384 (c1)",
+      "tokensPerSec": 15.115837581278122,
+      "tokensPerSecStdDev": 0.01413001230802908
+    },
+    {
+      "e2eTtft": 3504.4537556677824,
+      "e2eTtftStdDev": 3.3548299423462558,
+      "estPpt": 3501.376924337819,
+      "estPptStdDev": 3.3548299423462558,
+      "testName": "ctx_pp @ d8192 (c1)",
+      "tokensPerSec": 2339.653142676771,
+      "tokensPerSecStdDev": 2.24295229395652,
+      "ttfr": 3504.4537556677824,
+      "ttfrStdDev": 3.3548299423462558
+    },
+    {
+      "testName": "ctx_tg @ d8192 (c1)",
+      "tokensPerSec": 15.125224508498562,
+      "tokensPerSecStdDev": 0.0060067440456544234
+    },
+    {
+      "e2eTtft": 4348.742681671865,
+      "e2eTtftStdDev": 7.910177138472016,
+      "estPpt": 4345.665850341902,
+      "estPptStdDev": 7.910177138472016,
+      "testName": "pp2048 @ d8192 (c1)",
+      "tokensPerSec": 471.2757142538068,
+      "tokensPerSecStdDev": 0.8568112813633548,
+      "ttfr": 4348.742681671865,
+      "ttfrStdDev": 7.910177138472016
+    },
+    {
+      "testName": "tg128 @ d8192 (c1)",
+      "tokensPerSec": 15.129474490894646,
+      "tokensPerSecStdDev": 0.02819441602066728
+    },
+    {
+      "e2eTtft": 53100.19945893437,
+      "e2eTtftStdDev": 19278.746621193706,
+      "estPpt": 53096.19120360294,
+      "estPptStdDev": 19278.746621193706,
+      "testName": "ctx_pp @ d32768 (c5)",
+      "tokensPerSec": 2263.536960864371,
+      "tokensPerSecStdDev": 22.717351475139917,
+      "ttfr": 53100.19945893437,
+      "ttfrStdDev": 19278.746621193706
+    },
+    {
+      "testName": "ctx_tg @ d32768 (c5)",
+      "tokensPerSec": 9.356348817023509,
+      "tokensPerSecStdDev": 0.6101776539644617
+    },
+    {
+      "e2eTtft": 20230.451912798646,
+      "e2eTtftStdDev": 4243.208950384037,
+      "estPpt": 20226.24593093351,
+      "estPptStdDev": 4243.060163612744,
+      "testName": "pp2048 @ d32768 (c5)",
+      "tokensPerSec": 442.55123631827706,
+      "tokensPerSecStdDev": 4.78072461340134,
+      "ttfr": 20230.254186264938,
+      "ttfrStdDev": 4243.060163612744
+    },
+    {
+      "testName": "tg128 @ d32768 (c5)",
+      "tokensPerSec": 25.840018195538175,
+      "tokensPerSecStdDev": 0.24664384560878894
+    },
+    {
+      "e2eTtft": 9190.96784323386,
+      "e2eTtftStdDev": 321.7997789667955,
+      "estPpt": 9188.018412898236,
+      "estPptStdDev": 321.7997789667954,
+      "testName": "pp2048 (c10)",
+      "tokensPerSec": 2201.8259037883327,
+      "tokensPerSecStdDev": 31.03131219081495,
+      "ttfr": 9190.96784323386,
+      "ttfrStdDev": 321.7997789667955
+    },
+    {
+      "testName": "tg128 (c10)",
+      "tokensPerSec": 68.30190431648742,
+      "tokensPerSecStdDev": 2.840234827350472
+    },
+    {
+      "e2eTtft": 49193.11078309887,
+      "e2eTtftStdDev": 18601.62675835721,
+      "estPpt": 49189.15944109854,
+      "estPptStdDev": 18601.62675835721,
+      "testName": "ctx_pp @ d16384 (c10)",
+      "tokensPerSec": 2341.0101181771447,
+      "tokensPerSecStdDev": 16.056312267921225,
+      "ttfr": 49193.11078309887,
+      "ttfrStdDev": 18601.62675835721
+    },
+    {
+      "testName": "ctx_tg @ d16384 (c10)",
+      "tokensPerSec": 17.061526462742968,
+      "tokensPerSecStdDev": 0.0813541531748928
+    },
+    {
+      "e2eTtft": 32666.663215634373,
+      "e2eTtftStdDev": 11249.590398614477,
+      "estPpt": 32662.711873634067,
+      "estPptStdDev": 11249.590398614479,
+      "testName": "pp2048 @ d16384 (c10)",
+      "tokensPerSec": 459.9345575444759,
+      "tokensPerSecStdDev": 0.9542896622603027,
+      "ttfr": 32666.663215634373,
+      "ttfrStdDev": 11249.590398614477
+    },
+    {
+      "testName": "tg128 @ d16384 (c10)",
+      "tokensPerSec": 24.65577570720222,
+      "tokensPerSecStdDev": 0.029924951079722803
+    },
+    {
+      "e2eTtft": 14297.767338333264,
+      "e2eTtftStdDev": 49.345798775804575,
+      "estPpt": 14294.111742667155,
+      "estPptStdDev": 49.345798775804575,
+      "testName": "ctx_pp @ d32768 (c1)",
+      "tokensPerSec": 2292.4163520042434,
+      "tokensPerSecStdDev": 7.879690709104392,
+      "ttfr": 14297.767338333264,
+      "ttfrStdDev": 49.345798775804575
+    },
+    {
+      "testName": "ctx_tg @ d32768 (c1)",
+      "tokensPerSec": 15.065269927042854,
+      "tokensPerSecStdDev": 0.007967309573551276
+    },
+    {
+      "e2eTtft": 4834.414197665562,
+      "e2eTtftStdDev": 285.1519110109831,
+      "estPpt": 4830.758601999453,
+      "estPptStdDev": 285.1519110109831,
+      "testName": "pp2048 @ d32768 (c1)",
+      "tokensPerSec": 425.3752701943926,
+      "tokensPerSecStdDev": 24.147705705593605,
+      "ttfr": 4834.414197665562,
+      "ttfrStdDev": 285.1519110109831
+    },
+    {
+      "testName": "tg128 @ d32768 (c1)",
+      "tokensPerSec": 15.063641389771568,
+      "tokensPerSecStdDev": 0.01421555858989192
+    },
+    {
+      "e2eTtft": 4637.457291533549,
+      "e2eTtftStdDev": 253.5257256509341,
+      "estPpt": 4633.728099531921,
+      "estPptStdDev": 253.5257256509341,
+      "testName": "pp2048 (c5)",
+      "tokensPerSec": 2204.224587364565,
+      "tokensPerSecStdDev": 132.17133975013815,
+      "ttfr": 4637.457291533549,
+      "ttfrStdDev": 253.5257256509341
+    },
+    {
+      "testName": "tg128 (c5)",
+      "tokensPerSec": 48.18741699870936,
+      "tokensPerSecStdDev": 0.39404292440663496
+    },
+    {
+      "e2eTtft": 29199.9246780033,
+      "e2eTtftStdDev": 8230.0449438117,
+      "estPpt": 29196.24336033787,
+      "estPptStdDev": 8230.0449438117,
+      "testName": "ctx_pp @ d16384 (c5)",
+      "tokensPerSec": 2333.650083367182,
+      "tokensPerSecStdDev": 24.49305930498307,
+      "ttfr": 29199.9246780033,
+      "ttfrStdDev": 8230.0449438117
+    },
+    {
+      "testName": "ctx_tg @ d16384 (c5)",
+      "tokensPerSec": 18.056763365004493,
+      "tokensPerSecStdDev": 0.3759628302023216
+    },
+    {
+      "e2eTtft": 19301.130870798563,
+      "e2eTtftStdDev": 4197.701057178929,
+      "estPpt": 19297.449553133145,
+      "estPptStdDev": 4197.701057178928,
+      "testName": "pp2048 @ d16384 (c5)",
+      "tokensPerSec": 460.24426032708385,
+      "tokensPerSecStdDev": 4.6128617063056225,
+      "ttfr": 19301.130870798563,
+      "ttfrStdDev": 4197.701057178929
+    },
+    {
+      "testName": "tg128 @ d16384 (c5)",
+      "tokensPerSec": 26.06359705925607,
+      "tokensPerSecStdDev": 0.24530211842681304
+    },
+    {
+      "e2eTtft": 49613.2295519977,
+      "e2eTtftStdDev": 153.36579400661347,
+      "estPpt": 49609.117418003734,
+      "estPptStdDev": 153.36579400661347,
+      "testName": "ctx_pp @ d100000 (c1)",
+      "tokensPerSec": 2015.7777250672214,
+      "tokensPerSecStdDev": 6.219456423645671,
+      "ttfr": 49613.2295519977,
+      "ttfrStdDev": 153.36579400661347
+    },
+    {
+      "testName": "ctx_tg @ d100000 (c1)",
+      "tokensPerSec": 14.889497531809655,
+      "tokensPerSecStdDev": 0.017133227703477107
+    },
+    {
+      "e2eTtft": 1693.7518763346209,
+      "e2eTtftStdDev": 3.024808761946882,
+      "estPpt": 1689.6397423406597,
+      "estPptStdDev": 3.024808761946882,
+      "testName": "pp2048 @ d100000 (c1)",
+      "tokensPerSec": 1212.0965814469573,
+      "tokensPerSecStdDev": 2.1672670695335445,
+      "ttfr": 1693.7518763346209,
+      "ttfrStdDev": 3.024808761946882
+    },
+    {
+      "testName": "tg128 @ d100000 (c1)",
+      "tokensPerSec": 14.900323184100964,
+      "tokensPerSecStdDev": 0.017234120046948593
+    },
+    {
+      "e2eTtft": 91099.80344963308,
+      "e2eTtftStdDev": 40594.34811573424,
+      "estPpt": 91096.20795930435,
+      "estPptStdDev": 40594.34811573424,
+      "testName": "ctx_pp @ d32768 (c10)",
+      "tokensPerSec": 2267.3270785907857,
+      "tokensPerSecStdDev": 12.032541645328484,
+      "ttfr": 91099.80344963308,
+      "ttfrStdDev": 40594.34811573424
+    },
+    {
+      "testName": "ctx_tg @ d32768 (c10)",
+      "tokensPerSec": 8.755685817850791,
+      "tokensPerSecStdDev": 0.29286039437970524
+    },
+    {
+      "e2eTtft": 34568.80045403377,
+      "e2eTtftStdDev": 11556.899206713864,
+      "estPpt": 34565.20496370504,
+      "estPptStdDev": 11556.899206713864,
+      "testName": "pp2048 @ d32768 (c10)",
+      "tokensPerSec": 443.546029998739,
+      "tokensPerSecStdDev": 0.9133046631726897,
+      "ttfr": 34568.80045403377,
+      "ttfrStdDev": 11556.899206713864
+    },
+    {
+      "testName": "tg128 @ d32768 (c10)",
+      "tokensPerSec": 23.930198923847907,
+      "tokensPerSecStdDev": 0.3853164894958787
+    },
+    {
+      "e2eTtft": 13879.538726832834,
+      "e2eTtftStdDev": 148.13953253522274,
+      "estPpt": 13876.098027496482,
+      "estPptStdDev": 148.13953253522274,
+      "testName": "ctx_pp @ d16384 (c2)",
+      "tokensPerSec": 2342.5794171740354,
+      "tokensPerSecStdDev": 16.71026347871023,
+      "ttfr": 13879.538726832834,
+      "ttfrStdDev": 148.13953253522274
+    },
+    {
+      "testName": "ctx_tg @ d16384 (c2)",
+      "tokensPerSec": 25.245095553965655,
+      "tokensPerSecStdDev": 0.2516283374318098
+    },
+    {
+      "e2eTtft": 9485.488417665087,
+      "e2eTtftStdDev": 117.93589235406924,
+      "estPpt": 9482.047718328735,
+      "estPptStdDev": 117.93589235406924,
+      "testName": "pp2048 @ d16384 (c2)",
+      "tokensPerSec": 430.19285327235156,
+      "tokensPerSecStdDev": 5.237665887404159,
+      "ttfr": 9485.488417665087,
+      "ttfrStdDev": 117.93589235406924
+    },
+    {
+      "testName": "tg128 @ d16384 (c2)",
+      "tokensPerSec": 25.424885443636004,
+      "tokensPerSecStdDev": 0.20980389888698803
+    },
+    {
+      "e2eTtft": 2158.714874497188,
+      "e2eTtftStdDev": 380.11634894649904,
+      "estPpt": 2154.7851774957962,
+      "estPptStdDev": 380.11634894649916,
+      "testName": "pp2048 (c2)",
+      "tokensPerSec": 1945.9190567788262,
+      "tokensPerSecStdDev": 312.6753195779379,
+      "ttfr": 2158.714874497188,
+      "ttfrStdDev": 380.11634894649904
+    },
+    {
+      "testName": "tg128 (c2)",
+      "tokensPerSec": 26.254482022534784,
+      "tokensPerSecStdDev": 0.26607382111558225
+    },
+    {
+      "e2eTtft": 49438.63826967087,
+      "e2eTtftStdDev": 12059.73197029736,
+      "estPpt": 49435.168826009125,
+      "estPptStdDev": 12059.73197029736,
+      "testName": "ctx_pp @ d65535 (c2)",
+      "tokensPerSec": 2131.352417882615,
+      "tokensPerSecStdDev": 9.43392773361785,
+      "ttfr": 49438.63826967087,
+      "ttfrStdDev": 12059.73197029736
+    },
+    {
+      "testName": "ctx_tg @ d65535 (c2)",
+      "tokensPerSec": 7.458204986055985,
+      "tokensPerSecStdDev": 0.046644540329094465
+    },
+    {
+      "e2eTtft": 10100.117728834448,
+      "e2eTtftStdDev": 329.78382289229165,
+      "estPpt": 10096.648285172705,
+      "estPptStdDev": 329.78382289229165,
+      "testName": "pp2048 @ d65535 (c2)",
+      "tokensPerSec": 404.0060289289772,
+      "tokensPerSecStdDev": 12.730340953057286,
+      "ttfr": 10100.117728834448,
+      "ttfrStdDev": 329.78382289229165
+    },
+    {
+      "testName": "tg128 @ d65535 (c2)",
+      "tokensPerSec": 25.10935237803061,
+      "tokensPerSecStdDev": 0.013505584075895067
+    },
+    {
+      "e2eTtft": 1881.2136096724619,
+      "e2eTtftStdDev": 4.0147134867471195,
+      "estPpt": 1877.4546776694478,
+      "estPptStdDev": 4.0147134867471195,
+      "testName": "ctx_pp @ d4096 (c1)",
+      "tokensPerSec": 2181.687145655435,
+      "tokensPerSecStdDev": 4.6670434270045575,
+      "ttfr": 1881.2136096724619,
+      "ttfrStdDev": 4.0147134867471195
+    },
+    {
+      "testName": "ctx_tg @ d4096 (c1)",
+      "tokensPerSec": 15.142122737123016,
+      "tokensPerSecStdDev": 0.007913831825942595
+    },
+    {
+      "e2eTtft": 2690.6757173419464,
+      "e2eTtftStdDev": 0.30461976821910475,
+      "estPpt": 2686.916785338932,
+      "estPptStdDev": 0.30461976821910475,
+      "testName": "pp2048 @ d4096 (c1)",
+      "tokensPerSec": 762.2119291151838,
+      "tokensPerSecStdDev": 0.08641972200881468,
+      "ttfr": 2690.6757173419464,
+      "ttfrStdDev": 0.30461976821910475
+    },
+    {
+      "testName": "tg128 @ d4096 (c1)",
+      "tokensPerSec": 15.153235909647202,
+      "tokensPerSecStdDev": 0.02482077721131388
+    },
+    {
+      "e2eTtft": 284671.0438042336,
+      "e2eTtftStdDev": 140957.5478896672,
+      "estPpt": 284666.66453423677,
+      "estPptStdDev": 140957.54788966716,
+      "testName": "ctx_pp @ d100000 (c10)",
+      "tokensPerSec": 1992.5561848982672,
+      "tokensPerSecStdDev": 4.155051715960434,
+      "ttfr": 284671.0438042336,
+      "ttfrStdDev": 140957.5478896672
+    },
+    {
+      "testName": "ctx_tg @ d100000 (c10)",
+      "tokensPerSec": 2.7502484371907525,
+      "tokensPerSecStdDev": 0.04842727815826844
+    },
+    {
+      "e2eTtft": 14564.064544100742,
+      "e2eTtftStdDev": 2209.895093718963,
+      "estPpt": 14549.82703610391,
+      "estPptStdDev": 2208.0120425156424,
+      "testName": "pp2048 @ d100000 (c10)",
+      "tokensPerSec": 1343.4399189586004,
+      "tokensPerSecStdDev": 35.357214250063116,
+      "ttfr": 14554.206306100727,
+      "ttfrStdDev": 2208.0120425156424
+    },
+    {
+      "testName": "tg128 @ d100000 (c10)",
+      "tokensPerSec": 50.5569800607582,
+      "tokensPerSecStdDev": 7.032441472039592
+    }
+  ],
+  "totalShares": 3,
+  "userId": "AOIYNTOsRuexAWL4RLZ9SkJiMP93"
+}
