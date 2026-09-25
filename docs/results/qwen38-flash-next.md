@@ -47,6 +47,25 @@ Flash-Next is the only **180B** model on the board; content-corrected (~90.4) it
 | **Qwen3.8-Flash-Next** | **180B** | **81.4** (≈90.4 corrected) | **B+** |
 | q36-mlponly-champion | 35B | 79.2 | B |
 
+## Memory and context window
+
+The DGX Spark GB10 uses **unified memory** — CPU and GPU share one 128 GB pool (~119 GiB usable),
+so there is no separate VRAM figure. The numbers below are the whole serving footprint, measured
+from the run.
+
+| | |
+|---|---|
+| **Context window** | **262,144 tokens** (256K) |
+| **Serving footprint** | **~94 GB** active (GPU-memory-utilization 0.80) |
+| &nbsp;&nbsp;— weights resident | 76.5 GiB |
+| &nbsp;&nbsp;— KV cache pool | 17.1 GiB (FP8 `e4m3` KV) — holds **1,072,407 tokens** = 4.1× the 262K window |
+| **Free at peak** | ~15–17 GiB headroom on one Spark |
+| **On disk** | 124 GB checkpoint, but only ~76 GB is resident — the parameter-loaded-embedding (PLE) table is memory-mapped from NVMe, which is how a 180B model fits under 128 GB |
+
+Fits on a **single** 128 GB DGX Spark. A 180B model would need roughly 360 GB in BF16, or ~90 GB
+dense 4-bit; Flash-Next lands at ~94 GB by combining NVFP4 experts, BF16 attention, an FP8 KV cache
+(half the size of BF16 KV), and the NVMe-mmapped PLE table.
+
 ## Run facts
 
 - **Hardware** — 1× NVIDIA DGX Spark (GB10), 128 GB unified memory (~119 GiB usable), aarch64, sm_121a
