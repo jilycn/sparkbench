@@ -36,6 +36,32 @@ Per-phase breakdown (raw phase scores, 0-100):
 | holo31-35b-nvfp4-arena-b † | 85.0 | 90.4 | 62.5 | 36.7 | 90.0 | 50.0 | 99.6 |
 | ornith1-35b-nvfp4-sakamaki | 82.0 | 86.3 | 25.0 | 36.7 | 80.0 | 100 | 97.6 |
 
+## Single-Spark large-model runs (added 2026-09-25)
+
+Since the July board, two larger models were benched on the same single-Spark harness. The
+current single-Spark champion is **Qwen3.8-Flash-Next (180B)** — full detail in
+[`docs/results/qwen38-flash-next.md`](docs/results/qwen38-flash-next.md).
+
+| Recipe key | Weights (quant) | Score | Grade | Speed (t/s) | Run |
+|---|---|---:|---|---:|---|
+| `qwen38flashnext-180b-nvfp4-nvidia-tonyd` | nvidia/Qwen3.8-Flash-Next-NVFP4 (180B; NVFP4 experts + BF16 attn) | **81.4** | B+ | ~41 | `20260914-214919` |
+| `ornith15-35b-a3b-nvfp4-ornithai` | ornith-ai/Ornith-1.5-35B-A3B-NVFP4 | 75.3 | B | ~75 | `20260915-090418` |
+
+Per-phase (raw, 0-100):
+
+| Recipe | TOOLS | AGENT | LOGIC | MATH | CONTEXT | LOAD | STAB |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| qwen38flashnext-180b-nvfp4-nvidia-tonyd | 87.0 | 87.7 | 50.0 | 83.3 | 40.0 | 100 | 99.3 |
+| ornith15-35b-a3b-nvfp4-ornithai | 89.0 | 59.3 | 25.0 | 73.3 | 70.0 | 100 | 99.5 |
+
+- **Flash-Next's LOGIC 50 / CONTEXT 40 are the fenced-JSON scoring artifact, not capability.** It
+  runs thinking-off and wraps its terminal JSON in a code fence, which suite 2.2.1 marks "not
+  graded" even when the answer is correct. Content-corrected it is LOGIC 8/8, CONTEXT 8/10, ~90.4
+  overall — it would lead the board. The raw 81.4 is a genuine B+ regardless.
+- **Ornith-1.5's AGENT 59.3** is one of three agent task-families forfeited to a first-turn
+  token-budget truncation (thinking-on recipe), not broad agentic weakness; the two families it
+  completed matched Flash-Next. The 75.3 stands as measured for the published recipe.
+
 What 2.2 says so far:
 
 - **AEON weights + vLLM 0.26.0 promoted to default** (`ornith-aeon-v0260`, 83.3/B+ at 110.4 t/s):
